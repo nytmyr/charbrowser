@@ -404,8 +404,8 @@ $language['SERVER_PERCENT'] = "Percent";
 $language['SERVER_COUNT'] = "Count";   
 $language['SERVER_LEVELS'] = "Level Distribution"; 
 $language['SERVER_LEVELS_CUTOFF'] = "Level Distribution (Last %s Days)"; 
-$language['SERVER_ALL_TIME'] = "All Time"; 
-$language['SERVER_CUTOFF'] = "Last %s Days"; 
+$language['SERVER_ALL_TIME'] = "All Time > Level 1"; 
+$language['SERVER_CUTOFF'] = "Last %s Days > Level 1"; 
    
 //key language
 $language['KEYS_KEY'] = "Keys"; 

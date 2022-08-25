@@ -55,8 +55,11 @@ SELECT MAX(character_data.level) as maxlevel,
        MIN(character_data.level) as minlevel,
        AVG(character_data.level) as avglevel,
        COUNT(*) as count
-FROM character_data 
+FROM character_data
+INNER JOIN account a ON a.id = character_data.account_id 
 WHERE character_data.deleted_at IS NULL
+AND character_data.level > 1
+AND a.status < 21
 TPL;
  
 $query = sprintf($tpl);
@@ -79,8 +82,11 @@ SELECT MAX(character_data.level) as maxlevel,
        AVG(character_data.level) as avglevel,
        COUNT(*) as count
 FROM character_data 
+INNER JOIN account a ON a.id = character_data.account_id
 WHERE character_data.deleted_at IS NULL
 AND character_data.last_login > '%s' 
+AND character_data.level > 1
+AND a.status < 21
 TPL;
  
 $query = sprintf($tpl, $cb_history_cutoff);
@@ -105,7 +111,10 @@ else {
 $tpl = <<<TPL
 SELECT count(*) as count, avg(character_data.level) as level, character_data.class
 FROM character_data
+INNER JOIN account a ON a.id = character_data.account_id
 WHERE character_data.deleted_at IS NULL
+AND character_data.level > 1
+AND a.status < 21
 GROUP BY character_data.class
 TPL;
  
@@ -142,7 +151,10 @@ foreach ($classes as $index => $value) {
 $tpl = <<<TPL
 SELECT count(*) as count, character_data.level as level
 FROM character_data
+INNER JOIN account a ON a.id = character_data.account_id
 WHERE character_data.deleted_at IS NULL
+AND character_data.level > 1
+AND a.status < 21
 GROUP BY character_data.level
 TPL;
  
@@ -173,8 +185,11 @@ if ($cbsql->rows($result)) {
 $tpl = <<<TPL
 SELECT count(*) as count, character_data.level as level
 FROM character_data
+INNER JOIN account a ON a.id = character_data.account_id
 WHERE character_data.deleted_at IS NULL
 AND character_data.last_login > '%s' 
+AND character_data.level > 1
+AND a.status < 21
 GROUP BY character_data.level
 TPL;
  
