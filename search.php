@@ -93,12 +93,14 @@ $tpl = <<<TPL
 SELECT character_data.class, character_data.level, 
        character_data.name, guilds.name AS guildname, 
        character_data.deleted_at, character_data.anon
-FROM character_data 
+FROM character_data
+INNER JOIN account ON account.id = character_data.account_id
 LEFT JOIN guild_members
        ON character_data.id = guild_members.char_id 
 LEFT JOIN guilds
        ON guilds.id = guild_members.guild_id 
-%s 
+%s
+AND status < 80
 ORDER BY %s %s
 TPL;
  
