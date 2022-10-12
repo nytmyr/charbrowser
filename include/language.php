@@ -358,7 +358,7 @@ $language['FACTION_DEITY'] = "Deity";
 $language['FACTION_TOTAL'] = "Total"; 
 
 //corpse language 
-$language['CORPSE_REZZED'] = "Rezurrected"; 
+$language['CORPSE_REZZED'] = "Resurrected"; 
 $language['CORPSE_TOD'] = "Time of Death"; 
 $language['CORPSE_LOC'] = "Corpse Loc"; 
 $language['CORPSE_MAP'] = "Map Link"; 
