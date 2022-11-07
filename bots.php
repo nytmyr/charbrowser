@@ -41,7 +41,11 @@ $char = new profile($charName, $cbsql, $cbsql_content, $language, $showsoftdelet
 $charID = $char->char_id(); 
 $name = $char->GetValue('name');
 $mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $char->char_id());
-
+$userip = getIPAddress(); 
+$ownercheck = 0;
+if ($userip == '192.168.1.1') {
+	$userip = '192.168.1.13';
+}
 //block view if user level doesnt have permission
 if ($mypermission['bots']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_ITEM_NO_VIEW']);
  
@@ -49,16 +53,54 @@ if ($mypermission['bots']) cb_message_die($language['MESSAGE_ERROR'],$language['
 /*********************************************
         GATHER RELEVANT PAGE DATA
 *********************************************/
-//get factions from the db
 $tpl = <<<TPL
-SELECT name, race, gender,
-       class, face, level
-FROM bot_data 
-WHERE owner_id = %d 
-ORDER BY name ASC 
+SELECT ai.ip as ip
+FROM character_data cd
+INNER JOIN account_ip AI on ai.accid = cd.account_id
+WHERE cd.id = $charID
+ORDER BY ai.lastused DESC
+LIMIT 1
 TPL;
 $query = sprintf($tpl, $charID);
 $result = $cbsql->query($query);
+if (!$cbsql->rows($result)) cb_message_die($language['BOTS_BOTS']." - ".$name,$language['MESSAGE_NO_BOTS']);
+$bots = $cbsql->fetch_all($result);  
+foreach($bots as $bot) {
+   if ($bot['ip'] == $userip && $ownercheck != 1) {
+	   $ownercheck = 1;
+   }
+}
+#echo "$userip!<br>"; #delete me
+#echo "Owner check: $ownercheck<br>"; #delete me
+if ($ownercheck == 1) {
+	$tpl = <<<TPL
+		SELECT bd.name AS name, bd.race AS race, bd.gender AS gender
+				, bd.class AS class, bd.face AS face, bd.level AS level
+				, bd.owner_id as ownerid, cd.name as ownername
+				,	(CASE
+						WHEN cd.id != $charID
+							THEN cd.level
+						ELSE 0
+					END) as namescore
+		FROM account_ip ai 
+		LEFT JOIN character_data cd ON cd.account_id = ai.accid
+		LEFT JOIN bot_data bd ON bd.owner_id = cd.id
+		WHERE ai.ip = '$userip'
+		AND bd.name NOT LIKE '%-deleted-%'
+		GROUP BY ai.ip, bd.bot_id
+		ORDER BY namescore ASC, cd.aa_points_spent DESC, bd.name ASC 
+	TPL;
+} else {
+	$tpl = <<<TPL
+	SELECT name, race, gender,
+		class, face, level
+	FROM bot_data 
+	WHERE owner_id = $charID 
+	ORDER BY name ASC 
+	TPL;
+}
+$query = sprintf($tpl, $charID);
+$result = $cbsql->query($tpl);
 if (!$cbsql->rows($result)) cb_message_die($language['BOTS_BOTS']." - ".$name,$language['MESSAGE_NO_BOTS']);
 
 
@@ -86,22 +128,32 @@ $cb_template->set_filenames(array(
 );
 
 
-$cb_template->assign_both_vars(array(  
-   'NAME'        => $name)
-);
+if ($ownercheck) {
+	$cb_template->assign_both_vars(array(  
+	'NAME'        => $name . ' + Owned')
+	);
+} else {
+	$cb_template->assign_both_vars(array(  
+		'NAME'        => $name)
+	);
+}
 $cb_template->assign_vars(array(  
    'L_BOTS'  => $language['BOTS_BOTS'], 
    'L_DONE'      => $language['BUTTON_DONE'])
 );
-  
 foreach($bots as $bot) {
-   $cb_template->assign_both_block_vars("bots", array( 
-      'NAME'    => $bot['name'],
-      'AVATAR_IMG' => getAvatarImage($bot['race'], $bot['gender'], $bot['face']),
-      'RACE'    => $dbracenames[$bot['race']],
-      'CLASS'   => $dbclassnames[$bot['class']],
-      'LEVEL'    => $bot['level'])
-   );
+	if ($ownercheck) {
+		$ownedby = '<br> (Owned by ' . $bot['ownername'] . ')';
+	} else {
+		$ownedby = '';
+	}
+	$cb_template->assign_both_block_vars("bots", array( 
+		'NAME'    => $bot['name'],
+		'AVATAR_IMG' => getAvatarImage($bot['race'], $bot['gender'], $bot['face']),
+		'RACE'    => $dbracenames[$bot['race']],
+		'CLASS'   => $dbclassnames[$bot['class']] . '' . $ownedby,
+		'LEVEL'    => $bot['level'])
+	);
 }
  
  
@@ -113,4 +165,5 @@ $cb_template->pparse('bots');
 $cb_template->destroy;
 
 include(__DIR__ . "/include/footer.php");
+
 ?>
