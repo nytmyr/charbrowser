@@ -2143,6 +2143,12 @@ TPL;
       $this->_populateItems();
       return $this->itemstats->mana();
    }
+   
+   public function getGS()
+   {
+      $this->_populateItems();
+	  return $this->itemstats->GearScore();
+   }
 
 
 
@@ -2239,6 +2245,9 @@ TPL;
 
          if ($tempitem->type() == EQUIPMENT || $tempitem->type() == INVENTORY)
             $this->itemstats->addWT($row['weight']);
+		
+		 if ($tempitem->type() == EQUIPMENT)
+            $this->itemstats->addGS($row['GearScore']);
 
          $this->allitems[$tempitem->slot()] = &$tempitem;
          unset($tempitem);

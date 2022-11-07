@@ -19,6 +19,8 @@
             <li id='tab5' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab5', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox5');">ATK</li> 
             <li id='tab6' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab6', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox6');">AC</li> 
             <li id='tab7' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab7', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox7');">Mit AC</li> 
+			<li id='tab8' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab8', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox8');">GearScore</li> 
+			<li id='tab9' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab9', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox9');">AVG GS</li> 
          </ul>
       </nav>      
       <div id='tabbox1' class='InventoryContents'>
@@ -40,8 +42,8 @@
          <!-- STATS ON LEFT -->
          <table class='CB_Table CB_Char_Stats'> 
             <tr> 
-               <td>{L_HP}<br>{L_MANA}<br>{L_ENDR}<br>{L_AC}<br>{L_MIT_AC}<br>{L_ATK}</td> 
-               <td width='100%'>{HP}<br>{MANA}<br>{ENDR}<br>{AC}<br>{MIT_AC}<br>{ATK}</td> 
+               <td>{L_HP}<br>{L_MANA}<br>{L_ENDR}<br>{L_AC}<br>{L_MIT_AC}<br>{L_ATK}<br><br>{L_GS}<br>{L_GSAVG}</td> 
+               <td width='100%'>{HP}<br>{MANA}<br>{ENDR}<br>{AC}<br>{MIT_AC}<br>{ATK}<br><br>{GS}<br>{GSAVG}</td> 
             </tr> 
             <tr><td class='CB_Char_Stats_Divider' colspan='2'></td></tr> 
             <tr> 

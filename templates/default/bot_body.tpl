@@ -28,8 +28,8 @@
       <!-- STATS ON LEFT -->
       <table class='CB_Table CB_Char_Stats'> 
          <tr> 
-            <td>{L_HP}<br>{L_MANA}<br>{L_ENDR}<br>{L_AC}<br>{L_ATK}</td> 
-            <td width='100%'>{HP}<br>{MANA}<br>{ENDR}<br>{AC}<br>{ATK}</td> 
+            <td>{L_HP}<br>{L_MANA}<br>{L_ENDR}<br>{L_AC}<br>{L_ATK}<br><br>{L_GS}<br>{L_GSAVG}</td> 
+            <td width='100%'>{HP}<br>{MANA}<br>{ENDR}<br>{AC}<br>{ATK}<br><br>{GS}<br>{GSAVG}</td> 
          </tr> 
          <tr><td class='CB_Char_Stats_Divider' colspan='2'></td></tr> 
          <tr> 

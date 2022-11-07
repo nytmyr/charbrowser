@@ -225,7 +225,6 @@ foreach ($calc_rows_atk as $row) {
    $cb_template->assign_both_block_vars($row['TYPE'], $row);
 }
 
-
 $cb_template->assign_both_vars(array(  
    'HIGHLIGHT_GM' => (($highlightgm && $gm)? "GM":""),
    'GUILD' => getGuildLink($guild_name, $guild_rank),
@@ -253,6 +252,8 @@ $cb_template->assign_both_vars(array(
    'AC' => number_format($totalAC),
    'MIT_AC' => number_format($totalMitigationAC),
    'ATK' => number_format($totalAttack),
+   'GS' => number_format($char->getGS()),
+   'GSAVG' => number_format($char->getGS() / 20),
    'STR' => number_format($char->getSTR()),
    'STA' => number_format($char->getSTA()),
    'DEX' => number_format($char->getDEX()),
@@ -305,6 +306,8 @@ $cb_template->assign_vars(array(
    'L_AC' => $language['CHAR_AC'],
    'L_MIT_AC' => $language['CHAR_MIT_AC'],
    'L_ATK' => $language['CHAR_ATK'],
+   'L_GS' => $language['CHAR_GS'],
+   'L_GSAVG' => $language['CHAR_GSAVG'],
    'L_STR' => $language['CHAR_STR'],
    'L_STA' => $language['CHAR_STA'],
    'L_DEX' => $language['CHAR_DEX'],

@@ -64,6 +64,7 @@ class stats {
    var $myattack;
    var $myhaste;
    var $myWT; 
+   var $myGS;
 
 
    public function additem($row){
@@ -106,6 +107,10 @@ class stats {
 
    public function addwt($wt) {
       $this->myWT +=  $wt; 
+   }
+   
+   public function addgs($gs) {
+      $this->myGS +=  $gs; 
    }
 
    function hp() {
@@ -249,6 +254,14 @@ class stats {
 
    function WT() {
       return $this->myWT;
+   }
+   
+   function GearScore() {
+      return $this->myGS;
+   }
+   
+   function AVGGearScore() {
+      return $this->avgGS;
    }
  
 }
