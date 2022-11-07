@@ -935,7 +935,8 @@ function GetItem($item)
          $Output .= "<br>\n";
       }
       
-      
+	  
+      $Output .= "<br>GearScore: ".number_format($item["GearScore"], 2, '.', ',')." ";
       $Output .= "<br><br>Item Type: ".getitemtype($item['itemtype'])."<br>";
    }
 
