@@ -24,6 +24,8 @@
 **                                                                           **
 ******************************************************************************/
 
+error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE & ~E_DEPRECATED);
+
 //DONT TOUCH THIS SETTING; PREVENTS THIS  
 //SCRIPT FROM EXECUTING FROM DIRECT ACCESS
 if ( !defined('INCHARBROWSER') )
@@ -36,11 +38,15 @@ if ( !defined('INCHARBROWSER') )
 **  Database account only needs SELECT and UPDATE  **
 **  privelages                                     **
 ****************************************************/
-$cb_db     =   "peq";
+$cb_db     =   "veq2002";
 $cb_host   =   "localhost";
-$cb_user   =   "";
-$cb_pass   =   "";
+$cb_user   =   "root";
+$cb_pass   =   "eqemu";
 $cb_port   =   3306;
+
+$localipaddress = "192.168.1.13";
+$defaultgateway = "192.168.1.1";
+$defaultedlocalhost = "::1";
 
 //Multi-tenancy, if you need a seperate db connection
 //for your content db, set this to true and set
@@ -58,18 +64,18 @@ $cb_content_port   =   3306;
 /*****************************************************
 **                  General Settings                **
 *****************************************************/
-$numToDisplay        = 25 ;//search results per page
-$highlightgm         = 1  ;//highlight GM inventories 0=off 1=on
-$blockbazaar         = 0  ;//disable bazaar 0=on 1=off
+$numToDisplay = 25 ;//search results per page                 
+$highlightgm  = 1  ;//highlight GM inventories 0=off 1=on
+$blockbazaar  = 0  ;//disable bazaar 0=on 1=off     
 $blockbarter         = 0  ;//disable barter 0=on 1=off
-$blockadventurestats = 0  ;//disable ldon leaderboards 0=on 1=off
-
+$blockadventurestats = 1  ;//disable ldon leaderboards 0=on 1=off
+    
      
 /*****************************************************
 **                  Title  settings                 **
 *****************************************************/
 $mytitle      =    "CharBrowser"; 
-$subtitle     =    " • Be Nosey";
+$subtitle     =    " - VEQ";
 
 
 /*****************************************************
@@ -184,7 +190,7 @@ $cb_blockversioncheck = 0;
 **   0 - hide/disable bots                          **
 **   1 - show bots                                  **
 *****************************************************/
-$cb_show_bots = 0; 
+$cb_show_bots = 1; 
 
 
 /*****************************************************
@@ -220,10 +226,10 @@ $cb_override_template_dir = "custom";
 ** assuming the layout of zones is understandable   **
 ** ask for help if needed.                          **
 *****************************************************/
-$blockcharmove = 0; //disable charmove 0=on 1=off
+$blockcharmove = 1; //disable charmove 0=on 1=off
 $charmovezones = array(
   'nexus'  => array( 'x' => 0, 'y' => 0, 'z' => 0 ),
-  'oot'    => array( 'x' => 1, 'y' => 1, 'z' => 1 ),
+  /*'oot'    => array( 'x' => 1, 'y' => 1, 'z' => 1 ),*/
 );  
 
 
@@ -246,10 +252,10 @@ $permissions = array(
     'bank'              => 0,
     'sharedbank'        => 0,
     'corpses'           => 0,
-    'corpse'            => 0,
+	'corpse'            => 0,
     'flags'             => 0,
     'AAs'               => 0,
-    'leadership'        => 0,
+	'leadership'        => 0,
     'factions'          => 0,
     'advfactions'       => 0,
     'skills'            => 0,
@@ -265,10 +271,10 @@ $permissions = array(
     'bank'              => 1,
     'sharedbank'        => 0,
     'corpses'           => 0,
-    'corpse'            => 0,
+	'corpse'            => 0,
     'flags'             => 0,
     'AAs'               => 0,
-    'leadership'        => 0,
+	'leadership'        => 0,
     'factions'          => 0,
     'advfactions'       => 1,
     'skills'            => 0,
@@ -284,10 +290,10 @@ $permissions = array(
     'bank'              => 1,
     'sharedbank'        => 0,
     'corpses'           => 1,
-    'corpse'            => 1,
+	'corpse'            => 1,
     'flags'             => 1,
     'AAs'               => 1,
-    'leadership'        => 1,
+	'leadership'        => 1,
     'factions'          => 1,
     'advfactions'       => 1,
     'skills'            => 1,
@@ -303,14 +309,14 @@ $permissions = array(
     'bank'              => 0,
     'sharedbank'        => 0,
     'corpses'           => 0,
-    'corpse'            => 0,
+	'corpse'            => 1,
     'flags'             => 0,
     'AAs'               => 0,
-    'leadership'        => 0,
+	'leadership'        => 0,
     'factions'          => 0,
     'advfactions'       => 1,
     'skills'            => 0,
-    'languageskills'    => 1,
+    'languageskills'    => 1,	
     'keys'              => 1,
     'signatures'        => 0),
 'PUBLIC' => array(
@@ -322,35 +328,35 @@ $permissions = array(
     'bank'              => 0,
     'sharedbank'        => 0,
     'corpses'           => 0,
-    'corpse'            => 0,
+	'corpse'            => 0,
     'flags'             => 0,
     'AAs'               => 0,
-    'leadership'        => 0,
+	'leadership'        => 0,
     'factions'          => 0,
     'advfactions'       => 1,
     'skills'            => 0,
-    'languageskills'    => 1,
+    'languageskills'    => 0,
     'keys'              => 0,
     'signatures'        => 0),
 'PRIVATE' => array(
     'inventory'         => 1,
     'coininventory'     => 1,
     'coinbank'          => 1,
-    'coinsharedbank'    => 0,
+    'coinsharedbank'    => 1,
     'bags'              => 1,
     'bank'              => 1,
-    'sharedbank'        => 0,
+    'sharedbank'        => 1,
     'corpses'           => 1,
-    'corpse'            => 1,
+	'corpse'            => 1,
     'flags'             => 1,
     'AAs'               => 1,
-    'leadership'        => 1,
+	'leadership'        => 1,
     'factions'          => 1,
     'advfactions'       => 1,
     'skills'            => 1,
     'languageskills'    => 1,
     'keys'              => 1,
-    'signatures'        => 0)
+    'signatures'        => 1)
 );
 /*****************************************************/
 
@@ -503,16 +509,16 @@ $adscript = "";
 
 //a link to an item using the item id 
 //{ITEM_ID} - The ID of the item
-$link_item = "http://mqemulator.net/item.php?id={ITEM_ID}";
+$link_item = "http://localhost/Allaclone/?a=item&id={ITEM_ID}";
 
 //a link to a spell using the spell id 
 //{SPELL_ID} - The ID of the spell
-$link_spell = "http://mqemulator.net/spell.php?id={SPELL_ID}";
+$link_spell = "http://localhost/Allaclone/?a=spell&id={SPELL_ID}";
 
 //a link to a zone using a shortname or id 
 //{ZONE_SHORTNAME} - The shortname of the zone
 //{ZONE_ID} - The ID of the zone
-$link_zone = "http://mqemulator.net/zone.php?name={ZONE_SHORTNAME}";
+$link_zone = "http://localhost/Allaclone/?a=zone&name={ZONE_SHORTNAME}";
 
 //a link to a map with a text marker on a specific x/y coordinate
 //this is used to show a player where their corpse is 
@@ -525,7 +531,7 @@ $link_map = "http://mqemulator.net/map.php?zoneid={ZONE_ID}&poi={TEXT}&poix={X}&
 
 //a link to information about a faction using the faction id.
 //{FACTION_ID} - The ID of the faction group
-$link_faction = "http://mqemulator.net/faction.php?id={FACTION_ID}";
+$link_faction = "http://localhost.com/Allaclone/?a=faction&id={FACTION_ID}";
 /**************************************************************************************************/
 
 

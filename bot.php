@@ -48,9 +48,6 @@ $botID = $bot->bot_id();
 $botName = $bot->GetValue('name');
 $userip = getIPAddress(); 
 $ownercheck = 0;
-if ($userip == '192.168.1.1') {
-	$userip = '192.168.1.13';
-}
 
 //char initialization      
 $char = new profile($charID, $cbsql, $cbsql_content, $language, $showsoftdelete, $charbrowser_is_admin_page);
@@ -264,7 +261,7 @@ $tpl =
 	if (!$cbsql->rows($result)) cb_message_die($language['BOTS_BOTS']." - ".$name,$language['MESSAGE_NO_BOTS']);
 		$bots = $cbsql->fetch_all($result);  
 	foreach($bots as $bot) {
-		if ((($bot['ip'] == $userip && $ownercheck != 1) || $userip == '192.168.1.13')) {
+		if ($bot['ip'] == $userip || $userip == $defaultedlocalhost || $userip == $localipaddress || $userip == $defaultgateway) {
 			$ownercheck = 1;
 		}
 	}
@@ -285,7 +282,6 @@ if ($ownercheck == 1) {
 	$result = $cbsql->query($tpl);
 	if (!$cbsql->rows($result)) cb_message('Your bot', 'Not your bot');
 		$bots = $cbsql->fetch_all($result);
-	$filler;
 	foreach($bots as $bot) {
 		if ($bot['stop_melee_level'] > 65) {
 			$sml = '<font color=limegreen>Will always melee<font color=white>';

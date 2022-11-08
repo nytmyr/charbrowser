@@ -43,9 +43,7 @@ $name = $char->GetValue('name');
 $mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $char->char_id());
 $userip = getIPAddress(); 
 $ownercheck = 0;
-if ($userip == '192.168.1.1') {
-	$userip = '192.168.1.13';
-}
+
 //block view if user level doesnt have permission
 if ($mypermission['bots']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_ITEM_NO_VIEW']);
  
@@ -66,12 +64,11 @@ $result = $cbsql->query($query);
 if (!$cbsql->rows($result)) cb_message_die($language['BOTS_BOTS']." - ".$name,$language['MESSAGE_NO_BOTS']);
 $bots = $cbsql->fetch_all($result);  
 foreach($bots as $bot) {
-   if ($bot['ip'] == $userip && $ownercheck != 1) {
+   if ($bot['ip'] == $userip || $userip == $defaultedlocalhost || $userip == $localipaddress || $userip == $defaultgateway) {
+	   $userip = $bot['ip'];
 	   $ownercheck = 1;
    }
 }
-#echo "$userip!<br>"; #delete me
-#echo "Owner check: $ownercheck<br>"; #delete me
 if ($ownercheck == 1) {
 	$tpl = <<<TPL
 		SELECT bd.name AS name, bd.race AS race, bd.gender AS gender
