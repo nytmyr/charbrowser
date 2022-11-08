@@ -933,9 +933,11 @@ function GetItem($item)
          $Output .= $tab."Effect: <a href='".$temp."'>".$itemrow['name']."</a>";
          $Output .= "<br>\n";
       }
-      
-	  
-      $Output .= "<br>GearScore: ".number_format($item["GearScore"], 2, '.', ',')." ";
+	  $GearScore = $item["GearScore"];
+	  if ($GearScore != -99999 && $GearScore != 0) {
+		  $GearScore = number_format($GearScore, 2, '.', ',');
+		  $Output .= "<br>GearScore: " . $GearScore . " ";
+	  }
       $Output .= "<br><br>Item Type: ".getitemtype($item['itemtype'])."<br>";
    }
 
