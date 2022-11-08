@@ -670,6 +670,8 @@ function QuickTemplate($cb_template, $values)
    return $cb_template;
 }
 
+//custom functions
+
 function getIPAddress() {  
 	$ip = getenv('HTTP_CLIENT_IP')?:
 		getenv('HTTP_X_FORWARDED_FOR')?:
