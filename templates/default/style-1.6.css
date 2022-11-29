@@ -1981,6 +1981,24 @@ BODY.CB_Body {
    position: relative;
 }
 
+#charbrowser .PositionCommandSettings {
+   width: 400px;
+   height: 140px;
+   top: 265px;
+   left: 155px;
+   margin: 0 auto;
+   position: absolute;
+}
+
+#charbrowser .BotPositionCommandSettings {
+   width: 400px;
+   height: 1130px;
+   top: 145px;
+   left: 255px;
+   margin: 0 auto;
+   position: absolute;
+}
+
 #charbrowser .PositionHelp,
 #charbrowser .PositionIndex {
    width: 600px;
@@ -2159,6 +2177,14 @@ BODY.CB_Body {
 }
 #charbrowser .PositionAdventure TABLE.CB_Table TBODY TR TD:nth-child(5) {
    text-align: right;
+}
+
+#charbrowser .PositionCharHealSettings {
+   position: absolute;
+   width: 400px;
+   height: 150px;
+   top: 150px;
+   left: -580px;
 }
 
 

@@ -527,6 +527,43 @@ function cb_message($title, $text) {
 
 }
 
+function cb_commandsettings($title, $text) {
+   global $language;
+   global $cb_template;
+   $cb_template->set_filenames(array(
+      'message' => 'commandsettings_body.tpl')
+   );
+
+   $cb_template->assign_both_vars(array(  
+      'TITLE' => $title,
+      'TEXT' => $text)
+   );
+   $cb_template->assign_vars(array( 
+      'L_BACK' => $language['BUTTON_BACK'])
+   );
+
+   $cb_template->pparse('message');
+
+}
+
+function cb_botcommandsettings($title, $text) {
+   global $language;
+   global $cb_template;
+   $cb_template->set_filenames(array(
+      'message' => 'botcommandsettings_body.tpl')
+   );
+
+   $cb_template->assign_both_vars(array(  
+      'TITLE' => $title,
+      'TEXT' => $text)
+   );
+   $cb_template->assign_vars(array( 
+      'L_BACK' => $language['BUTTON_BACK'])
+   );
+
+   $cb_template->pparse('message');
+
+}
 
 function cb_generate_pagination($base_url, $num_items, $per_page, $start_item, $add_prevnext_text = TRUE)
 {
