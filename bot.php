@@ -248,6 +248,10 @@ $cb_template->pparse('bot');
 
 $cb_template->destroy;
 
+/*
+	CUSTOM COMMAND SETTINGS WINDOW
+*/
+
 $tpl = 
 	<<<TPL
 		SELECT ai.ip as ip
@@ -266,15 +270,8 @@ $tpl =
 		}
 	}
 if ($ownercheck == 1) {
-	$cb_template->set_filenames(array(
-	'botsettings' => 'bots_body.tpl')
-	);
 	$tpl = <<<TPL
-		SELECT bd.level, bd.stop_melee_level, hold_buffs, hold_cures, hold_dots, hold_dispels
-		, hold_debuffs, hold_escapes, hold_hateredux, hold_heals, hold_incombatbuffs, hold_incombatbuffsongs, hold_lifetaps
-		, hold_mez, hold_nukes, hold_outofcombatbuffsongs, hold_roots, hold_slows, hold_snares, nuke_delay, auto_resist, auto_ds
-		, behind_mob, caster_range, debuff_delay, slow_delay, dot_delay, lifetap_delay, heal_delay, fast_heal_delay, complete_heal_delay, hot_heal_delay
-		, heal_threshold, fast_heal_threshold, complete_heal_threshold, hot_heal_threshold
+		SELECT *
 		FROM bot_data bd
 		WHERE bd.name LIKE '$botName'
 	TPL;
@@ -291,43 +288,81 @@ if ($ownercheck == 1) {
 		}	else {
 			$sml = '<font color=yellow>Stopped meleeing at level ' . $bot['stop_melee_level'] . '<font color=white>';
 		}
-		$filler .= $sml . '<br>';
-		$filler .= 'Hold Buffs is ' . ($bot['hold_buffs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold Cures is ' . ($bot['hold_cures'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold DoTs is ' . ($bot['hold_dots'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold Dispels is ' . ($bot['hold_dispels'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold Debuffs is ' . ($bot['hold_debuffs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold Escapes is ' . ($bot['hold_escapes'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold Hate Redux is ' . ($bot['hold_hateredux'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold Heals is ' . ($bot['hold_heals'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold In Combat Buffs is ' . ($bot['hold_incombatbuffs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold In Combat Buff Songs is ' . ($bot['hold_incombatbuffsongs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold Lifetaps is ' . ($bot['hold_lifetaps'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold Mez is ' . ($bot['hold_mez'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold Nukes is ' . ($bot['hold_nukes'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold OOC Buff Songs is ' . ($bot['hold_outofcombatbuffsongs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold Roots is ' . ($bot['hold_roots'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold Slows is ' . ($bot['hold_slows'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Hold Snares is ' . ($bot['hold_snares'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Nuke Delay is ' . ($bot['nuke_delay'] ? '<font color=green>' . number_format($bot['nuke_delay'] / 1000, 2, '.', '') . 's<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Auto Cast Resists is ' . ($bot['auto_resist'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Auto Cast Damage Shields is ' . ($bot['auto_ds'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Behind Mob is ' . ($bot['behind_mob'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Caster Range is ' . ($bot['caster_range'] ? '<font color=green>' . $bot['caster_range'] . ' units<font color=white>' . '' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Debuff Delay is ' . ($bot['debuff_delay'] ? '<font color=green>' . number_format($bot['debuff_delay'] / 1000, 2, '.', '') . 's<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Slow Delay is ' . ($bot['slow_delay'] ? '<font color=green>' . number_format($bot['slow_delay'] / 1000, 2, '.', '') . 's<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'DoT Delay is ' . ($bot['dot_delay'] ? '<font color=green>' . number_format($bot['dot_delay'] / 1000, 2, '.', '') . 's<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Lifetap Delay is ' . ($bot['lifetap_delay'] ? '<font color=green>' . number_format($bot['lifetap_delay'] / 1000, 2, '.', '') . 's<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Heal Delay is ' . ($bot['heal_delay'] ? '<font color=green>' . number_format($bot['heal_delay'] / 1000, 2, '.', '') . 's<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Fast Heal Delay is ' . ($bot['fast_heal_delay'] ? '<font color=green>' . number_format($bot['fast_heal_delay'] / 1000, 2, '.', '') . 's<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Complete Heal Delay is ' . ($bot['complete_heal_delay'] ? '<font color=green>' . number_format($bot['complete_heal_delay'] / 1000, 2, '.', '') . 's<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Heal Over Time Delay is ' . ($bot['hot_heal_delay'] ? '<font color=green>' . number_format($bot['hot_heal_delay'] / 1000, 2, '.', '') . 's<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Regular Heal Threshold is ' . ($bot['heal_threshold'] ? '<font color=green>' . $bot['heal_threshold'] . '% HP<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Fast Heal Threshold is ' . ($bot['fast_heal_threshold'] ? '<font color=green>' . $bot['fast_heal_threshold'] . '% HP<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Complete Heal Threshold is ' . ($bot['complete_heal_threshold'] ? '<font color=green>' . $bot['complete_heal_threshold'] . '% HP<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
-		$filler .= 'Heal Over Time Threshold is ' . ($bot['hot_heal_threshold'] ? '<font color=green>' . $bot['hot_heal_threshold'] . '% HP<font color=white>' : '<font color=red>disabled<font color=white>') . '<br>';
+		$filler .= $sml . '<font color=lightblue> | ^stopmeleelevel<font color=white><br>';
+		$filler .= 'Auto Cast Resists is ' . ($bot['auto_resist'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^autoresist<font color=white><br>';
+		$filler .= 'Auto Cast Damage Shields is ' . ($bot['auto_ds'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^autods<font color=white><br>';
+		$filler .= 'Behind Mob is ' . ($bot['behind_mob'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^behindmob<font color=white><br>';
+		$filler .= 'Caster Range is ' . ($bot['caster_range'] ? '<font color=green>' . $bot['caster_range'] . ' units<font color=white>' . '' : '<font color=red>disabled') . '<font color=lightblue> | ^casterrange<font color=white><br>';
+		$filler .= 'Hold Buffs is ' . ($bot['hold_buffs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdbuffs<font color=white><br>';
+		$filler .= 'Hold Cures is ' . ($bot['hold_cures'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdcures<font color=white><br>';
+		$filler .= 'Hold DoTs is ' . ($bot['hold_dots'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holddots<font color=white><br>';
+		$filler .= 'Hold Dispels is ' . ($bot['hold_dispels'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holddispels<font color=white><br>';
+		$filler .= 'Hold Debuffs is ' . ($bot['hold_debuffs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holddebuffs<font color=white><br>';
+		$filler .= 'Hold Escapes is ' . ($bot['hold_escapes'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdescapes<font color=white><br>';
+		$filler .= 'Hold Hate Redux is ' . ($bot['hold_hateredux'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdhateredux<font color=white><br>';
+		$filler .= 'Hold Heals is ' . ($bot['hold_heals'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdheals<font color=white><br>';
+		$filler .= 'Hold In Combat Buffs is ' . ($bot['hold_incombatbuffs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdincombatbuffs<font color=white><br>';
+		$filler .= 'Hold In Combat Buff Songs is ' . ($bot['hold_incombatbuffsongs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdincombatbuffsongs<font color=white><br>';
+		$filler .= 'Hold Lifetaps is ' . ($bot['hold_lifetaps'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdlifetaps<font color=white><br>';
+		$filler .= 'Hold Mez is ' . ($bot['hold_mez'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdmez<font color=white><br>';
+		$filler .= 'Hold Nukes is ' . ($bot['hold_nukes'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdnukes<font color=white><br>';
+		$filler .= 'Hold OOC Buff Songs is ' . ($bot['hold_outofcombatbuffsongs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdoutofcombatbuffsongs<font color=white><br>';
+		$filler .= 'Hold Pet Heals is ' . ($bot['hold_pet_heals'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdpetheals<font color=white><br>';
+		$filler .= 'Hold Roots is ' . ($bot['hold_roots'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdroots<font color=white><br>';
+		$filler .= 'Hold Slows is ' . ($bot['hold_slows'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdslows<font color=white><br>';
+		$filler .= 'Hold Snares is ' . ($bot['hold_snares'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdsnares<font color=white><br>';
+		$filler .= 'Buff Delay is <font color=green>' . number_format($bot['buff_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^buffdelay<font color=white><br>';
+		$filler .= 'Complete Heal Delay is <font color=green>' . number_format($bot['complete_heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^completehealdelay<font color=white><br>';
+		$filler .= 'Cure Delay is <font color=green>' . number_format($bot['cure_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^curedelay<font color=white><br>';
+		$filler .= 'Debuff Delay is <font color=green>' . number_format($bot['debuff_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^debuffdelay<font color=white><br>';
+		$filler .= 'Dispel Delay is <font color=green>' . number_format($bot['dispel_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^dispeldelay<font color=white><br>';
+		$filler .= 'DoT Delay is <font color=green>' . number_format($bot['dot_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^dotdelay<font color=white><br>';
+		$filler .= 'Escape Delay is <font color=green>' . number_format($bot['escape_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^escapedelay<font color=white><br>';
+		$filler .= 'Fast Heal Delay is <font color=green>' . number_format($bot['fast_heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^fasthealdelay<font color=white><br>';
+		$filler .= 'Hate Redux Delay is <font color=green>' . number_format($bot['hate_redux_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^hatereduxdelay<font color=white><br>';
+		$filler .= 'Heal Delay is <font color=green>' . number_format($bot['heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^healdelay<font color=white><br>';
+		$filler .= 'Heal Over Time Delay is <font color=green>' . number_format($bot['hot_heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^hothealdelay<font color=white><br>';
+		$filler .= 'In-Combat Buff Delay is <font color=green>' . number_format($bot['incombatbuff_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^incombatbuffdelay<font color=white><br>';
+		$filler .= 'Lifetap Delay is <font color=green>' . number_format($bot['lifetap_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^lifetapdelay<font color=white><br>';
+		$filler .= 'Mez Delay is <font color=green>' . number_format($bot['mez_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^mezdelay<font color=white><br>';
+		$filler .= 'Nuke Delay is <font color=green>' . number_format($bot['nuke_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^nukedelay<font color=white><br>';
+		$filler .= 'Root Delay is <font color=green>' . number_format($bot['root_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^rootdelay<font color=white><br>';
+		$filler .= 'Slow Delay is <font color=green>' . number_format($bot['slow_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^slowdelay<font color=white><br>';
+		$filler .= 'Snare Delay is <font color=green>' . number_format($bot['snare_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | ^snaredelay<font color=white><br>';
+		$filler .= 'Buff Max Threshold is <font color=green>' . $bot['buff_threshold'] . '% HP<font color=lightblue> | ^buffthreshold<font color=white><br>';
+		$filler .= 'Complete Heal Max Threshold is <font color=green>' . $bot['complete_heal_threshold'] . '% HP<font color=lightblue> | ^completehealthreshold<font color=white><br>';
+		$filler .= 'Cure Max Threshold is <font color=green>' . $bot['cure_threshold'] . '% HP<font color=lightblue> | ^curethreshold<font color=white><br>';
+		$filler .= 'Debuff Max Threshold is <font color=green>' . $bot['debuff_threshold'] . '% HP<font color=lightblue> | ^debuffthreshold<font color=white><br>';
+		$filler .= 'Dispel Max Threshold is <font color=green>' . $bot['dispel_threshold'] . '% HP<font color=lightblue> | ^dispelthreshold<font color=white><br>';
+		$filler .= 'DoT Max Threshold is <font color=green>' . $bot['dot_threshold'] . '% HP<font color=lightblue> | ^dotthreshold<font color=white><br>';
+		$filler .= 'Escape Max Threshold is <font color=green>' . $bot['escape_threshold'] . '% HP<font color=lightblue> | ^escapethreshold<font color=white><br>';
+		$filler .= 'Hate Redux Max Threshold is <font color=green>' . $bot['hateredux_threshold'] . '% HP<font color=lightblue> | ^hatereduxthreshold<font color=white><br>';
+		$filler .= 'Fast Heal Max Threshold is <font color=green>' . $bot['fast_heal_threshold'] . '% HP<font color=lightblue> | ^fasthealthreshold<font color=white><br>';
+		$filler .= 'Heal Max Threshold is <font color=green>' . $bot['heal_threshold'] . '% HP<font color=lightblue> | ^healthreshold<font color=white><br>';
+		$filler .= 'Heal Over Time Max Threshold is <font color=green>' . $bot['hot_heal_threshold'] . '% HP<font color=lightblue> | ^hothealthreshold<font color=white><br>';
+		$filler .= 'In-Combat Buff Max Threshold is <font color=green>' . $bot['incombatbuff_threshold'] . '% HP<font color=lightblue> | ^incombatbuffthreshold<font color=white><br>';
+		$filler .= 'Lifetap Max Threshold is <font color=green>' . $bot['lifetap_threshold'] . '% HP<font color=lightblue> | ^lifetapthreshold<font color=white><br>';
+		$filler .= 'Mez Max Threshold is <font color=green>' . $bot['mez_threshold'] . '% HP<font color=lightblue> | ^mezthreshold<font color=white><br>';
+		$filler .= 'Nuke Max Threshold is <font color=green>' . $bot['nuke_threshold'] . '% HP<font color=lightblue> | ^nukethreshold<font color=white><br>';
+		$filler .= 'Root Max Threshold is <font color=green>' . $bot['root_threshold'] . '% HP<font color=lightblue> | ^rootthreshold<font color=white><br>';
+		$filler .= 'Slow Max Threshold is <font color=green>' . $bot['slow_threshold'] . '% HP<font color=lightblue> | ^slowthreshold<font color=white><br>';
+		$filler .= 'Snare Max Threshold is <font color=green>' . $bot['snare_threshold'] . '% HP<font color=lightblue> | ^snarethreshold<font color=white><br>';
+		$filler .= 'Buff Min Threshold is <font color=green>' . $bot['buff_min_threshold'] . '% HP<font color=lightblue> | ^buffminthreshold<font color=white><br>';
+		$filler .= 'Cure Min Threshold is <font color=green>' . $bot['cure_min_threshold'] . '% HP<font color=lightblue> | ^cureminthreshold<font color=white><br>';
+		$filler .= 'Debuff Min Threshold is <font color=green>' . $bot['debuff_min_threshold'] . '% HP<font color=lightblue> | ^debuffminthreshold<font color=white><br>';
+		$filler .= 'Dispel Min Threshold is <font color=green>' . $bot['dispel_min_threshold'] . '% HP<font color=lightblue> | ^dispelminthreshold<font color=white><br>';
+		$filler .= 'DoT Min Threshold is <font color=green>' . $bot['dot_min_threshold'] . '% HP<font color=lightblue> | ^dotminthreshold<font color=white><br>';
+		$filler .= 'Escape Min Threshold is <font color=green>' . $bot['escape_min_threshold'] . '% HP<font color=lightblue> | ^escapeminthreshold<font color=white><br>';
+		$filler .= 'Hate Redux Min Threshold is <font color=green>' . $bot['hateredux_min_threshold'] . '% HP<font color=lightblue> | ^hatereduxminthreshold<font color=white><br>';
+		$filler .= 'In-Combat Buff Min Threshold is <font color=green>' . $bot['incombatbuff_min_threshold'] . '% HP<font color=lightblue> | ^incombatbuffminthreshold<font color=white><br>';
+		$filler .= 'Lifetap Min Threshold is <font color=green>' . $bot['lifetap_min_threshold'] . '% HP<font color=lightblue> | ^lifetapminthreshold<font color=white><br>';
+		$filler .= 'Mez Min Threshold is <font color=green>' . $bot['mez_min_threshold'] . '% HP<font color=lightblue> | ^mezminthreshold<font color=white><br>';
+		$filler .= 'Nuke Min Threshold is <font color=green>' . $bot['nuke_min_threshold'] . '% HP<font color=lightblue> | ^nukeminthreshold<font color=white><br>';
+		$filler .= 'Root Min Threshold is <font color=green>' . $bot['root_min_threshold'] . '% HP<font color=lightblue> | ^rootminthreshold<font color=white><br>';
+		$filler .= 'Slow Min Threshold is <font color=green>' . $bot['slow_min_threshold'] . '% HP<font color=lightblue> | ^slowminthreshold<font color=white><br>';
+		$filler .= 'Snare Min Threshold is <font color=green>' . $bot['snare_min_threshold'] . '% HP<font color=lightblue> | ^snareminthreshold<font color=white><br>';
 	}
-	cb_message('Settings', $filler);
+	cb_botcommandsettings('Custom Settings', $filler);
 
 }
 
