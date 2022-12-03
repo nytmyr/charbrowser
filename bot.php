@@ -57,7 +57,6 @@ $mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $
 //block view if user level doesnt have permission
 if ($mypermission['bots']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_ITEM_NO_VIEW']);
  
- 
 /*********************************************
         GATHER RELEVANT PAGE DATA
 *********************************************/
@@ -288,6 +287,21 @@ if ($ownercheck == 1) {
 		}	else {
 			$sml = '<font color=yellow>Stopped meleeing at level ' . $bot['stop_melee_level'] . '<font color=white>';
 		}
+		$filler .= "
+					<div class='col-md-12 head'>
+						<div class='float-right'>
+							<font color=yellow>EXPORT GEAR DATA -> [
+							<u><i><b><a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=all'>[ALL your bots</a> | <a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=all&showitemnames=true'>w/ Item Names]</a></b></i></u>
+							] <br> EXPORT GEAR DATA -> [ 
+							<u><i><b><a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=owner'>[This owner's bots</a> | <a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=owner&showitemnames=true'>w/ Item Names]</a></b></i></u>
+							] <br> EXPORT GEAR DATA -> [ 
+							<u><i><b><a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=this'>[This bot ONLY</a> | <a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=this&showitemnames=true'>w/ Item Names]</a></b></i></u>
+							]
+							<br><i><u>All exports include the owning character's data</u></i><font color=white>
+						</div>
+					</div>
+					";
+		$filler .= "|------------------------------------------------------------|<br>";
 		$filler .= $sml . '<font color=lightblue> | ^stopmeleelevel<font color=white><br>';
 		$filler .= 'Auto Cast Resists is ' . ($bot['auto_resist'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^autoresist<font color=white><br>';
 		$filler .= 'Auto Cast Damage Shields is ' . ($bot['auto_ds'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^autods<font color=white><br>';
@@ -363,7 +377,6 @@ if ($ownercheck == 1) {
 		$filler .= 'Snare Min Threshold is <font color=green>' . $bot['snare_min_threshold'] . '% HP<font color=lightblue> | ^snareminthreshold<font color=white><br>';
 	}
 	cb_botcommandsettings('Custom Settings', $filler);
-
 }
 
 include(__DIR__ . "/include/footer.php");
