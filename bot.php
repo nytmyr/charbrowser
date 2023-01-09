@@ -290,14 +290,17 @@ if ($ownercheck == 1) {
 		$filler .= "
 					<div class='col-md-12 head'>
 						<div class='float-right'>
-							<font color=yellow>EXPORT GEAR DATA -> [
-							<u><i><b><a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=all'>[ALL your bots</a> | <a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=all&showitemnames=true'>w/ Item Names]</a></b></i></u>
-							] <br> EXPORT GEAR DATA -> [ 
-							<u><i><b><a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=owner'>[This owner's bots</a> | <a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=owner&showitemnames=true'>w/ Item Names]</a></b></i></u>
-							] <br> EXPORT GEAR DATA -> [ 
-							<u><i><b><a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=this'>[This bot ONLY</a> | <a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=this&showitemnames=true'>w/ Item Names]</a></b></i></u>
+							<font color=yellow>EXPORT BOT GEAR DATA <br>
+							ALL BOTS -> [
+							<u><i><b><a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=all'>[w/o Item Names</a> | <a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=all&showitemnames=true'>w/ Item Names]</a></b></i></u>
+							] <br> THIS OWNER'S BOTS -> [ 
+							<u><i><b><a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=owner'>[w/o Item Names</a> | <a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=owner&showitemnames=true'>w/ Item Names]</a></b></i></u>
+							] <br> THIS BOT ONLY -> [ 
+							<u><i><b><a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=this'>[w/o Item Names</a> | <a href='". $cb_index_url . "?page=exportBotGearData&bot=$botName&csvtype=this&showitemnames=true'>w/ Item Names]</a></b></i></u>
 							]
-							<br><i><u>All exports include the owning character's data</u></i><font color=white>
+							<br><i><u>All exports include the owning character's data</u></i>
+							<br><font color=pink><i><u>*It is recommended to use Google Sheets for Number Only exports*</u></i>
+							<br><i><u>*Conditional Formatting won't work properly on Excel with Hyperlinks*</u></i><font color=white>
 						</div>
 					</div>
 					";
@@ -350,8 +353,8 @@ if ($ownercheck == 1) {
 		$filler .= 'Dispel Max Threshold is <font color=green>' . $bot['dispel_threshold'] . '% HP<font color=lightblue> | ^dispelthreshold<font color=white><br>';
 		$filler .= 'DoT Max Threshold is <font color=green>' . $bot['dot_threshold'] . '% HP<font color=lightblue> | ^dotthreshold<font color=white><br>';
 		$filler .= 'Escape Max Threshold is <font color=green>' . $bot['escape_threshold'] . '% HP<font color=lightblue> | ^escapethreshold<font color=white><br>';
-		$filler .= 'Hate Redux Max Threshold is <font color=green>' . $bot['hateredux_threshold'] . '% HP<font color=lightblue> | ^hatereduxthreshold<font color=white><br>';
 		$filler .= 'Fast Heal Max Threshold is <font color=green>' . $bot['fast_heal_threshold'] . '% HP<font color=lightblue> | ^fasthealthreshold<font color=white><br>';
+		$filler .= 'Hate Redux Max Threshold is <font color=green>' . $bot['hateredux_threshold'] . '% HP<font color=lightblue> | ^hatereduxthreshold<font color=white><br>';
 		$filler .= 'Heal Max Threshold is <font color=green>' . $bot['heal_threshold'] . '% HP<font color=lightblue> | ^healthreshold<font color=white><br>';
 		$filler .= 'Heal Over Time Max Threshold is <font color=green>' . $bot['hot_heal_threshold'] . '% HP<font color=lightblue> | ^hothealthreshold<font color=white><br>';
 		$filler .= 'In-Combat Buff Max Threshold is <font color=green>' . $bot['incombatbuff_threshold'] . '% HP<font color=lightblue> | ^incombatbuffthreshold<font color=white><br>';
