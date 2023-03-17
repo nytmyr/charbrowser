@@ -354,7 +354,7 @@ if ($ownercheck == 1) {
 		$filler .= 'DoT Max Threshold is <font color=green>' . $bot['dot_threshold'] . '% HP<font color=lightblue> | ^dotthreshold<font color=white><br>';
 		$filler .= 'Escape Max Threshold is <font color=green>' . $bot['escape_threshold'] . '% HP<font color=lightblue> | ^escapethreshold<font color=white><br>';
 		$filler .= 'Fast Heal Max Threshold is <font color=green>' . $bot['fast_heal_threshold'] . '% HP<font color=lightblue> | ^fasthealthreshold<font color=white><br>';
-		$filler .= 'Hate Redux Max Threshold is <font color=green>' . $bot['hateredux_threshold'] . '% HP<font color=lightblue> | ^hatereduxthreshold<font color=white><br>';
+		$filler .= 'Hate Redux Max Threshold is <font color=green>' . $bot['hate_redux_threshold'] . '% HP<font color=lightblue> | ^hatereduxthreshold<font color=white><br>';
 		$filler .= 'Heal Max Threshold is <font color=green>' . $bot['heal_threshold'] . '% HP<font color=lightblue> | ^healthreshold<font color=white><br>';
 		$filler .= 'Heal Over Time Max Threshold is <font color=green>' . $bot['hot_heal_threshold'] . '% HP<font color=lightblue> | ^hothealthreshold<font color=white><br>';
 		$filler .= 'In-Combat Buff Max Threshold is <font color=green>' . $bot['incombatbuff_threshold'] . '% HP<font color=lightblue> | ^incombatbuffthreshold<font color=white><br>';
@@ -370,7 +370,7 @@ if ($ownercheck == 1) {
 		$filler .= 'Dispel Min Threshold is <font color=green>' . $bot['dispel_min_threshold'] . '% HP<font color=lightblue> | ^dispelminthreshold<font color=white><br>';
 		$filler .= 'DoT Min Threshold is <font color=green>' . $bot['dot_min_threshold'] . '% HP<font color=lightblue> | ^dotminthreshold<font color=white><br>';
 		$filler .= 'Escape Min Threshold is <font color=green>' . $bot['escape_min_threshold'] . '% HP<font color=lightblue> | ^escapeminthreshold<font color=white><br>';
-		$filler .= 'Hate Redux Min Threshold is <font color=green>' . $bot['hateredux_min_threshold'] . '% HP<font color=lightblue> | ^hatereduxminthreshold<font color=white><br>';
+		$filler .= 'Hate Redux Min Threshold is <font color=green>' . $bot['hate_redux_min_threshold'] . '% HP<font color=lightblue> | ^hatereduxminthreshold<font color=white><br>';
 		$filler .= 'In-Combat Buff Min Threshold is <font color=green>' . $bot['incombatbuff_min_threshold'] . '% HP<font color=lightblue> | ^incombatbuffminthreshold<font color=white><br>';
 		$filler .= 'Lifetap Min Threshold is <font color=green>' . $bot['lifetap_min_threshold'] . '% HP<font color=lightblue> | ^lifetapminthreshold<font color=white><br>';
 		$filler .= 'Mez Min Threshold is <font color=green>' . $bot['mez_min_threshold'] . '% HP<font color=lightblue> | ^mezminthreshold<font color=white><br>';
@@ -380,6 +380,8 @@ if ($ownercheck == 1) {
 		$filler .= 'Snare Min Threshold is <font color=green>' . $bot['snare_min_threshold'] . '% HP<font color=lightblue> | ^snareminthreshold<font color=white><br>';
 	}
 	cb_botcommandsettings('Custom Settings', $filler);
+} else {
+	cb_message_die("You do not own $botName.","If this is an error, be sure you're connecting from the same IP as $botName's owner was last logged in with.");
 }
 
 include(__DIR__ . "/include/footer.php");
