@@ -325,9 +325,10 @@ function output_profile_menu($charname, $curpage) {
       array( 'PAGE' => 'bots', 'BUTTON_NAME' => $language['BUTTON_BOTS'], 'PERMISSION' => $cb_show_bots),
       array( 'PAGE' => 'bazaar', 'BUTTON_NAME' => $language['BUTTON_STORE'], 'PERMISSION' => 1),
       array( 'PAGE' => 'barter', 'BUTTON_NAME' => $language['BUTTON_BARTER'], 'PERMISSION' => 1),
-      array( 'PAGE' => 'adventure', 'BUTTON_NAME' => $language['BUTTON_ADVENTURE'], 'PERMISSION' => 1),
+      //array( 'PAGE' => 'adventure', 'BUTTON_NAME' => $language['BUTTON_ADVENTURE'], 'PERMISSION' => 1),
       array( 'PAGE' => 'signaturebuilder', 'BUTTON_NAME' => $language['BUTTON_SIG'], 'PERMISSION' => 1),
-      array( 'PAGE' => 'charmove', 'BUTTON_NAME' => $language['BUTTON_CHARMOVE'], 'PERMISSION' => 1),
+      //array( 'PAGE' => 'charmove', 'BUTTON_NAME' => $language['BUTTON_CHARMOVE'], 'PERMISSION' => 1),
+	  array( 'PAGE' => 'raidpoints', 'BUTTON_NAME' => $language['BUTTON_RAID'], 'PERMISSION' => 1),
    );
    
    $otherbuttons = array(

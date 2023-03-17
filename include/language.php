@@ -86,6 +86,7 @@ $language['PAGE_TITLES_SETTINGS'] ="Settings";
 $language['PAGE_TITLES_SIGBUILD'] ="Signature Builder"; 
 $language['PAGE_TITLES_SKILLS'] ="'s Skills"; 
 $language['PAGE_TITLES_KEYS'] ="'s Keys"; 
+$language['PAGE_TITLES_RAID'] ="'s Raid Points"; 
 
 
 
@@ -518,6 +519,9 @@ $language['SERVER_CUTOFF'] = "Last %s Days > Level 1";
 //key language
 $language['KEYS_KEY'] = "Keys"; 
 
+//raid points
+$language['RAID_RAIDPTS'] = "Raid Points"; 
+
 //flag section info 
 $language['FLAG_FLAGS'] = "Flags"; 
 $language['FLAG_PoP'] = "Planes of Power &nbsp;&nbsp;&nbsp;(click for details)"; 
@@ -743,6 +747,7 @@ $language['BUTTON_BOTS'] = "Bots";
 $language['BUTTON_BOOKMARK'] = "Link"; 
 $language['BUTTON_SIG'] = "Sig"; 
 $language['BUTTON_KEYS'] = "Keys"; 
+$language['BUTTON_RAID'] = "Raid";
 
 //messages 
 $language['MESSAGE_ERROR'] = "Error"; 
@@ -780,5 +785,6 @@ $language['MESSAGE_DB_CONNECT'] = "The database host/user/password supplied were
 $language['MESSAGE_DB_NODB'] = "Could not find designated database.";
 $language['MESSAGE_NOAPI'] = "The API is unavailable on this page.";
 $language['MESSAGE_BAD_CONFIG'] = "<h2>Configuration Error</h2>The config version stamp in your config file does not match the stamp in your software. This likely means that you've installed a new version of the software but kept your old config file. This stamp only changes when important changes have beeen made to the config file that require generating a new config. Backup your old config.php and replace it with config.template. Then edit the new file and reset all your settings in it.";
+$language['MESSAGE_NO_RAIDPTS'] = "This character has not earned any raid points."; 
 
 ?>
