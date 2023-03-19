@@ -437,7 +437,9 @@ function GetPermissions($gm, $anonlevel, $char_id) {
          'skills'            => 0,
          'languageskills'    => 0,
          'keys'              => 0,
-         'signatures'        => 0);
+         'signatures'        => 0,
+		 'botsettings'        => 0,
+		 'raidpoints'        => 0);
    }
  
    $tpl = <<<TPL

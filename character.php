@@ -83,12 +83,27 @@ $char = new profile($charName, $cbsql, $cbsql_content, $language, $showsoftdelet
 $charID = $char->char_id(); 
 $name = $char->GetValue('name');
 $mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $char->char_id());
-
 $userip = getIPAddress(); 
-$ownercheck = 0;
+
+$tpl = 
+	<<<TPL
+		SELECT ai.ip as ip
+		FROM character_data cd
+		INNER JOIN account_ip AI on ai.accid = cd.account_id
+		WHERE cd.id = $charID
+		ORDER BY ai.lastused DESC
+		LIMIT 1
+	TPL;
+	$result = $cbsql->query($tpl);
+	$bots = $cbsql->fetch_all($result);  
+foreach($bots as $bot) {
+	if ($bot['ip'] == $userip || $userip == $defaultedlocalhost || $userip == $localipaddress || $userip == $defaultgateway) {
+		$ownercheck = 1;
+	}
+}
 
 //block view if user level doesnt have permission
-if ($mypermission['inventory']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_ITEM_NO_VIEW']);
+if ($mypermission['inventory'] && $ownercheck != 1) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_PERMISSIONS_ERROR']);
  
  
 /*********************************************
@@ -529,51 +544,28 @@ $cb_template->destroy;
 	CUSTOM COMMAND SETTINGS WINDOW
 */
 
-$tpl = 
-	<<<TPL
-		SELECT ai.ip as ip
-		FROM character_data cd
-		INNER JOIN account_ip AI on ai.accid = cd.account_id
-		WHERE cd.id = '%s'
-		ORDER BY ai.lastused DESC
-		LIMIT 1
-	TPL;
+$tpl = <<<TPL
+	SELECT complete_heal_delay, fast_heal_delay, heal_delay, hot_heal_delay, complete_heal_threshold, fast_heal_threshold, heal_threshold, hot_heal_threshold
+	FROM character_data
+	WHERE id = '%s'
+TPL;
 $query = sprintf($tpl, $charID);
 $result = $cbsql->query($query);
 
-if (!$cbsql->rows($result));
-	$bots = $cbsql->fetch_all($result);  
-foreach($bots as $bot) {
-	if ($bot['ip'] == $userip || $userip == $defaultedlocalhost || $userip == $localipaddress || $userip == $defaultgateway) {
-		$ownercheck = 1;
-	}
+if($cbsql->rows($result))
+{ 
+	$row = $cbsql->nextrow($result);
+	$filler .= 'Fast Heal Delay is <font color=green>' . number_format($row['fast_heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | #fasthealdelay<font color=white><br>';
+	$filler .= 'Heal Delay is <font color=green>' . number_format($row['heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | #healdelay<font color=white><br>';
+	$filler .= 'Complete Heal Delay is <font color=green>' . number_format($row['complete_heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | #completehealdelay<font color=white><br>';
+	$filler .= 'Heal Over Time Delay is <font color=green>' . number_format($row['hot_heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | #hothealdelay<font color=white><br>';
+	
+	$filler .= 'Fast Heal Max Threshold is <font color=green>' . $row['fast_heal_threshold'] . '% HP<font color=lightblue> | #fasthealthreshold<font color=white><br>';
+	$filler .= 'Heal Max Threshold is <font color=green>' . $row['heal_threshold'] . '% HP<font color=lightblue> | #healthreshold<font color=white><br>';
+	$filler .= 'Complete Heal Max Threshold is <font color=green>' . $row['complete_heal_threshold'] . '% HP<font color=lightblue> | #completehealthreshold<font color=white><br>';
+	$filler .= 'Heal Over Time Max Threshold is <font color=green>' . $row['hot_heal_threshold'] . '% HP<font color=lightblue> | #hothealthreshold<font color=white><br>';
 }
-	
-if ($ownercheck == 1) {
-	$tpl = <<<TPL
-		SELECT complete_heal_delay, fast_heal_delay, heal_delay, hot_heal_delay, complete_heal_threshold, fast_heal_threshold, heal_threshold, hot_heal_threshold
-		FROM character_data
-		WHERE id = '%s'
-	TPL;
-	$query = sprintf($tpl, $charID);
-	$result = $cbsql->query($query);
-	
-	if($cbsql->rows($result))
-	{ 
-		$row = $cbsql->nextrow($result);
-		$filler .= 'Fast Heal Delay is <font color=green>' . number_format($row['fast_heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | #fasthealdelay<font color=white><br>';
-		$filler .= 'Heal Delay is <font color=green>' . number_format($row['heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | #healdelay<font color=white><br>';
-		$filler .= 'Complete Heal Delay is <font color=green>' . number_format($row['complete_heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | #completehealdelay<font color=white><br>';
-		$filler .= 'Heal Over Time Delay is <font color=green>' . number_format($row['hot_heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | #hothealdelay<font color=white><br>';
-		
-		$filler .= 'Fast Heal Max Threshold is <font color=green>' . $row['fast_heal_threshold'] . '% HP<font color=lightblue> | #fasthealthreshold<font color=white><br>';
-		$filler .= 'Heal Max Threshold is <font color=green>' . $row['heal_threshold'] . '% HP<font color=lightblue> | #healthreshold<font color=white><br>';
-		$filler .= 'Complete Heal Max Threshold is <font color=green>' . $row['complete_heal_threshold'] . '% HP<font color=lightblue> | #completehealthreshold<font color=white><br>';
-		$filler .= 'Heal Over Time Max Threshold is <font color=green>' . $row['hot_heal_threshold'] . '% HP<font color=lightblue> | #hothealthreshold<font color=white><br>';
-	}
-	cb_commandsettings('Heal Settings', $filler);
-
-}	
+cb_commandsettings('Heal Settings', $filler);
 
 include(__DIR__ . "/include/footer.php");
 ?>

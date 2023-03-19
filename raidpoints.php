@@ -15,7 +15,6 @@ $char = new profile($charName, $cbsql, $cbsql_content, $language, $showsoftdelet
 $charID = $char->char_id();
 $name = $char->GetValue('name');
 $mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $char->char_id());
-
 $userip = getIPAddress(); 
 
 $tpl = 
@@ -28,15 +27,16 @@ $tpl =
 		LIMIT 1
 	TPL;
 	$result = $cbsql->query($tpl);
-	if (!$cbsql->rows($result)) cb_message_die($language['BOTS_BOTS']." - ".$name,$language['MESSAGE_NO_BOTS']);
-		$bots = $cbsql->fetch_all($result);  
-	foreach($bots as $bot) {
-		if ($bot['ip'] == $userip || $userip == $defaultedlocalhost || $userip == $localipaddress || $userip == $defaultgateway) {
-			$ownercheck = 1;
-		}
+	$bots = $cbsql->fetch_all($result);  
+foreach($bots as $bot) {
+	if ($bot['ip'] == $userip || $userip == $defaultedlocalhost || $userip == $localipaddress || $userip == $defaultgateway) {
+		$ownercheck = 1;
 	}
-if ($ownercheck == 1) {
+}
 	
+//block view if user level doesnt have permission
+if ($mypermission['raidpoints'] && $ownercheck != 1) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_PERMISSIONS_ERROR']);
+
 /*********************************************
         GATHER RELEVANT PAGE DATA
 *********************************************/
@@ -54,9 +54,6 @@ ORDER BY n.`difficulty` ASC
 TPL;
 #$query = sprintf($tpl, $charID);
 $result = $cbsql->query($tpl);
-
-//error if there's no results that match
-if (!$cbsql->rows($result)) cb_message_die($language['RAID_RAIDPTS'],$language['MESSAGE_NO_RAIDPTS']);
 
 $raid = $cbsql->fetch_all($result);  
 
@@ -88,10 +85,7 @@ TPL;
 $result = $cbsql->query($tpl);
 
 $epictotal = $cbsql->fetch_all($result);  
-	
-} else {
-	cb_message_die("You do not own $name.","If this is an error, be sure you're connecting from the same IP as $name's owner was last logged in with.");
-}
+
 /*********************************************
                DROP HEADER
 *********************************************/

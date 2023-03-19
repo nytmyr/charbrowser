@@ -115,9 +115,27 @@ $char = new profile($charName, $cbsql, $cbsql_content, $language, $showsoftdelet
 $charID = $char->char_id(); 
 $name = $char->GetValue('name');
 $mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $char->char_id());
+$userip = getIPAddress(); 
+
+$tpl = 
+	<<<TPL
+		SELECT ai.ip as ip
+		FROM character_data cd
+		INNER JOIN account_ip AI on ai.accid = cd.account_id
+		WHERE cd.id = $charID
+		ORDER BY ai.lastused DESC
+		LIMIT 1
+	TPL;
+	$result = $cbsql->query($tpl);
+	$bots = $cbsql->fetch_all($result);  
+foreach($bots as $bot) {
+	if ($bot['ip'] == $userip || $userip == $defaultedlocalhost || $userip == $localipaddress || $userip == $defaultgateway) {
+		$ownercheck = 1;
+	}
+}
 
 //block view if user level doesnt have permission 
-if ($mypermission['flags']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_ITEM_NO_VIEW']); 
+if ($mypermission['flags'] && $ownercheck != 1) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_PERMISSIONS_ERROR']);
  
  
 /*********************************************

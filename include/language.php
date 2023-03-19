@@ -786,5 +786,6 @@ $language['MESSAGE_DB_NODB'] = "Could not find designated database.";
 $language['MESSAGE_NOAPI'] = "The API is unavailable on this page.";
 $language['MESSAGE_BAD_CONFIG'] = "<h2>Configuration Error</h2>The config version stamp in your config file does not match the stamp in your software. This likely means that you've installed a new version of the software but kept your old config file. This stamp only changes when important changes have beeen made to the config file that require generating a new config. Backup your old config.php and replace it with config.template. Then edit the new file and reset all your settings in it.";
 $language['MESSAGE_NO_RAIDPTS'] = "This character has not earned any raid points."; 
+$language['MESSAGE_PERMISSIONS_ERROR'] = "This character is anonymous and your IP does not match what was last used to log in with this character."; 
 
 ?>
