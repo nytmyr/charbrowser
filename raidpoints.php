@@ -9,6 +9,7 @@ include_once(__DIR__ . "/include/db.php");
 *********************************************/
 if(!$_GET['char']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_NO_CHAR']);
 else $charName = $_GET['char'];
+$order = (isset($_GET['order']) ? addslashes($_GET["order"]) : "n.`difficulty` ASC");
 
 //character initializations
 $char = new profile($charName, $cbsql, $cbsql_content, $language, $showsoftdelete, $charbrowser_is_admin_page); //the profile class will sanitize the character name
@@ -41,6 +42,15 @@ if ($mypermission['raidpoints'] && $ownercheck != 1) cb_message_die($language['M
         GATHER RELEVANT PAGE DATA
 *********************************************/
 //get raid kills from the character db
+
+if ($order == 1) { $order = "NPCName ASC"; }
+if ($order == 2) { $order = "NPCName DESC"; }
+if ($order == 3) { $order = "n.`raid_points` ASC"; }
+if ($order == 4) { $order = "n.`raid_points` DESC"; }
+if ($order == 5) { $order = "z.`long_name` ASC"; }
+if ($order == 6) { $order = "z.`long_name` DESC"; }
+if ($order == 7) { $order = "n.`difficulty` ASC"; }
+if ($order == 8) { $order = "n.`difficulty` DESC"; }
 $tpl = <<<TPL
 SELECT db.`key`, db.`value` AS EarnedValue, cd.`id` AS CharID, cd.`name` AS CharName, n.`id` AS NPCID, REPLACE(REPLACE(n.`name`,'_',' '),'#','') AS NPCName, n.`raid_points` AS RaidPts, z.`short_name` AS ZoneSN, z.`long_name` AS ZoneLN -- , SUM(db.`value)
 FROM data_buckets db
@@ -50,7 +60,7 @@ LEFT JOIN zone z ON z.`zoneidnumber` = CAST(FLOOR(n.`id` / 1000) AS INT)
 WHERE db.`key` LIKE 'PlayerRaidKill-%'
 AND cd.`id` = $charID
 -- AND n.`raid_points` > 0
-ORDER BY n.`difficulty` ASC
+ORDER BY $order
 TPL;
 #$query = sprintf($tpl, $charID);
 $result = $cbsql->query($tpl);
