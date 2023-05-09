@@ -10,6 +10,8 @@ include_once(__DIR__ . "/include/db.php");
 if(!$_GET['char']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_NO_CHAR']);
 else $charName = $_GET['char'];
 $order = (isset($_GET['order']) ? addslashes($_GET["order"]) : "n.`difficulty` ASC");
+$unkilled = (isset($_GET['unkilled']) ? addslashes($_GET["unkilled"]) : 0);
+
 
 //character initializations
 $char = new profile($charName, $cbsql, $cbsql_content, $language, $showsoftdelete, $charbrowser_is_admin_page); //the profile class will sanitize the character name
@@ -51,17 +53,37 @@ if ($order == 5) { $order = "z.`long_name` ASC"; }
 if ($order == 6) { $order = "z.`long_name` DESC"; }
 if ($order == 7) { $order = "n.`difficulty` ASC"; }
 if ($order == 8) { $order = "n.`difficulty` DESC"; }
-$tpl = <<<TPL
-SELECT db.`key`, db.`value` AS EarnedValue, cd.`id` AS CharID, cd.`name` AS CharName, n.`id` AS NPCID, REPLACE(REPLACE(n.`name`,'_',' '),'#','') AS NPCName, n.`raid_points` AS RaidPts, z.`short_name` AS ZoneSN, z.`long_name` AS ZoneLN -- , SUM(db.`value)
-FROM data_buckets db
-INNER JOIN character_data cd ON cd.`id` = SUBSTRING(db.`key`, 16, INSTR(SUBSTRING(db.`key`, 16), "-")+1)
-INNER JOIN npc_types n ON n.`id` = SUBSTRING(db.`key`, INSTR(SUBSTRING(db.`key`, 16), "-")+16)
-LEFT JOIN zone z ON z.`zoneidnumber` = CAST(FLOOR(n.`id` / 1000) AS INT)
-WHERE db.`key` LIKE 'PlayerRaidKill-%'
-AND cd.`id` = $charID
--- AND n.`raid_points` > 0
-ORDER BY $order
-TPL;
+if (!$unkilled) {
+	$killtype = "Killed";
+	$tpl = <<<TPL
+	SELECT db.`key`, db.`value` AS EarnedValue, cd.`id` AS CharID, cd.`name` AS CharName, n.`id` AS NPCID, REPLACE(REPLACE(n.`name`,'_',' '),'#','') AS NPCName, n.`difficulty` AS NPCDiff, n.`raid_points` AS RaidPts, z.`short_name` AS ZoneSN, z.`long_name` AS ZoneLN -- , SUM(db.`value)
+	FROM data_buckets db
+	INNER JOIN character_data cd ON cd.`id` = SUBSTRING(db.`key`, 16, INSTR(SUBSTRING(db.`key`, 16), "-")+1)
+	INNER JOIN npc_types n ON n.`id` = SUBSTRING(db.`key`, INSTR(SUBSTRING(db.`key`, 16), "-")+16)
+	LEFT JOIN zone z ON z.`zoneidnumber` = FLOOR(CAST(n.`id` / 1000 AS DOUBLE))
+	WHERE db.`key` LIKE 'PlayerRaidKill-%'
+	AND cd.`id` = $charID
+	-- AND n.`raid_points` > 0
+	ORDER BY $order
+	TPL;
+} else {
+	$killtype = "Unkilled";
+	$tpl = <<<TPL
+	SELECT n.`difficulty` AS NPCDiff, n.`raid_points` AS EarnedValue, n.`id` AS NPCID, REPLACE(REPLACE(n.`name`,'_',' '),'#','') AS NPCName, n.`raid_points` AS RaidPts, z.`short_name` AS ZoneSN, z.`long_name` AS ZoneLN -- , SUM(db.`value)
+	FROM npc_types n
+	INNER JOIN zone z ON z.zoneidnumber = FLOOR(CAST(n.id / 1000 AS DOUBLE))
+	WHERE NOT EXISTS (SELECT *
+				FROM qs_player_npc_kill_record kr
+				INNER JOIN qs_player_npc_kill_record_entries kre ON kre.event_id = kr.fight_id
+				WHERE kr.npc_id = n.id
+				AND kre.char_id = $charID)
+	AND n.`level` > 51 AND n.`level` < 99 AND n.loottable_id > 0 
+	AND n.raid_target = 1
+	AND n.raid_points > 0
+	AND n.loottable_id > 0
+	ORDER BY $order
+	TPL;
+}
 #$query = sprintf($tpl, $charID);
 $result = $cbsql->query($tpl);
 
@@ -137,7 +159,8 @@ foreach ($raid as $raidpts) {
       'NPC' => 'http://vegaseq.com/Allaclone/?a=npc&id=' . $raidpts["NPCID"],
 	  'NPC_PTS' => $raidpts["EarnedValue"],
 	  'NPC_ZONESN' => 'http://vegaseq.com/Allaclone/?a=zone&name=' . $raidpts["ZoneSN"],
-	  'NPC_ZONELN' => $raidpts["ZoneLN"])
+	  'NPC_ZONELN' => $raidpts["ZoneLN"],
+	  'NPC_DIFF' => number_format($raidpts["NPCDiff"]))
    );
 }
 
@@ -155,6 +178,8 @@ foreach ($epictotal as $epictotals) {
 		'ITEM_PTS' => $epictotals["EarnedValue"])
 	);
 }
+
+$cb_template->assign_both_block_vars("raidkilltype", array('KILL_TYPE' => $killtype));
 
 /*********************************************
            OUTPUT BODY AND FOOTER
