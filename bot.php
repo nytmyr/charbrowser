@@ -307,7 +307,7 @@ foreach($bots as $bot) {
 					";
 		$filler .= "|------------------------------------------------------------|<br>";
 	}
-	$filler .= $sml . '<font color=lightblue> | ^stopmeleelevel<font color=white><br>';
+	$filler .= $sml . '<font color=lightblue> | ^sml<font color=white><br>';
 	$filler .= 'Auto Cast Resists is ' . ($bot['auto_resist'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^autoresist<font color=white><br>';
 	$filler .= 'Auto Cast Damage Shields is ' . ($bot['auto_ds'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^autods<font color=white><br>';
 	$filler .= 'Behind Mob is ' . ($bot['behind_mob'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^behindmob<font color=white><br>';
