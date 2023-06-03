@@ -81,6 +81,7 @@ if (!$unkilled) {
 	AND n.raid_target = 1
 	AND n.raid_points > 0
 	AND n.loottable_id > 0
+	AND n.id NOT BETWEEN 128041 AND 128044
 	ORDER BY $order
 	TPL;
 }
