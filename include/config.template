@@ -24,6 +24,7 @@
 **                                                                           **
 ******************************************************************************/
 
+error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE & ~E_DEPRECATED);																
 //DONT TOUCH THIS SETTING; PREVENTS THIS  
 //SCRIPT FROM EXECUTING FROM DIRECT ACCESS
 if ( !defined('INCHARBROWSER') )
@@ -42,6 +43,9 @@ $cb_user   =   "";
 $cb_pass   =   "";
 $cb_port   =   3306;
 
+$localipaddress = "192.168.1.13";
+$defaultgateway = "192.168.1.1";
+$defaultedlocalhost = "::1";								 
 //Multi-tenancy, if you need a seperate db connection
 //for your content db, set this to true and set
 //your content db connection info here. If you don't
@@ -62,14 +66,14 @@ $numToDisplay        = 25 ;//search results per page
 $highlightgm         = 1  ;//highlight GM inventories 0=off 1=on
 $blockbazaar         = 0  ;//disable bazaar 0=on 1=off
 $blockbarter         = 0  ;//disable barter 0=on 1=off
-$blockadventurestats = 0  ;//disable ldon leaderboards 0=on 1=off
+$blockadventurestats = 1  ;//disable ldon leaderboards 0=on 1=off
 
      
 /*****************************************************
 **                  Title  settings                 **
 *****************************************************/
 $mytitle      =    "CharBrowser"; 
-$subtitle     =    " • Be Nosey";
+$subtitle     =    " - VEQ";
 
 
 /*****************************************************
@@ -184,7 +188,7 @@ $cb_blockversioncheck = 0;
 **   0 - hide/disable bots                          **
 **   1 - show bots                                  **
 *****************************************************/
-$cb_show_bots = 0; 
+$cb_show_bots = 1; 
 
 
 /*****************************************************
@@ -623,16 +627,16 @@ $adscript = "";
 
 //a link to an item using the item id 
 //{ITEM_ID} - The ID of the item
-$link_item = "http://mqemulator.net/item.php?id={ITEM_ID}";
+$link_item = "http://vegaseq.com/Allaclone/?a=item&id={ITEM_ID}";
 
 //a link to a spell using the spell id 
 //{SPELL_ID} - The ID of the spell
-$link_spell = "http://mqemulator.net/spell.php?id={SPELL_ID}";
+$link_spell = "http://vegaseq.com/Allaclone/?a=spell&id={SPELL_ID}";
 
 //a link to a zone using a shortname or id 
 //{ZONE_SHORTNAME} - The shortname of the zone
 //{ZONE_ID} - The ID of the zone
-$link_zone = "http://mqemulator.net/zone.php?name={ZONE_SHORTNAME}";
+$link_zone = "http://vegaseq.com/Allaclone/?a=zone&name={ZONE_SHORTNAME}";
 
 //a link to a map with a text marker on a specific x/y coordinate
 //this is used to show a player where their corpse is 
@@ -645,7 +649,7 @@ $link_map = "http://mqemulator.net/map.php?zoneid={ZONE_ID}&poi={TEXT}&poix={X}&
 
 //a link to information about a faction using the faction id.
 //{FACTION_ID} - The ID of the faction group
-$link_faction = "http://mqemulator.net/faction.php?id={FACTION_ID}";
+$link_faction = "http://vegaseq.com/Allaclone/?a=faction&id={FACTION_ID}";
 /**************************************************************************************************/
 
 
