@@ -308,11 +308,12 @@ foreach($bots as $bot) {
 		$filler .= "|------------------------------------------------------------|<br>";
 	}
 	$filler .= $sml . '<font color=lightblue> | ^sml<font color=white><br>';
-	$filler .= 'Auto Cast Resists is ' . ($bot['auto_resist'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^autoresist<font color=white><br>';
-	$filler .= 'Auto Cast Damage Shields is ' . ($bot['auto_ds'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^autods<font color=white><br>';
+	$filler .= 'Auto Buff Damage Shields is ' . ($bot['hold_ds'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdds<font color=white><br>';
+	$filler .= 'Auto Buff Resists is ' . ($bot['hold_resists'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdresists<font color=white><br>';	
 	$filler .= 'Behind Mob is ' . ($bot['behind_mob'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^behindmob<font color=white><br>';
 	$filler .= 'Caster Range is ' . ($bot['caster_range'] ? '<font color=green>' . $bot['caster_range'] . ' units<font color=white>' . '' : '<font color=red>disabled') . '<font color=lightblue> | ^casterrange<font color=white><br>';
 	$filler .= 'Hold Buffs is ' . ($bot['hold_buffs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdbuffs<font color=white><br>';
+	$filler .= 'Hold Charms is ' . ($bot['hold_charms'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdcharms<font color=white><br>';
 	$filler .= 'Hold Complete Heals is ' . ($bot['hold_complete_heals'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdcompleteheals<font color=white><br>';
 	$filler .= 'Hold Cures is ' . ($bot['hold_cures'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdcures<font color=white><br>';
 	$filler .= 'Hold DoTs is ' . ($bot['hold_dots'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holddots<font color=white><br>';
@@ -327,6 +328,7 @@ foreach($bots as $bot) {
 	$filler .= 'Hold In Combat Buffs is ' . ($bot['hold_incombatbuffs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdincombatbuffs<font color=white><br>';
 	$filler .= 'Hold In Combat Buff Songs is ' . ($bot['hold_incombatbuffsongs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdincombatbuffsongs<font color=white><br>';
 	$filler .= 'Hold Lifetaps is ' . ($bot['hold_lifetaps'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdlifetaps<font color=white><br>';
+	$filler .= 'Hold Lulls is ' . ($bot['hold_lulls'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdlulls<font color=white><br>';
 	$filler .= 'Hold Mez is ' . ($bot['hold_mez'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdmez<font color=white><br>';
 	$filler .= 'Hold Nukes is ' . ($bot['hold_nukes'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdnukes<font color=white><br>';
 	$filler .= 'Hold OOC Buff Songs is ' . ($bot['hold_outofcombatbuffsongs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdoutofcombatbuffsongs<font color=white><br>';	
@@ -336,6 +338,7 @@ foreach($bots as $bot) {
 	$filler .= 'Hold Pre-Combat Buffs is ' . ($bot['hold_precombatbuffs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdprecombatbuffs<font color=white><br>';
 	$filler .= 'Hold Pre-Combat Buff Songs is ' . ($bot['hold_precombatbuffsongs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdprecombatbuffsongs<font color=white><br>';
 	$filler .= 'Hold Regular Heals is ' . ($bot['hold_regular_heals'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdregularheals<font color=white><br>';
+	$filler .= 'Hold Rez is ' . ($bot['hold_rez'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdrez<font color=white><br>';
 	$filler .= 'Hold Roots is ' . ($bot['hold_roots'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdroots<font color=white><br>';
 	$filler .= 'Hold Slows is ' . ($bot['hold_slows'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdslows<font color=white><br>';
 	$filler .= 'Hold Snares is ' . ($bot['hold_snares'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdsnares<font color=white><br>';

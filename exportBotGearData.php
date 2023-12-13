@@ -109,7 +109,7 @@ if ($ownercheck == 1) {
 								WHEN b.class = 16 THEN 'Berserker'
 								ELSE 'None'
 							END AS 'Class'
-							, i.GearScore, bi.slot_id as SlotID,
+							, i.GearScore, i.haste AS HastePCT, bi.slot_id as SlotID,
 							CASE WHEN bi.slot_id = 1 THEN i.GearScore ELSE 0 END AS 'Ear1',
 							CASE WHEN bi.slot_id = 2 THEN i.GearScore ELSE 0 END AS 'Head',
 							CASE WHEN bi.slot_id = 3 THEN i.GearScore ELSE 0 END AS 'Face',
@@ -131,6 +131,7 @@ if ($ownercheck == 1) {
 							CASE WHEN bi.slot_id = 19 THEN i.GearScore ELSE 0 END AS 'Feet',
 							CASE WHEN bi.slot_id = 20 THEN i.GearScore ELSE 0 END AS 'Waist'
 							, i.Name AS ItemName, CONCAT('http://vegaseq.com/Allaclone/?a=item&id=',i.id) AS Allaclone 
+							, i.clickeffect AS ClickID
 						FROM account_ip ai
 						INNER JOIN ACCOUNT a ON a.id = ai.accid
 						INNER JOIN character_data cd ON cd.account_id = a.id
@@ -139,10 +140,10 @@ if ($ownercheck == 1) {
 						INNER JOIN items i ON i.id = bi.item_id
 						WHERE $where
 						$groupby
-						ORDER BY cd.`level` DESC, cd.aa_points_spent DESC, b.name ASC, bi.slot_id ASC
+						ORDER BY cd.`level` DESC, cd.aa_points_spent DESC, Owner ASC, Class ASC, b.name ASC, bi.slot_id ASC
 					"; 
 				$result = $cbsql->query($tpl);
-				if (!$cbsql->rows($result)) cb_message('Success', 'Failed @ ' . $userip . ' - ' . $where . ' - ' . $filename);
+				if (!$cbsql->rows($result)) cb_message('Success', 'p1Failed @ ' . $userip . ' - ' . $where . ' - ' . $filename);
 					$rows = $cbsql->fetch_all($result);
 					
 					/*START View */
@@ -163,12 +164,15 @@ if ($ownercheck == 1) {
 					$f = fopen('php://memory', 'w'); 
 					
 					// Set column headers 
-					$fields = array('Owner', 'Bot Name', 'Class', 'AVG GearScore', 'Ear1', 'Ear2', 'Head', 'Face', 'Neck', 'Shoulders', 'Arms', 'Back', 'Wrist1', 'Wrist2', 'Range', 'Hands', 'Primary', 'Secondary', 'Finger1', 'Finger2', 'Chest', 'Legs', 'Feet', 'Waist'); 
+					$fields = array('Owner', 'Bot Name', 'Class', 'AVG GearScore', 'Haste', 'Ear1', 'Ear2', 'Head', 'Face', 'Neck', 'Shoulders', 'Arms', 'Back', 'Wrist1', 'Wrist2', 'Range', 'Hands', 'Primary', 'Secondary', 'Finger1', 'Finger2', 'Chest', 'Legs', 'Feet', 'Waist'); 
 					fputcsv($f, $fields, $delimiter); 
 					$selectedOwner = "None";
 					$selectedName = "None";
 					$selectedClass = "None";
+					$itemName = "Empty";
+					$itemGearScore = 0;
 					$selectedGearScore = 0;
+					$selectedHaste = 0;
 					$selectedAvgGearScore = "=AVERAGE(INDIRECT(\"E\"&ROW()):INDIRECT(\"X\"&ROW()))";
 					$selectedEar1 = 0;
 					$selectedHead = 0;
@@ -212,6 +216,7 @@ if ($ownercheck == 1) {
 					$selectedWaistName = "Empty";
 					$selectedCharName = 'None';
 					$selectedCharGearScore = 0;
+					$selectedCharHaste = 0;
 					$selectedCharEar1 = 0;
 					$selectedCharHead = 0;
 					$selectedCharFace = 0;
@@ -260,19 +265,22 @@ if ($ownercheck == 1) {
 								//fputcsv($f, $blankLine, $delimiter); 
 								
 								if ($showitemnames == "true") {
-									$lineData = array("", "=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=bot&bot=" . $selectedName . "\", \"" . $selectedName . "\")", $selectedClass, $selectedGearScore / 20, $selectedEar1, $selectedEar2, $selectedHead, $selectedFace, $selectedNeck, $selectedShoulders, $selectedArms, $selectedBack, $selectedWrist1, $selectedWrist2, $selectedRange, $selectedHands, $selectedPrimary, $selectedSecondary, $selectedFinger1, $selectedFinger2, $selectedChest, $selectedLegs, $selectedFeet, $selectedWaist); 
+									$lineData = array("", "=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=bot&bot=" . $selectedName . "\", \"" . $selectedName . "\")", $selectedClass, $selectedGearScore / 20, $selectedHaste, $selectedEar1, $selectedEar2, $selectedHead, $selectedFace, $selectedNeck, $selectedShoulders, $selectedArms, $selectedBack, $selectedWrist1, $selectedWrist2, $selectedRange, $selectedHands, $selectedPrimary, $selectedSecondary, $selectedFinger1, $selectedFinger2, $selectedChest, $selectedLegs, $selectedFeet, $selectedWaist); 
 									fputcsv($f, $lineData, $delimiter);
-									$lineNameData = array("", "", "", "", $selectedEar1Name, $selectedEar2Name, $selectedHeadName, $selectedFaceName, $selectedNeckName, $selectedShouldersName, $selectedArmsName, $selectedBackName, $selectedWrist1Name, $selectedWrist2Name, $selectedRangeName, $selectedHandsName, $selectedPrimaryName, $selectedSecondaryName, $selectedFinger1Name, $selectedFinger2Name, $selectedChestName, $selectedLegsName, $selectedFeetName, $selectedWaistName); 
+									$lineNameData = array("", "", "", "", "", $selectedEar1Name, $selectedEar2Name, $selectedHeadName, $selectedFaceName, $selectedNeckName, $selectedShouldersName, $selectedArmsName, $selectedBackName, $selectedWrist1Name, $selectedWrist2Name, $selectedRangeName, $selectedHandsName, $selectedPrimaryName, $selectedSecondaryName, $selectedFinger1Name, $selectedFinger2Name, $selectedChestName, $selectedLegsName, $selectedFeetName, $selectedWaistName); 
 									fputcsv($f, $lineNameData, $delimiter); 
 								} else {
-									$lineData = array("", "=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=bot&bot=" . $selectedName . "\", \"" . $selectedName . "\")", $selectedClass, $selectedGearScore / 20, $selectedEar1, $selectedEar2, $selectedHead, $selectedFace, $selectedNeck, $selectedShoulders, $selectedArms, $selectedBack, $selectedWrist1, $selectedWrist2, $selectedRange, $selectedHands, $selectedPrimary, $selectedSecondary, $selectedFinger1, $selectedFinger2, $selectedChest, $selectedLegs, $selectedFeet, $selectedWaist); 
+									$lineData = array("", "=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=bot&bot=" . $selectedName . "\", \"" . $selectedName . "\")", $selectedClass, $selectedGearScore / 20, $selectedHaste, $selectedEar1, $selectedEar2, $selectedHead, $selectedFace, $selectedNeck, $selectedShoulders, $selectedArms, $selectedBack, $selectedWrist1, $selectedWrist2, $selectedRange, $selectedHands, $selectedPrimary, $selectedSecondary, $selectedFinger1, $selectedFinger2, $selectedChest, $selectedLegs, $selectedFeet, $selectedWaist); 
 									fputcsv($f, $lineData, $delimiter);
 								}
 							}
 							$selectedName = $row['BotName'];
 							$selectedClass = $row['Class'];
 							$selectedAvgGearScore = "=AVERAGE(INDIRECT(\"E\"&ROW()):INDIRECT(\"X\"&ROW()))";
+							$itemName = "Empty";
+							$itemGearScore = 0;
 							$selectedGearScore = 0;
+							$selectedHaste = 0;
 							$selectedEar1 = 0;
 							$selectedHead = 0;
 							$selectedFace = 0;
@@ -338,7 +346,7 @@ if ($ownercheck == 1) {
 										WHEN cd.class = 16 THEN 'Berserker'
 										ELSE 'None'
 									END AS 'Class'
-									, i.GearScore, inv.slotid as SlotID,
+									, i.GearScore, i.haste AS HastePCT, inv.slotid as SlotID,
 									CASE WHEN inv.slotid = 1 THEN i.GearScore ELSE 0 END AS 'Ear1',
 									CASE WHEN inv.slotid = 2 THEN i.GearScore ELSE 0 END AS 'Head',
 									CASE WHEN inv.slotid = 3 THEN i.GearScore ELSE 0 END AS 'Face',
@@ -360,6 +368,7 @@ if ($ownercheck == 1) {
 									CASE WHEN inv.slotid = 19 THEN i.GearScore ELSE 0 END AS 'Feet',
 									CASE WHEN inv.slotid = 20 THEN i.GearScore ELSE 0 END AS 'Waist'
 									, i.Name AS ItemName, CONCAT('http://vegaseq.com/Allaclone/?a=item&id=',i.id) AS Allaclone 
+									, i.clickeffect AS ClickID
 								FROM character_data cd
 								-- FROM account_ip ai
 								-- INNER JOIN ACCOUNT a ON a.id = ai.accid
@@ -372,32 +381,45 @@ if ($ownercheck == 1) {
 								AND inv.slotid BETWEEN 1 AND 20
 								";
 							$resultchar = $cbsql->query($tpl);
-							if (!$cbsql->rows($resultchar)) cb_message('Success', 'Failed @ ' . $userip . ' - ' . $where . ' - ' . $filename);
+							if (!$cbsql->rows($resultchar)) cb_message('Success', 'p2Failed @ ' . $userip . ' - ' . $where . ' - ' . $filename);
 								$rowchars = $cbsql->fetch_all($resultchar);
 								foreach($rowchars as $rowchar) {
 									$selectedCharName = $rowchar['Owner'];
 									$selectedCharClass = $rowchar['Class'];
 									$selectedCharGearScore += $rowchar['GearScore'];
-									if ($rowchar['Ear1'] > 0) { $selectedCharEar1 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharEar1Name = $rowchar['ItemName'];}
-									if ($rowchar['Head'] > 0) { $selectedCharHead = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharHeadName = $rowchar['ItemName'];}
-									if ($rowchar['Face'] > 0) { $selectedCharFace = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharFaceName = $rowchar['ItemName'];}
-									if ($rowchar['Ear2'] > 0) { $selectedCharEar2 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharEar2Name = $rowchar['ItemName'];}
-									if ($rowchar['Neck'] > 0) { $selectedCharNeck = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharNeckName = $rowchar['ItemName'];}
-									if ($rowchar['Shoulders'] > 0) { $selectedCharShoulders = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharShouldersName = $rowchar['ItemName'];}
-									if ($rowchar['Arms'] > 0) { $selectedCharArms = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharArmsName = $rowchar['ItemName'];}
-									if ($rowchar['Back'] > 0) { $selectedCharBack = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharBackName = $rowchar['ItemName'];}
-									if ($rowchar['Wrist1'] > 0) { $selectedCharWrist1 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharWrist1Name = $rowchar['ItemName'];}
-									if ($rowchar['Wrist2'] > 0) { $selectedCharWrist2 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharWrist2Name = $rowchar['ItemName'];}
-									if ($rowchar['Range'] > 0) { $selectedCharRange = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharRangeName = $rowchar['ItemName'];}
-									if ($rowchar['Hands'] > 0) { $selectedCharHands = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharHandsName = $rowchar['ItemName'];}
-									if ($rowchar['Primary'] > 0) { $selectedCharPrimary = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharPrimaryName = $rowchar['ItemName'];}
-									if ($rowchar['Secondary'] > 0) { $selectedCharSecondary = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharSecondaryName = $rowchar['ItemName'];}
-									if ($rowchar['Finger1'] > 0) { $selectedCharFinger1 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharFinger1Name = $rowchar['ItemName'];}
-									if ($rowchar['Finger2'] > 0) { $selectedCharFinger2 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharFinger2Name = $rowchar['ItemName'];}
-									if ($rowchar['Chest'] > 0) { $selectedCharChest = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharChestName = $rowchar['ItemName'];}
-									if ($rowchar['Legs'] > 0) { $selectedCharLegs = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharLegsName = $rowchar['ItemName'];}
-									if ($rowchar['Feet'] > 0) { $selectedCharFeet = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharFeetName = $rowchar['ItemName'];}
-									if ($rowchar['Waist'] > 0) { $selectedCharWaist = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")"; $selectedCharWaistName = $rowchar['ItemName'];}	
+									if ($rowchar['HastePCT'] > $selectedCharHaste) {
+										$selectedCharHaste = $rowchar['HastePCT'];
+									}
+									$itemName = $rowchar['ItemName'];
+									$itemGearScore = $rowchar['GearScore'];
+									if ($rowchar['ClickID'] > 0) {
+										if ($showitemnames == "true") {
+											$itemName = $itemName . "" . " [C]";
+										}
+										else {
+											$itemGearScore = $itemGearScore . "" . " [C]";
+										}
+									}
+									if ($rowchar['Ear1'] > 0) { $selectedCharEar1 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharEar1Name = $itemName;}
+									if ($rowchar['Head'] > 0) { $selectedCharHead = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharHeadName = $itemName;}
+									if ($rowchar['Face'] > 0) { $selectedCharFace = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharFaceName = $itemName;}
+									if ($rowchar['Ear2'] > 0) { $selectedCharEar2 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharEar2Name = $itemName;}
+									if ($rowchar['Neck'] > 0) { $selectedCharNeck = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharNeckName = $itemName;}
+									if ($rowchar['Shoulders'] > 0) { $selectedCharShoulders = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharShouldersName = $itemName;}
+									if ($rowchar['Arms'] > 0) { $selectedCharArms = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharArmsName = $itemName;}
+									if ($rowchar['Back'] > 0) { $selectedCharBack = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharBackName = $itemName;}
+									if ($rowchar['Wrist1'] > 0) { $selectedCharWrist1 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharWrist1Name = $itemName;}
+									if ($rowchar['Wrist2'] > 0) { $selectedCharWrist2 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharWrist2Name = $itemName;}
+									if ($rowchar['Range'] > 0) { $selectedCharRange = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharRangeName = $itemName;}
+									if ($rowchar['Hands'] > 0) { $selectedCharHands = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharHandsName = $itemName;}
+									if ($rowchar['Primary'] > 0) { $selectedCharPrimary = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharPrimaryName = $itemName;}
+									if ($rowchar['Secondary'] > 0) { $selectedCharSecondary = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharSecondaryName = $itemName;}
+									if ($rowchar['Finger1'] > 0) { $selectedCharFinger1 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharFinger1Name = $itemName;}
+									if ($rowchar['Finger2'] > 0) { $selectedCharFinger2 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharFinger2Name = $itemName;}
+									if ($rowchar['Chest'] > 0) { $selectedCharChest = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharChestName = $itemName;}
+									if ($rowchar['Legs'] > 0) { $selectedCharLegs = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharLegsName = $itemName;}
+									if ($rowchar['Feet'] > 0) { $selectedCharFeet = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharFeetName = $itemName;}
+									if ($rowchar['Waist'] > 0) { $selectedCharWaist = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharWaistName = $itemName;}	
 								}
 							if ($selectedOwner != "None") {
 								$blankLine = array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); 
@@ -410,16 +432,19 @@ if ($ownercheck == 1) {
 							fputcsv($f, $blankLine, $delimiter);
 							
 							if ($showitemnames == "true") {
-								$lineData = array("=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=character&char=" . $selectedCharName . "\", \"" . $selectedCharName . "\")", "", $selectedCharClass, $selectedCharGearScore / 20, $selectedCharEar1, $selectedCharEar2, $selectedCharHead, $selectedCharFace, $selectedCharNeck, $selectedCharShoulders, $selectedCharArms, $selectedCharBack, $selectedCharWrist1, $selectedCharWrist2, $selectedCharRange, $selectedCharHands, $selectedCharPrimary, $selectedCharSecondary, $selectedCharFinger1, $selectedCharFinger2, $selectedCharChest, $selectedCharLegs, $selectedCharFeet, $selectedCharWaist); 
+								$lineData = array("=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=character&char=" . $selectedCharName . "\", \"" . $selectedCharName . "\")", "", $selectedCharClass, $selectedCharGearScore / 20, $selectedCharHaste, $selectedCharEar1, $selectedCharEar2, $selectedCharHead, $selectedCharFace, $selectedCharNeck, $selectedCharShoulders, $selectedCharArms, $selectedCharBack, $selectedCharWrist1, $selectedCharWrist2, $selectedCharRange, $selectedCharHands, $selectedCharPrimary, $selectedCharSecondary, $selectedCharFinger1, $selectedCharFinger2, $selectedCharChest, $selectedCharLegs, $selectedCharFeet, $selectedCharWaist); 
 								fputcsv($f, $lineData, $delimiter);
-								$lineNameData = array("", "", "", "", $selectedCharEar1Name, $selectedCharEar2Name, $selectedCharHeadName, $selectedCharFaceName, $selectedCharNeckName, $selectedCharShouldersName, $selectedCharArmsName, $selectedCharBackName, $selectedCharWrist1Name, $selectedCharWrist2Name, $selectedCharRangeName, $selectedCharHandsName, $selectedCharPrimaryName, $selectedCharSecondaryName, $selectedCharFinger1Name, $selectedCharFinger2Name, $selectedCharChestName, $selectedCharLegsName, $selectedCharFeetName, $selectedCharWaistName); 
+								$lineNameData = array("", "", "", "", "", $selectedCharEar1Name, $selectedCharEar2Name, $selectedCharHeadName, $selectedCharFaceName, $selectedCharNeckName, $selectedCharShouldersName, $selectedCharArmsName, $selectedCharBackName, $selectedCharWrist1Name, $selectedCharWrist2Name, $selectedCharRangeName, $selectedCharHandsName, $selectedCharPrimaryName, $selectedCharSecondaryName, $selectedCharFinger1Name, $selectedCharFinger2Name, $selectedCharChestName, $selectedCharLegsName, $selectedCharFeetName, $selectedCharWaistName); 
 								fputcsv($f, $lineNameData, $delimiter);
 							} else {
-								$lineData = array("=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=character&char=" . $selectedCharName . "\", \"" . $selectedCharName . "\")", "", $selectedCharClass, $selectedCharGearScore / 20, $selectedCharEar1, $selectedCharEar2, $selectedCharHead, $selectedCharFace, $selectedCharNeck, $selectedCharShoulders, $selectedCharArms, $selectedCharBack, $selectedCharWrist1, $selectedCharWrist2, $selectedCharRange, $selectedCharHands, $selectedCharPrimary, $selectedCharSecondary, $selectedCharFinger1, $selectedCharFinger2, $selectedCharChest, $selectedCharLegs, $selectedCharFeet, $selectedCharWaist); 
+								$lineData = array("=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=character&char=" . $selectedCharName . "\", \"" . $selectedCharName . "\")", "", $selectedCharClass, $selectedCharGearScore / 20, $selectedCharHaste, $selectedCharEar1, $selectedCharEar2, $selectedCharHead, $selectedCharFace, $selectedCharNeck, $selectedCharShoulders, $selectedCharArms, $selectedCharBack, $selectedCharWrist1, $selectedCharWrist2, $selectedCharRange, $selectedCharHands, $selectedCharPrimary, $selectedCharSecondary, $selectedCharFinger1, $selectedCharFinger2, $selectedCharChest, $selectedCharLegs, $selectedCharFeet, $selectedCharWaist); 
 								fputcsv($f, $lineData, $delimiter);
 							} 
 							$selectedCharName = 'None';
+							$itemName = "Empty";
+							$itemGearScore = 0;
 							$selectedCharGearScore = 0;
+							$selectedCharHaste = 0;
 							$selectedCharEar1 = 0;
 							$selectedCharHead = 0;
 							$selectedCharFace = 0;
@@ -462,39 +487,52 @@ if ($ownercheck == 1) {
 							$selectedCharWaistName = "Empty";
 						}
 						$selectedGearScore += $row['GearScore'];
-						if ($row['Ear1'] > 0) { $selectedEar1 = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedEar1Name = $row['ItemName'];}
-						if ($row['Head'] > 0) { $selectedHead = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedHeadName = $row['ItemName'];}
-						if ($row['Face'] > 0) { $selectedFace = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedFaceName = $row['ItemName'];}
-						if ($row['Ear2'] > 0) { $selectedEar2 = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedEar2Name = $row['ItemName'];}
-						if ($row['Neck'] > 0) { $selectedNeck = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedNeckName = $row['ItemName'];}
-						if ($row['Shoulders'] > 0) { $selectedShoulders = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedShouldersName = $row['ItemName'];}
-						if ($row['Arms'] > 0) { $selectedArms = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedArmsName = $row['ItemName'];}
-						if ($row['Back'] > 0) { $selectedBack = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedBackName = $row['ItemName'];}
-						if ($row['Wrist1'] > 0) { $selectedWrist1 = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedWrist1Name = $row['ItemName'];}
-						if ($row['Wrist2'] > 0) { $selectedWrist2 = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedWrist2Name = $row['ItemName'];}
-						if ($row['Range'] > 0) { $selectedRange = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedRangeName = $row['ItemName'];}
-						if ($row['Hands'] > 0) { $selectedHands = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedHandsName = $row['ItemName'];}
-						if ($row['Primary'] > 0) { $selectedPrimary = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedPrimaryName = $row['ItemName'];}
-						if ($row['Secondary'] > 0) { $selectedSecondary = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedSecondaryName = $row['ItemName'];}
-						if ($row['Finger1'] > 0) { $selectedFinger1 = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedFinger1Name = $row['ItemName'];}
-						if ($row['Finger2'] > 0) { $selectedFinger2 = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedFinger2Name = $row['ItemName'];}
-						if ($row['Chest'] > 0) { $selectedChest = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedChestName = $row['ItemName'];}
-						if ($row['Legs'] > 0) { $selectedLegs = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedLegsName = $row['ItemName'];}
-						if ($row['Feet'] > 0) { $selectedFeet = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedFeetName = $row['ItemName'];}
-						if ($row['Waist'] > 0) { $selectedWaist = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $row['GearScore'] . "\")"; $selectedWaistName = $row['ItemName'];}
+						if ($row['HastePCT'] > $selectedHaste) {
+							$selectedHaste = $row['HastePCT'];
+						}
+						$itemName = $row['ItemName'];
+						$itemGearScore = $row['GearScore'];
+						if ($row['ClickID'] > 0) {
+							if ($showitemnames == "true") {
+								$itemName = $itemName . "" . " [C]";
+							}
+							else {
+								$itemGearScore = $itemGearScore . "" . " [C]";
+							}
+						}
+						if ($row['Ear1'] > 0) { $selectedEar1 = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedEar1Name = $itemName;}
+						if ($row['Head'] > 0) { $selectedHead = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedHeadName = $itemName;}
+						if ($row['Face'] > 0) { $selectedFace = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedFaceName = $itemName;}
+						if ($row['Ear2'] > 0) { $selectedEar2 = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedEar2Name = $itemName;}
+						if ($row['Neck'] > 0) { $selectedNeck = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedNeckName = $itemName;}
+						if ($row['Shoulders'] > 0) { $selectedShoulders = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedShouldersName = $itemName;}
+						if ($row['Arms'] > 0) { $selectedArms = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedArmsName = $itemName;}
+						if ($row['Back'] > 0) { $selectedBack = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedBackName = $itemName;}
+						if ($row['Wrist1'] > 0) { $selectedWrist1 = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedWrist1Name = $itemName;}
+						if ($row['Wrist2'] > 0) { $selectedWrist2 = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedWrist2Name = $itemName;}
+						if ($row['Range'] > 0) { $selectedRange = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedRangeName = $itemName;}
+						if ($row['Hands'] > 0) { $selectedHands = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedHandsName = $itemName;}
+						if ($row['Primary'] > 0) { $selectedPrimary = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedPrimaryName = $itemName;}
+						if ($row['Secondary'] > 0) { $selectedSecondary = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedSecondaryName = $itemName;}
+						if ($row['Finger1'] > 0) { $selectedFinger1 = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedFinger1Name = $itemName;}
+						if ($row['Finger2'] > 0) { $selectedFinger2 = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedFinger2Name = $itemName;}
+						if ($row['Chest'] > 0) { $selectedChest = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedChestName = $itemName;}
+						if ($row['Legs'] > 0) { $selectedLegs = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedLegsName = $itemName;}
+						if ($row['Feet'] > 0) { $selectedFeet = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedFeetName = $itemName;}
+						if ($row['Waist'] > 0) { $selectedWaist = "=HYPERLINK(\"" . $row['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedWaistName = $itemName;}
 					} 
 					//$blankLine = array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); 
 					//fputcsv($f, $blankLine, $delimiter); 
 					if ($showitemnames == "true") {
-						$lineData = array("", "=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=bot&bot=" . $selectedName . "\", \"" . $selectedName . "\")", $selectedClass, $selectedGearScore / 20, $selectedEar1, $selectedEar2, $selectedHead, $selectedFace, $selectedNeck, $selectedShoulders, $selectedArms, $selectedBack, $selectedWrist1, $selectedWrist2, $selectedRange, $selectedHands, $selectedPrimary, $selectedSecondary, $selectedFinger1, $selectedFinger2, $selectedChest, $selectedLegs, $selectedFeet, $selectedWaist); 
+						$lineData = array("", "=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=bot&bot=" . $selectedName . "\", \"" . $selectedName . "\")", $selectedClass, $selectedGearScore / 20, $selectedHaste, $selectedEar1, $selectedEar2, $selectedHead, $selectedFace, $selectedNeck, $selectedShoulders, $selectedArms, $selectedBack, $selectedWrist1, $selectedWrist2, $selectedRange, $selectedHands, $selectedPrimary, $selectedSecondary, $selectedFinger1, $selectedFinger2, $selectedChest, $selectedLegs, $selectedFeet, $selectedWaist); 
 						fputcsv($f, $lineData, $delimiter); 
-						$lineNameData = array("", "", "", "", $selectedEar1Name, $selectedEar2Name, $selectedHeadName, $selectedFaceName, $selectedNeckName, $selectedShouldersName, $selectedArmsName, $selectedBackName, $selectedWrist1Name, $selectedWrist2Name, $selectedRangeName, $selectedHandsName, $selectedPrimaryName, $selectedSecondaryName, $selectedFinger1Name, $selectedFinger2Name, $selectedChestName, $selectedLegsName, $selectedFeetName, $selectedWaistName); 
+						$lineNameData = array("", "", "", "", "", $selectedEar1Name, $selectedEar2Name, $selectedHeadName, $selectedFaceName, $selectedNeckName, $selectedShouldersName, $selectedArmsName, $selectedBackName, $selectedWrist1Name, $selectedWrist2Name, $selectedRangeName, $selectedHandsName, $selectedPrimaryName, $selectedSecondaryName, $selectedFinger1Name, $selectedFinger2Name, $selectedChestName, $selectedLegsName, $selectedFeetName, $selectedWaistName); 
 						fputcsv($f, $lineNameData, $delimiter); 
 					} else {
 						if ($csvtype == "this") {
 							$selectedGearScore = $selectedGearScore / 4;
 						}
-						$lineData = array("", "=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=bot&bot=" . $selectedName . "\", \"" . $selectedName . "\")", $selectedClass, $selectedGearScore / 20, $selectedEar1, $selectedEar2, $selectedHead, $selectedFace, $selectedNeck, $selectedShoulders, $selectedArms, $selectedBack, $selectedWrist1, $selectedWrist2, $selectedRange, $selectedHands, $selectedPrimary, $selectedSecondary, $selectedFinger1, $selectedFinger2, $selectedChest, $selectedLegs, $selectedFeet, $selectedWaist); 
+						$lineData = array("", "=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=bot&bot=" . $selectedName . "\", \"" . $selectedName . "\")", $selectedClass, $selectedGearScore / 20, $selectedHaste, $selectedEar1, $selectedEar2, $selectedHead, $selectedFace, $selectedNeck, $selectedShoulders, $selectedArms, $selectedBack, $selectedWrist1, $selectedWrist2, $selectedRange, $selectedHands, $selectedPrimary, $selectedSecondary, $selectedFinger1, $selectedFinger2, $selectedChest, $selectedLegs, $selectedFeet, $selectedWaist); 
 						fputcsv($f, $lineData, $delimiter); 
 					}
 					
@@ -531,7 +569,7 @@ if ($ownercheck == 1) {
 						WHEN cd.class = 16 THEN 'Berserker'
 						ELSE 'None'
 					END AS 'Class'
-					, i.GearScore, inv.slotid as SlotID,
+					, i.GearScore, i.haste AS HastePCT, inv.slotid as SlotID,
 					CASE WHEN inv.slotid = 1 THEN i.GearScore ELSE 0 END AS 'Ear1',
 					CASE WHEN inv.slotid = 2 THEN i.GearScore ELSE 0 END AS 'Head',
 					CASE WHEN inv.slotid = 3 THEN i.GearScore ELSE 0 END AS 'Face',
@@ -553,6 +591,7 @@ if ($ownercheck == 1) {
 					CASE WHEN inv.slotid = 19 THEN i.GearScore ELSE 0 END AS 'Feet',
 					CASE WHEN inv.slotid = 20 THEN i.GearScore ELSE 0 END AS 'Waist'
 					, i.Name AS ItemName, CONCAT('http://vegaseq.com/Allaclone/?a=item&id=',i.id) AS Allaclone 
+					, i.clickeffect AS ClickID
 				FROM character_data cd
 				-- FROM account_ip ai
 				-- INNER JOIN ACCOUNT a ON a.id = ai.accid
@@ -564,43 +603,56 @@ if ($ownercheck == 1) {
 				AND inv.slotid BETWEEN 1 AND 20
 				";
 			$resultchar = $cbsql->query($tpl);
-			if (!$cbsql->rows($resultchar)) cb_message('Success', 'Failed @ ' . $userip . ' - ' . $where . ' - ' . $filename);
+			if (!$cbsql->rows($resultchar)) cb_message('Success', 'p3Failed @ ' . $userip . ' - ' . $where . ' - ' . $filename);
 				$rowchars = $cbsql->fetch_all($resultchar);
 				foreach($rowchars as $rowchar) {
 					$selectedCharName = $rowchar['Owner'];
 					$selectedCharClass = $rowchar['Class'];
 					$selectedCharGearScore += $rowchar['GearScore'];
-					if ($rowchar['Ear1'] > 0) { $selectedCharEar1 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Head'] > 0) { $selectedCharHead = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Face'] > 0) { $selectedCharFace = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Ear2'] > 0) { $selectedCharEar2 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Neck'] > 0) { $selectedCharNeck = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Shoulders'] > 0) { $selectedCharShoulders = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Arms'] > 0) { $selectedCharArms = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Back'] > 0) { $selectedCharBack = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Wrist1'] > 0) { $selectedCharWrist1 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Wrist2'] > 0) { $selectedCharWrist2 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Range'] > 0) { $selectedCharRange = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Hands'] > 0) { $selectedCharHands = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Primary'] > 0) { $selectedCharPrimary = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Secondary'] > 0) { $selectedCharSecondary = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Finger1'] > 0) { $selectedCharFinger1 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Finger2'] > 0) { $selectedCharFinger2 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Chest'] > 0) { $selectedCharChest = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Legs'] > 0) { $selectedCharLegs = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Feet'] > 0) { $selectedCharFeet = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
-					if ($rowchar['Waist'] > 0) { $selectedCharWaist = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $rowchar['GearScore'] . "\")";}
+					if ($rowchar['HastePCT'] > $selectedCharHaste) {
+						$selectedCharHaste = $rowchar['HastePCT'];
+					}
+					$itemName = $rowchar['ItemName'];
+					$itemGearScore = $rowchar['GearScore'];
+					if ($rowchar['ClickID'] > 0) {
+						if ($showitemnames == "true") {
+							$itemName = $itemName . "" . " [C]";
+						}
+						else {
+							$itemGearScore = $itemGearScore . "" . " [C]";
+						}
+					}
+					if ($rowchar['Ear1'] > 0) { $selectedCharEar1 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Head'] > 0) { $selectedCharHead = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Face'] > 0) { $selectedCharFace = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Ear2'] > 0) { $selectedCharEar2 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Neck'] > 0) { $selectedCharNeck = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Shoulders'] > 0) { $selectedCharShoulders = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Arms'] > 0) { $selectedCharArms = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Back'] > 0) { $selectedCharBack = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Wrist1'] > 0) { $selectedCharWrist1 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Wrist2'] > 0) { $selectedCharWrist2 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Range'] > 0) { $selectedCharRange = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Hands'] > 0) { $selectedCharHands = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Primary'] > 0) { $selectedCharPrimary = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Secondary'] > 0) { $selectedCharSecondary = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Finger1'] > 0) { $selectedCharFinger1 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Finger2'] > 0) { $selectedCharFinger2 = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Chest'] > 0) { $selectedCharChest = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Legs'] > 0) { $selectedCharLegs = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Feet'] > 0) { $selectedCharFeet = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
+					if ($rowchar['Waist'] > 0) { $selectedCharWaist = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")";}
 				}
 			$blankLine = array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); 
 			fputcsv($f, $blankLine, $delimiter);
 			
 			if ($showitemnames == "true") {
-				$lineData = array("=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=character&char=" . $selectedCharName . "\", \"" . $selectedCharName . "\")", "", $selectedCharClass, $selectedCharGearScore / 20, $selectedCharEar1, $selectedCharEar2, $selectedCharHead, $selectedCharFace, $selectedCharNeck, $selectedCharShoulders, $selectedCharArms, $selectedCharBack, $selectedCharWrist1, $selectedCharWrist2, $selectedCharRange, $selectedCharHands, $selectedCharPrimary, $selectedCharSecondary, $selectedCharFinger1, $selectedCharFinger2, $selectedCharChest, $selectedCharLegs, $selectedCharFeet, $selectedCharWaist); 
+				$lineData = array("=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=character&char=" . $selectedCharName . "\", \"" . $selectedCharName . "\")", "", $selectedCharClass, $selectedCharGearScore / 20, $selectedCharHaste, $selectedCharEar1, $selectedCharEar2, $selectedCharHead, $selectedCharFace, $selectedCharNeck, $selectedCharShoulders, $selectedCharArms, $selectedCharBack, $selectedCharWrist1, $selectedCharWrist2, $selectedCharRange, $selectedCharHands, $selectedCharPrimary, $selectedCharSecondary, $selectedCharFinger1, $selectedCharFinger2, $selectedCharChest, $selectedCharLegs, $selectedCharFeet, $selectedCharWaist); 
 				fputcsv($f, $lineData, $delimiter);
-				$lineNameData = array("", "", "", "", $selectedCharEar1Name, $selectedCharEar2Name, $selectedCharHeadName, $selectedCharFaceName, $selectedCharNeckName, $selectedCharShouldersName, $selectedCharArmsName, $selectedCharBackName, $selectedCharWrist1Name, $selectedCharWrist2Name, $selectedCharRangeName, $selectedCharHandsName, $selectedCharPrimaryName, $selectedCharSecondaryName, $selectedCharFinger1Name, $selectedCharFinger2Name, $selectedCharChestName, $selectedCharLegsName, $selectedCharFeetName, $selectedCharWaistName); 
+				$lineNameData = array("", "", "", "", "", $selectedCharEar1Name, $selectedCharEar2Name, $selectedCharHeadName, $selectedCharFaceName, $selectedCharNeckName, $selectedCharShouldersName, $selectedCharArmsName, $selectedCharBackName, $selectedCharWrist1Name, $selectedCharWrist2Name, $selectedCharRangeName, $selectedCharHandsName, $selectedCharPrimaryName, $selectedCharSecondaryName, $selectedCharFinger1Name, $selectedCharFinger2Name, $selectedCharChestName, $selectedCharLegsName, $selectedCharFeetName, $selectedCharWaistName); 
 				fputcsv($f, $lineNameData, $delimiter);
 			} else {
-				$lineData = array("=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=character&char=" . $selectedCharName . "\", \"" . $selectedCharName . "\")", "", $selectedCharClass, $selectedCharGearScore / 20, $selectedCharEar1, $selectedCharEar2, $selectedCharHead, $selectedCharFace, $selectedCharNeck, $selectedCharShoulders, $selectedCharArms, $selectedCharBack, $selectedCharWrist1, $selectedCharWrist2, $selectedCharRange, $selectedCharHands, $selectedCharPrimary, $selectedCharSecondary, $selectedCharFinger1, $selectedCharFinger2, $selectedCharChest, $selectedCharLegs, $selectedCharFeet, $selectedCharWaist); 
+				$lineData = array("=HYPERLINK(\"http://vegaseq.com/charbrowser/index.php?page=character&char=" . $selectedCharName . "\", \"" . $selectedCharName . "\")", "", $selectedCharClass, $selectedCharGearScore / 20, $selectedCharHaste, $selectedCharEar1, $selectedCharEar2, $selectedCharHead, $selectedCharFace, $selectedCharNeck, $selectedCharShoulders, $selectedCharArms, $selectedCharBack, $selectedCharWrist1, $selectedCharWrist2, $selectedCharRange, $selectedCharHands, $selectedCharPrimary, $selectedCharSecondary, $selectedCharFinger1, $selectedCharFinger2, $selectedCharChest, $selectedCharLegs, $selectedCharFeet, $selectedCharWaist); 
 				fputcsv($f, $lineData, $delimiter);
 			} 
 		}
