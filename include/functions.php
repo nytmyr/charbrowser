@@ -325,9 +325,10 @@ function output_profile_menu($charname, $curpage) {
       array( 'PAGE' => 'bots', 'BUTTON_NAME' => $language['BUTTON_BOTS'], 'PERMISSION' => $cb_show_bots),
       array( 'PAGE' => 'bazaar', 'BUTTON_NAME' => $language['BUTTON_STORE'], 'PERMISSION' => 1),
       array( 'PAGE' => 'barter', 'BUTTON_NAME' => $language['BUTTON_BARTER'], 'PERMISSION' => 1),
-      array( 'PAGE' => 'adventure', 'BUTTON_NAME' => $language['BUTTON_ADVENTURE'], 'PERMISSION' => 1),
+      //array( 'PAGE' => 'adventure', 'BUTTON_NAME' => $language['BUTTON_ADVENTURE'], 'PERMISSION' => 1),
       array( 'PAGE' => 'signaturebuilder', 'BUTTON_NAME' => $language['BUTTON_SIG'], 'PERMISSION' => 1),
-      array( 'PAGE' => 'charmove', 'BUTTON_NAME' => $language['BUTTON_CHARMOVE'], 'PERMISSION' => 1),
+      //array( 'PAGE' => 'charmove', 'BUTTON_NAME' => $language['BUTTON_CHARMOVE'], 'PERMISSION' => 1),
+	  array( 'PAGE' => 'raidpoints', 'BUTTON_NAME' => $language['BUTTON_RAID'], 'PERMISSION' => 1),
    );
    
    $otherbuttons = array(
@@ -436,7 +437,9 @@ function GetPermissions($gm, $anonlevel, $char_id) {
          'skills'            => 0,
          'languageskills'    => 0,
          'keys'              => 0,
-         'signatures'        => 0);
+         'signatures'        => 0,
+		 'botsettings'        => 0,
+		 'raidpoints'        => 0);
    }
  
    $tpl = <<<TPL
@@ -527,6 +530,43 @@ function cb_message($title, $text) {
 
 }
 
+function cb_commandsettings($title, $text) {
+   global $language;
+   global $cb_template;
+   $cb_template->set_filenames(array(
+      'message' => 'commandsettings_body.tpl')
+   );
+
+   $cb_template->assign_both_vars(array(  
+      'TITLE' => $title,
+      'TEXT' => $text)
+   );
+   $cb_template->assign_vars(array( 
+      'L_BACK' => $language['BUTTON_BACK'])
+   );
+
+   $cb_template->pparse('message');
+
+}
+
+function cb_botcommandsettings($title, $text) {
+   global $language;
+   global $cb_template;
+   $cb_template->set_filenames(array(
+      'message' => 'botcommandsettings_body.tpl')
+   );
+
+   $cb_template->assign_both_vars(array(  
+      'TITLE' => $title,
+      'TEXT' => $text)
+   );
+   $cb_template->assign_vars(array( 
+      'L_BACK' => $language['BUTTON_BACK'])
+   );
+
+   $cb_template->pparse('message');
+
+}
 
 function cb_generate_pagination($base_url, $num_items, $per_page, $start_item, $add_prevnext_text = TRUE)
 {
@@ -670,13 +710,6 @@ function QuickTemplate($cb_template, $values)
    return $cb_template;
 }
 
-function getIPAddress() {  
-	$ip = getenv('HTTP_CLIENT_IP')?:
-		getenv('HTTP_X_FORWARDED_FOR')?:
-		getenv('HTTP_X_FORWARDED')?:
-		getenv('HTTP_FORWARDED_FOR')?:
-		getenv('HTTP_FORWARDED')?:
-		getenv('REMOTE_ADDR');
-	return $ip;  
-}  
+//custom functions
+
 ?>

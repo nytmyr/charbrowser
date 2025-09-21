@@ -1079,6 +1079,7 @@ $dbbardskills[23] = "Wind Instruments";
 $dbbardskills[24] = "Stringed Instruments";
 $dbbardskills[25] = "Brass Instruments";
 $dbbardskills[26] = "Percussion Instruments";
+$dbbardskills[50] = "Singing";
 $dbbardskills[51] = "All Instruments";
 
 // Class Names

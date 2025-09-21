@@ -19,8 +19,6 @@
             <li id='tab5' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab5', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox5');">ATK</li> 
             <li id='tab6' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab6', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox6');">AC</li> 
             <li id='tab7' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab7', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox7');">Mit AC</li> 
-			<li id='tab8' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab8', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox8');">GearScore</li> 
-			<li id='tab9' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab9', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox9');">AVG GS</li> 
          </ul>
       </nav>      
       <div id='tabbox1' class='InventoryContents'>

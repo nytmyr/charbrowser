@@ -42,37 +42,34 @@ $charID = $char->char_id();
 $name = $char->GetValue('name');
 $mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $char->char_id());
 $userip = getIPAddress(); 
-$ownercheck = 0;
-if ($userip == '192.168.1.1') {
-	$userip = '192.168.1.13';
+
+$tpl = 
+	<<<TPL
+		SELECT ai.ip as ip
+		FROM character_data cd
+		INNER JOIN account_ip AI on ai.accid = cd.account_id
+		WHERE cd.id = $charID
+		ORDER BY ai.lastused DESC
+		LIMIT 1
+	TPL;
+	$result = $cbsql->query($tpl);
+	$bots = $cbsql->fetch_all($result);  
+foreach($bots as $bot) {
+	if ($bot['ip'] == $userip || $userip == $defaultedlocalhost || $userip == $localipaddress || $userip == $defaultgateway || $userip == $publicip) {
+		$ownercheck = 1;
+	}
 }
+
 //block view if user level doesnt have permission
-if ($mypermission['bots']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_ITEM_NO_VIEW']);
+if ($mypermission['bots'] && $ownercheck != 1) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_PERMISSIONS_ERROR']);
  
  
 /*********************************************
         GATHER RELEVANT PAGE DATA
 *********************************************/
-$tpl = <<<TPL
-SELECT ai.ip as ip
-FROM character_data cd
-INNER JOIN account_ip AI on ai.accid = cd.account_id
-WHERE cd.id = $charID
-ORDER BY ai.lastused DESC
-LIMIT 1
-TPL;
-$query = sprintf($tpl, $charID);
-$result = $cbsql->query($query);
-if (!$cbsql->rows($result)) cb_message_die($language['BOTS_BOTS']." - ".$name,$language['MESSAGE_NO_BOTS']);
-$bots = $cbsql->fetch_all($result);  
-foreach($bots as $bot) {
-   if ($bot['ip'] == $userip && $ownercheck != 1) {
-	   $ownercheck = 1;
-   }
-}
-#echo "$userip!<br>"; #delete me
-#echo "Owner check: $ownercheck<br>"; #delete me
+
 if ($ownercheck == 1) {
+	$botip = $bot['ip'];
 	$tpl = <<<TPL
 		SELECT bd.name AS name, bd.race AS race, bd.gender AS gender
 				, bd.class AS class, bd.face AS face, bd.level AS level
@@ -85,7 +82,7 @@ if ($ownercheck == 1) {
 		FROM account_ip ai 
 		LEFT JOIN character_data cd ON cd.account_id = ai.accid
 		LEFT JOIN bot_data bd ON bd.owner_id = cd.id
-		WHERE ai.ip = '$userip'
+		WHERE ai.ip = '$botip'
 		AND bd.name NOT LIKE '%-deleted-%'
 		GROUP BY ai.ip, bd.bot_id
 		ORDER BY namescore ASC, cd.aa_points_spent DESC, bd.name ASC 
@@ -96,6 +93,7 @@ if ($ownercheck == 1) {
 		class, face, level
 	FROM bot_data 
 	WHERE owner_id = $charID 
+	AND `name` NOT LIKE '%-deleted-%'
 	ORDER BY name ASC 
 	TPL;
 }

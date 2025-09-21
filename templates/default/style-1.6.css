@@ -1975,10 +1975,33 @@ BODY.CB_Body {
    margin: 0 auto;
    position: relative;
 }
+#charbrowser .PositionRaid {
+   width: 450px;
+   margin: 0 auto;
+   position: relative;
+}
 #charbrowser .PositionMessage {
    width: 400px;
    margin: 0 auto;
    position: relative;
+}
+
+#charbrowser .PositionCommandSettings {
+   width: 400px;
+   height: 140px;
+   top: 725px;
+   left: 650px;
+   margin: 0 auto;
+   position: absolute;
+}
+
+#charbrowser .BotPositionCommandSettings {
+   width: 400px;
+   height: 1380px;
+   top: 725px;
+   left: 725px;
+   margin: 0 auto;
+   position: absolute;
 }
 
 #charbrowser .PositionHelp,
@@ -2159,6 +2182,14 @@ BODY.CB_Body {
 }
 #charbrowser .PositionAdventure TABLE.CB_Table TBODY TR TD:nth-child(5) {
    text-align: right;
+}
+
+#charbrowser .PositionCharHealSettings {
+   position: absolute;
+   width: 400px;
+   height: 150px;
+   top: 150px;
+   left: -580px;
 }
 
 
