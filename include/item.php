@@ -38,6 +38,13 @@
  *     relocated GetFieldByQuery to db.php
  *   March 16, 2022 - Maudigan
  *     added item type to item display
+ *   November 27, 2022 - Maudigan
+ *     corrected "hpregen" column to "regen" 
+ *     added missing $dbbagtypes array
+ *     clarified details about bag type and tradeskill containers
+ *   January 16, 2023 - modified the "get" functions to use the new
+ *                      breakout_bits function
+ *
  ***************************************************************************/
 
 
@@ -50,99 +57,70 @@ include_once(__DIR__ . "/db.php");
 
 
 
- function strtolower_ucfirst($txt) {
-   if ($txt=="") { return $txt; }
-   else {
+function strtolower_ucfirst($txt) 
+{
+   if ($txt=="") 
+   { 
+      return $txt; 
+   }
+   else 
+   {
       $txt=strtolower($txt);
       $txt[0]=strtoupper($txt[0]);
       return $txt;
    }
 }
 
-
- /** Returns the list of slot names '$val' corresponds to (as a bit field)
- */
-function getslots($val) {
+//convert the bitwise slot variable on item record
+//into a string list of slot names
+function getslots($slotbits)
+{
    global $dbslots;
-   reset($dbslots);
-   do {
-      $key = key($dbslots);
-      if($key <= $val) {
-         $val -= $key;
-         $Result = current($dbslots).$v.$Result;
-         $v = " ";
-      }
-   } while (next($dbslots));
-   return $Result;
+   return breakout_bits($slotbits, $dbslots, " ", "NONE");
 }
 
-function getraces($val) {
-   if ($val==0)
-      return "NONE";
+//convert the bitwise race variable on item record
+//into a string list of race names
+function getraces($racebits)
+{
    global $dbraces;
-   reset($dbraces);
-   do {
-      $key=key($dbraces);
-      if ($key<=$val) {
-         $val-=$key;
-         $res=current($dbraces).$v.$res;
-         $v=" ";
-      }
-   } while (next($dbraces));
-   return $res;
+   return breakout_bits($racebits, $dbraces, " ", "NONE");
 }
 
-function getclasses($val) {
-   if ($val==0)
-      return "NONE";
+//convert the bitwise classes variable on item record
+//into a string list of class names
+function getclasses($classbits)
+{
    global $dbiclasses;
-   reset($dbiclasses);
-   do {
-      $key=key($dbiclasses);
-      if ($key<=$val) {
-         $val-=$key;
-         $res=current($dbiclasses).$v.$res;
-         $v=" ";
-      }
-   } while (next($dbiclasses));
-   return $res;
+   return breakout_bits($classbits, $dbiclasses, " ", "NONE");
 }
 
-function getdeities($val) {
+//convert the bitwise deity variable on item record
+//into a string list of deity names
+function getdeities($deitybits)
+{
    global $dbideities;
-   reset($dbideities);
-   do {
-      $key=key($dbideities);
-      if ($key<=$val) {
-         $val-=$key; $res.=$v.current($dbideities); $v=", ";
-      }
-   } while (next($dbideities));
-   return $res;
+   return breakout_bits($deitybits, $dbideities, ", ", "");
 }
 
-
-function getaugtype($val)
+//convert the bitwise augment types variable on item record
+//into a string list of augment slots
+function getaugtype($augbits)
 {
    global $augtypes;
-   reset($augtypes);
-   do {
-      $key = key($augtypes);
-      if($key <= $val) {
-         $val -= $key;
-         $res .= $v . current($augtypes);
-         $v = ", ";
-      }
-   }
-   while (next($augtypes));
-   return $res;
+   return breakout_bits($augbits, $augtypes, ", ", "");
 }
 
 
 function sign($val) {
-   if ($val>0)
-      return "+$val";
+   if ($val > 0)
+   {
+      return "+" . $val;
+   }
    else
+   {
       return $val;
+   }
 }
 
 function getsize($val) {
@@ -212,12 +190,15 @@ function GetItem($item)
    global $dbskills;
    global $dam2h;
    global $dbitypes;
+   global $dbbagtypes;
    global $tbspells;
    global $dbbodytypes;
+   global $dbbagtypetoskill;
    global $dbbardskills;
    global $link_spell;
    global $itemstatsdisplay;
    global $cbspellcache;
+   global $dbnpcraces;
 
    //return buffer, build item here
    $Output = "";
@@ -281,8 +262,8 @@ function GetItem($item)
       if($item["bagslots"] > 0) {
          $Output .= "Item Type: Container<br>";
          $Output .= "Bag Slots: " . min(MAX_BAG_SLOTS, $item["bagslots"]) . "<br>";
-         if($item["bagtype"] > 0)
-            $Output .= "Tradeskill Container: " . $dbbagtypes[$item["bagtype"]] . "<br>";
+         if($dbbagtypetoskill[$item["bagtype"]])
+            $Output .= "Tradeskill Container: " . $dbskills[$dbbagtypetoskill[$item["bagtype"]]] . "<br>";
 
          if($item["bagwr"] > 0)
             $Output .= "Weight Reduction: " . $item["bagwr"] . "%<br>";
@@ -356,63 +337,83 @@ function GetItem($item)
       if ($item["proceffect"] > 0 AND $item["proceffect"] < 65535) {
          $temp = QuickTemplate($link_spell, array('SPELL_ID' => $item["proceffect"]));
          $itemrow = $cbspellcache->get_spell($item["proceffect"]);
-         $Output .= "Proc Effect: <a href='" . $temp . "'>" . $itemrow['name'] . "</a>";
-         if ($item["proclevel2"] > 0)
-            $Output .= " <i>(Level " . $item["proclevel2"] . ")</i>";
+         if ($itemrow !== false) {
+            $Output .= "Proc Effect: <a href='" . $temp . "'>" . $itemrow['name'] . "</a>";
+            if ($item["proclevel2"] > 0)
+               $Output .= " <i>(Level " . $item["proclevel2"] . ")</i>";
 
-         $Output .= "<br>";
+            $Output .= "<br>";
+         }
+         else {
+            $Output .= $tab."Proc Effect: UNKNOWN";
+         }
       }
 
       // Worn Effect
       if ($item["worneffect"] > 0 AND $item["worneffect"] < 65535) {
          $temp = QuickTemplate($link_spell, array('SPELL_ID' => $item["worneffect"]));
          $itemrow = $cbspellcache->get_spell($item["worneffect"]);
-         $Output .= "Worn Effect: <a href='" . $temp . "'>"  . $itemrow['name'] . "</a>";
-         if ($item["wornlevel"] > 0)
-            $Output .= " <i>(Level " . $item["wornlevel"] . ")</i>";
+         if ($itemrow !== false) {
+            $Output .= "Worn Effect: <a href='" . $temp . "'>"  . $itemrow['name'] . "</a>";
+            if ($item["wornlevel"] > 0)
+               $Output .= " <i>(Level " . $item["wornlevel"] . ")</i>";
 
-         $Output .= "<br>";
+            $Output .= "<br>";
+         }
+         else {
+            $Output .= $tab."Worn Effect: UNKNOWN";
+         }
       }
 
       // Focus Effect
       if ($item["focuseffect"] > 0 AND $item["focuseffect"] < 65535) {
          $temp = QuickTemplate($link_spell, array('SPELL_ID' => $item["focuseffect"]));
          $itemrow = $cbspellcache->get_spell($item["focuseffect"]);
-         $Output .= "Focus Effect: <a href='" . $temp . "'>" . $itemrow['name'] . "</a>";
-         if ($item["focuslevel"] > 0)
-            $Output .= " <i>(Level " . $item["focuslevel"] . ")</i>";
+         if ($itemrow !== false) {
+            $Output .= "Focus Effect: <a href='" . $temp . "'>" . $itemrow['name'] . "</a>";
+            if ($item["focuslevel"] > 0)
+               $Output .= " <i>(Level " . $item["focuslevel"] . ")</i>";
 
-         $Output .= "<br>";
+            $Output .= "<br>";
+         }
+         else {
+            $Output .= $tab."Focus Effect: UNKNOWN";
+         }
       }
 
       // Click Effect
       if ($item["clickeffect"] > 0 AND $item["clickeffect"] < 65535) {
          $temp = QuickTemplate($link_spell, array('SPELL_ID' => $item["clickeffect"]));
          $itemrow = $cbspellcache->get_spell($item["clickeffect"]);
-         $Output .= $tab."Click Effect: <a href='".$temp."'>".$itemrow['name']."</a>";
-         $Output .= "&nbsp;(";
-         if ($item["clicktype"] == 1)
-            $Output .= "Any Slot, ";
+         if ($itemrow !== false) {
+            $Output .= $tab."Click Effect: <a href='".$temp."'>".$itemrow['name']."</a>";
+            $Output .= "&nbsp;(";
+            if ($item["clicktype"] == 1)
+               $Output .= "Any Slot, ";
 
-         if ($item["clicktype"] == 4)
-            $Output .= "Must Equip, ";
+            if ($item["clicktype"] == 4)
+               $Output .= "Must Equip, ";
 
-         if ($item["clicktype"] == 5)
-            $Output .= "Any Slot/Can Equip, ";
+            if ($item["clicktype"] == 5)
+               $Output .= "Any Slot/Can Equip, ";
 
-         $Output .= "Casting Time: ";
-         if ($item["casttime"] > 0) {
-            $casttime = sprintf("%.1f",$item["casttime"] / 1000);
-            $Output .= $casttime;
+            $Output .= "Casting Time: ";
+            if ($item["casttime"] > 0) {
+               $casttime = sprintf("%.1f",$item["casttime"] / 1000);
+               $Output .= $casttime;
+            }
+            else
+               $Output .= "Instant";
+
+            $Output .= ")";
+            if ($item["clicklevel"] > 0)
+               $Output .= " <i>(Level " . $item["clicklevel"] . ")</i>";
+
+            $Output .= "<br>";
          }
-         else
-            $Output .= "Instant";
-
-         $Output .= ")";
-         if ($item["clicklevel"] > 0)
-            $Output .= " <i>(Level " . $item["clicklevel"] . ")</i>";
-
-         $Output .= "<br>";
+         else {
+            $Output .= $tab."Click Effect: UNKNOWN";
+         }
       }
 
       // Stats / HP / Mana / Endurance
@@ -612,10 +613,6 @@ function GetItem($item)
       if ($item["accuracy"] > 0)
          $Output .= "Accuracy: " . $item["accuracy"] . "<br>";
 
-      // Combat Skill
-      if ($item["combatskill"] > 0)
-         $Output .= $dbskills[$item["combatskill"]] . " Damage: " . number_format($item["combatskilldmg"]) . "<br>";
-
       // Spell Shielding
       if ($item["spellshield"] > 0)
          $Output .= "Spell Shielding: " . $item["spellshield"] . "%<br>";
@@ -681,8 +678,13 @@ function GetItem($item)
       if ($item["scrolleffect"] > 0 AND $item["scrolleffect"] < 65535) {
          $temp = QuickTemplate($link_spell, array('SPELL_ID' => $item["scrolleffect"]));
          $itemrow = $cbspellcache->get_spell($item["scrolleffect"]);
-         $Output .= "Scroll Effect: <a href='" . $temp . "'>" . $itemrow['name'] . "</a>";
-         $Output .= "<br>";
+         if ($itemrow !== false) {
+            $Output .= "Scroll Effect: <a href='" . $temp . "'>" . $itemrow['name'] . "</a>";
+            $Output .= "<br>";
+         }
+         else {
+            $Output .= $tab."Scroll Effect: UNKNOWN";
+         }
       }
       
       $Output .= "Item Type: ".getitemtype($item['itemtype'])."<br>";
@@ -715,8 +717,9 @@ function GetItem($item)
       // Bag-specific information
       if($item["bagslots"] > 0) {
          $Output .= $tab."Item type: Container<br>\n";
+         $Output .= $tab."Bag type: ".$dbbagtypes[$item["bagtype"]]."<br>\n";
          $Output .= $tab."Number of slots: ".min(MAX_BAG_SLOTS, $item["bagslots"])."<br>\n";
-         if($item["bagtype"] > 0) { $Output .= $tab."Trade skill container: ".$dbbagtypes[$item["bagtype"]]."<br>\n"; }
+         if($dbbagtypetoskill[$item["bagtype"]]) { $Output .= $tab."Trade skill container: ".$dbskills[$dbbagtypetoskill[$item["bagtype"]]]."<br>\n"; }
          if($item["bagwr"] > 0) { $Output .= $tab."Weight reduction: ".$item["bagwr"]."%<br>\n"; }
          $Output .= $tab."This can hold ".strtoupper(getsize($item["bagsize"]))." and smaller items.<br>\n";
       }
@@ -763,7 +766,7 @@ function GetItem($item)
       //Bane DMG
       if (($item["banedmgrace"]>0) AND ($item["banedmgraceamt"]!=0)) {
          $Output .= $tab."Bane DMG: ";
-         $Output .= $dbnpcraces['races'][$item["banedmgrace"]];
+         $Output .= $dbnpcraces[$item["banedmgrace"]];
          $Output .= " ".sign($item["banedmgraceamt"])."<br>\n";
       }
       if (($item["banedmgbody"]>0) AND ($item["banedmgamt"]!=0)) {
@@ -781,10 +784,15 @@ function GetItem($item)
          $temp = QuickTemplate($link_spell, array('SPELL_ID' => $item["proceffect"]));
          
          $itemrow = $cbspellcache->get_spell($item["proceffect"]);
-         $Output .= $tab."Effect: <a href='".$temp."'>".$itemrow['name']."</a>";
-         $Output .= "&nbsp;(Combat)";
-         $Output .= " <i>(Level ".$item["proclevel2"].")</i>";
-         $Output .= "<br>\n";
+         if ($itemrow !== false) {
+            $Output .= $tab."Effect: <a href='".$temp."'>".$itemrow['name']."</a>";
+            $Output .= "&nbsp;(Combat)";
+            $Output .= " <i>(Level ".$item["proclevel2"].")</i>";
+            $Output .= "<br>\n";
+         }
+         else {
+            $Output .= $tab."Effect: UNKNOWN";
+         }
       }
 
       // worn effect
@@ -792,10 +800,15 @@ function GetItem($item)
          //build the link from the spell template
          $temp = QuickTemplate($link_spell, array('SPELL_ID' => $item["worneffect"]));
          $itemrow = $cbspellcache->get_spell($item["worneffect"]);
-         $Output .= $tab."Effect: <a href='".$temp."'>".$itemrow['name']."</a>";
-         $Output .= "&nbsp;(Worn)";
-         $Output .= " <i>(Level ".$item["wornlevel"].")</i>";
-         $Output .= "<br>\n";
+         if ($itemrow !== false) {
+            $Output .= $tab."Effect: <a href='".$temp."'>".$itemrow['name']."</a>";
+            $Output .= "&nbsp;(Worn)";
+            $Output .= " <i>(Level ".$item["wornlevel"].")</i>";
+            $Output .= "<br>\n";
+         }
+         else {
+            $Output .= $tab."Effect: UNKNOWN";
+         }
       }
 
       // focus effect
@@ -803,9 +816,14 @@ function GetItem($item)
          //build the link from the spell template
          $temp = QuickTemplate($link_spell, array('SPELL_ID' => $item["focuseffect"]));
          $itemrow = $cbspellcache->get_spell($item["focuseffect"]);
-         $Output .= $tab."Focus: <a href='".$temp."'>".$itemrow['name']."</a>";
-         if ($item["focuslevel"]>0) { $Output .= " <i>(Level ".$item["focuslevel"].")</i>";  }
-         $Output .= "<br>\n";
+         if ($itemrow !== false) {
+            $Output .= $tab."Focus: <a href='".$temp."'>".$itemrow['name']."</a>";
+            if ($item["focuslevel"]>0) { $Output .= " <i>(Level ".$item["focuslevel"].")</i>";  }
+            $Output .= "<br>\n";
+         }
+         else {
+            $Output .= $tab."Focus: UNKNOWN";
+         }
       }
 
       // clicky effect
@@ -813,20 +831,25 @@ function GetItem($item)
          //build the link from the spell template
          $temp = QuickTemplate($link_spell, array('SPELL_ID' => $item["clickeffect"]));
          $itemrow = $cbspellcache->get_spell($item["clickeffect"]);
-         $Output .= $tab."Effect: <a href='".$temp."'>".$itemrow['name']."</a>";
-         $Output .= "&nbsp;(";
-         if ($item["clicktype"]==1) { $Output .= "Any Slot, "; }
-         if ($item["clicktype"]==4) { $Output .= "Must Equip, ";   }
-         if ($item["clicktype"]==5) { $Output .= "Any Slot/Can Equip, "; }
-         $Output .= "Casting Time: ";
-         if ($item["casttime"]>0) {
-            $casttime = sprintf("%.1f",$item["casttime"]/1000);
-            $Output .= $casttime;
+         if ($itemrow !== false) {
+            $Output .= $tab."Effect: <a href='".$temp."'>".$itemrow['name']."</a>";
+            $Output .= "&nbsp;(";
+            if ($item["clicktype"]==1) { $Output .= "Any Slot, "; }
+            if ($item["clicktype"]==4) { $Output .= "Must Equip, ";   }
+            if ($item["clicktype"]==5) { $Output .= "Any Slot/Can Equip, "; }
+            $Output .= "Casting Time: ";
+            if ($item["casttime"]>0) {
+               $casttime = sprintf("%.1f",$item["casttime"]/1000);
+               $Output .= $casttime;
+            }
+            else  { $Output .= "Instant"; }
+            $Output .= ")";
+            $Output .= " <i>(Level ".$item["clicklevel"].")</i>";
+            $Output .= "<br>\n";
          }
-         else  { $Output .= "Instant"; }
-         $Output .= ")";
-         $Output .= " <i>(Level ".$item["clicklevel"].")</i>";
-         $Output .= "<br>\n";
+         else {
+            $Output .= $tab."Effect: UNKNOWN";
+         }
       }
 
       // Stats / HP / Mana / Endurance
@@ -873,10 +896,9 @@ function GetItem($item)
       if ($item["dotshielding"]>0) { $Output .= $tab."Dot Shielding: ".sign($item["dotshielding"])."%<br>\n";   }
       if ($item["manaregen"]>0) { $Output .= $tab."Mana Regeneration: ".sign($item["manaregen"])."<br>\n";   }
       if ($item["shielding"]>0) { $Output .= $tab."Shielding: ".sign($item["shielding"])."%<br>\n";   }
-      if ($item["hpregen"]>0) { $Output .= $tab."Regeneration: ".sign($item["hpregen"])."<br>\n";   }
+      if ($item["regen"]>0) { $Output .= $tab."Regeneration: ".sign($item["regen"])."<br>\n";   }
       if ($item["combateffects"]>0) { $Output .= $tab."Combat Effects: ".sign($item["combateffects"])."<br>\n";   }
       if ($item["accuracy"]>0) { $Output .= $tab."Accuracy: ".sign($item["accuracy"])."<br>\n";   }
-      if ($item["combatskill"]>0) { $Output .= $tab.strtolower_ucfirst($dbskills[$item["combatskill"]])." DMG: ".sign($item["combatskilldmg"])."<br>\n";   }
       if ($item["spellshield"]>0) { $Output .= $tab."Spell Shielding: ".sign($item["spellshield"])."%<br>\n";   }
       if ($item["strikethrough"]>0) { $Output .= $tab."Strikethrough: ".sign($item["strikethrough"])."%<br>\n";   }
       if ($item["stunresist"]>0) { $Output .= $tab."Stun Resist: ".sign($item["stunresist"])."%<br>\n";   }
@@ -930,8 +952,13 @@ function GetItem($item)
          //build the link from the spell template
          $temp = QuickTemplate($link_spell, array('SPELL_ID' => $item["scrolleffect"]));
          $itemrow = $cbspellcache->get_spell($item["scrolleffect"]);
-         $Output .= $tab."Effect: <a href='".$temp."'>".$itemrow['name']."</a>";
-         $Output .= "<br>\n";
+         if ($itemrow !== false) {
+            $Output .= $tab."Effect: <a href='".$temp."'>".$itemrow['name']."</a>";
+            $Output .= "<br>\n";
+         }
+         else {
+            $Output .= $tab."Effect: UNKNOWN";
+         }
       }
 	  $GearScore = $item["GearScore"];
 	  if ($GearScore != -99999 && $GearScore != 0) {

@@ -20,43 +20,48 @@
  *     optimize character initialization
  *   March 16, 2022 - Maudigan
  *     added item type to the API for each item
- *      
+ *   January 11, 2023 - Maudigan
+ *     removed the heroic stats since they aren't used
+ *
  ***************************************************************************/
   
  
 /*********************************************
                  INCLUDES
 *********************************************/ 
-define('INCHARBROWSER', true);
+//define this as an entry point to unlock includes
+if ( !defined('INCHARBROWSER') )
+{
+   define('INCHARBROWSER', true);
+}
 include_once(__DIR__ . "/include/common.php");
 include_once(__DIR__ . "/include/bot_profile.php");
 include_once(__DIR__ . "/include/profile.php");
 include_once(__DIR__ . "/include/itemclass.php");
 include_once(__DIR__ . "/include/db.php");
-Include_once(__DIR__ . "/include/bot.php"); 
-  
+Include_once(__DIR__ . "/include/bot.php");
+
  
 /*********************************************
-         SETUP PROFILE/PERMISSIONS
+       SETUP CHARACTER CLASS & PERMISSIONS
 *********************************************/
-if(!$_GET['bot']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_NO_CHAR']);
-else $botName = $_GET['bot'];
+$botName = preg_Get_Post('bot', '/^[a-zA-Z]+$/', false, $language['MESSAGE_ERROR'],$language['MESSAGE_NO_BOT'], true);
      
 //bot initializations 
-$bot = new bot_profile($botName, $cbsql, $cbsql_content, $language, $charbrowser_is_admin_page); //the profile class will sanitize the bot name
+$bot = new Charbrowser_Bot($botName); //the profile class will sanitize the bot name
 $charID = $bot->char_id(); 
 $botID = $bot->bot_id(); 
 $botName = $bot->GetValue('name');
-$userip = getIPAddress(); 
-$ownercheck = 0;
+$userip = getIPAddress();
+$ownercheck = OwnerCheck($charID);
 
 //char initialization      
-$char = new profile($charID, $cbsql, $cbsql_content, $language, $showsoftdelete, $charbrowser_is_admin_page);
+$char = new Charbrowser_Character($charID, $showsoftdelete, $charbrowser_is_admin_page);
 $charName = $char->GetValue('name');
-$mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $char->char_id());
 
 //block view if user level doesnt have permission
-if ($mypermission['bots']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_PERMISSIONS_ERROR']);
+if ($char->Permission('bot')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
+ 
  
 /*********************************************
         GATHER RELEVANT PAGE DATA
@@ -142,6 +147,8 @@ $cb_template->assign_both_vars(array(
 );
 
 $cb_template->assign_vars(array(  
+   'ROOT_URL' => $charbrowser_root_url,
+
    'L_HEADER_INVENTORY' => $language['CHAR_INVENTORY'],
    'L_REGEN' => $language['CHAR_REGEN'],
    'L_FT' => $language['CHAR_FT'],
@@ -161,25 +168,12 @@ $cb_template->assign_vars(array(
    'L_INT' => $language['CHAR_INT'],
    'L_WIS' => $language['CHAR_WIS'],
    'L_CHA' => $language['CHAR_CHA'],
-   'L_HSTR' => $language['CHAR_HSTR'],  
-   'L_HSTA' => $language['CHAR_HSTA'], 
-   'L_HDEX' => $language['CHAR_HDEX'], 
-   'L_HAGI' => $language['CHAR_HAGI'], 
-   'L_HINT' => $language['CHAR_HINT'], 
-   'L_HWIS' => $language['CHAR_HWIS'], 
-   'L_HCHA' => $language['CHAR_HCHA'], 
    'L_POISON' => $language['CHAR_POISON'],
    'L_MAGIC' => $language['CHAR_MAGIC'],
    'L_DISEASE' => $language['CHAR_DISEASE'],
    'L_FIRE' => $language['CHAR_FIRE'],
    'L_COLD' => $language['CHAR_COLD'],
    'L_CORRUPT' => $language['CHAR_CORRUPT'],
-   'L_HPOISON' => $language['CHAR_HPOISON'], 
-   'L_HMAGIC' => $language['CHAR_HMAGIC'], 
-   'L_HDISEASE' => $language['CHAR_HDISEASE'], 
-   'L_HFIRE' => $language['CHAR_HFIRE'], 
-   'L_HCOLD' => $language['CHAR_HCOLD'], 
-   'L_HCORRUPT' => $language['CHAR_HCORRUPT'],
    'L_WEIGHT' => $language['CHAR_WEIGHT'],
    'L_DONE' => $language['BUTTON_DONE'])
 );
@@ -246,7 +240,7 @@ foreach ($allitems as $value) {
 *********************************************/
 $cb_template->pparse('bot');
 
-$cb_template->destroy;
+$cb_template->destroy();
 
 /*
 	CUSTOM COMMAND SETTINGS WINDOW
@@ -298,7 +292,7 @@ foreach($bots as $bot) {
 	$filler .= 'Stance is currently <font color=yellow>' . $bot['stance_id'] .  ' (' . getstancename($bot['stance_id']) . ')<font color=white><br>';
 	$filler .= 'Spell lists are currently ' . ($bot['enforce_spell_settings'] ? '<font color=green>enforced<font color=white>' : '<font color=red>not enforced') . '<font color=lightblue> | ^enforcespellsettings<font color=white><br>';
 	$filler .= 'Auto Buff Damage Shields is ' . ($bot['hold_ds'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdds<font color=white><br>';
-	$filler .= 'Auto Buff Resists is ' . ($bot['hold_resists'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdresists<font color=white><br>';	
+	$filler .= 'Auto Buff Resists is ' . ($bot['hold_resists'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdresists<font color=white><br>';
 	$filler .= 'Behind Mob is ' . ($bot['behind_mob'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^behindmob<font color=white><br>';
 	$filler .= 'Caster Range is ' . ($bot['caster_range'] ? '<font color=green>' . $bot['caster_range'] . ' units<font color=white>' . '' : '<font color=red>disabled') . '<font color=lightblue> | ^casterrange<font color=white><br>';
 	$filler .= 'Hold AE Nukes is ' . ($bot['hold_ae_nukes'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdaenukes<font color=white><br>';
@@ -322,7 +316,7 @@ foreach($bots as $bot) {
 	$filler .= 'Hold Lulls is ' . ($bot['hold_lulls'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdlulls<font color=white><br>';
 	$filler .= 'Hold Mez is ' . ($bot['hold_mez'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdmez<font color=white><br>';
 	$filler .= 'Hold Nukes is ' . ($bot['hold_nukes'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdnukes<font color=white><br>';
-	$filler .= 'Hold OOC Buff Songs is ' . ($bot['hold_outofcombatbuffsongs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdoutofcombatbuffsongs<font color=white><br>';	
+	$filler .= 'Hold OOC Buff Songs is ' . ($bot['hold_outofcombatbuffsongs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdoutofcombatbuffsongs<font color=white><br>';
 	$filler .= 'Hold Pet Buffs is ' . ($bot['hold_pet_buffs'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdpetbuffs<font color=white><br>';
 	$filler .= 'Hold Pet Heals is ' . ($bot['hold_pet_heals'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdpetheals<font color=white><br>';
 	$filler .= 'Hold Pets is ' . ($bot['hold_pets'] ? '<font color=green>enabled<font color=white>' : '<font color=red>disabled') . '<font color=lightblue> | ^holdpets<font color=white><br>';
@@ -387,5 +381,4 @@ foreach($bots as $bot) {
 cb_botcommandsettings('Custom Settings', $filler);
 
 include(__DIR__ . "/include/footer.php");
-
 ?>

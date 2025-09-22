@@ -24,35 +24,40 @@
 /*********************************************
                  INCLUDES
 *********************************************/ 
-define('INCHARBROWSER', true);
+//define this as an entry point to unlock includes
+if ( !defined('INCHARBROWSER') )
+{
+   define('INCHARBROWSER', true);
+}
 include_once(__DIR__ . "/include/common.php");
 include_once(__DIR__ . "/include/profile.php");
 include_once(__DIR__ . "/include/db.php");
   
  
 /*********************************************
-         SETUP PROFILE/PERMISSIONS
+       SETUP CHARACTER CLASS & PERMISSIONS
 *********************************************/
-if(!$_GET['char']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_NO_CHAR']);
-else $charName = $_GET['char'];
+$charName = preg_Get_Post('char', '/^[a-zA-Z]+$/', false, $language['MESSAGE_ERROR'],$language['MESSAGE_NO_CHAR'], true);
 
 //character initializations 
-$char = new profile($charName, $cbsql, $cbsql_content, $language, $showsoftdelete, $charbrowser_is_admin_page); //the profile class will sanitize the character name
+$char = new Charbrowser_Character($charName, $showsoftdelete, $charbrowser_is_admin_page); //the Charbrowser_Character class will sanitize the character name
 $charID = $char->char_id(); 
 $name = $char->GetValue('name');
-$mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $char->char_id());
 
 //block view if user level doesnt have permission
-if ($mypermission['bots']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_PERMISSIONS_ERROR']);
+if ($char->Permission('bots')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
  
  
 /*********************************************
         GATHER RELEVANT PAGE DATA
 *********************************************/
+//get factions from the db
+$is_owner = OwnerCheck($charID);
 
-if ($ownercheck == 1) {
-	$botip = $bot['ip'];
-	$tpl = <<<TPL
+if ($is_owner) {
+    $userip = getIPAddress();
+
+    $tpl = <<<TPL
 		SELECT bd.name AS name, bd.race AS race, bd.gender AS gender
 				, bd.class AS class, bd.face AS face, bd.level AS level
 				, bd.owner_id as ownerid, cd.name as ownername
@@ -64,24 +69,23 @@ if ($ownercheck == 1) {
 		FROM account_ip ai 
 		LEFT JOIN character_data cd ON cd.account_id = ai.accid
 		LEFT JOIN bot_data bd ON bd.owner_id = cd.id
-		WHERE ai.ip = '$botip'
+		WHERE ai.ip = '$userip'
 		AND bd.name NOT LIKE '%-deleted-%'
 		GROUP BY ai.ip, bd.bot_id
 		ORDER BY namescore ASC, cd.aa_points_spent DESC, bd.name ASC 
 	TPL;
 } else {
-	$tpl = <<<TPL
-	SELECT name, race, gender,
-		class, face, level
-	FROM bot_data 
-	WHERE owner_id = $charID 
-	AND `name` NOT LIKE '%-deleted-%'
-	ORDER BY name ASC 
-	TPL;
+    $tpl = <<<TPL
+        SELECT name, race, gender,
+               class, face, level
+        FROM bot_data 
+        WHERE owner_id = %d 
+        ORDER BY name ASC 
+    TPL;
 }
 $query = sprintf($tpl, $charID);
-$result = $cbsql->query($tpl);
-if (!$cbsql->rows($result)) cb_message_die($language['BOTS_BOTS']." - ".$name,$language['MESSAGE_NO_BOTS']);
+$result = $cbsql->query($query);
+if (!$cbsql->rows($result)) $cb_error->message_die($language['BOTS_BOTS']." - ".$name,$language['MESSAGE_NO_BOTS']);
 
 
 $bots = $cbsql->fetch_all($result);  
@@ -107,33 +111,35 @@ $cb_template->set_filenames(array(
    'bots' => 'bots_body.tpl')
 );
 
-
-if ($ownercheck) {
-	$cb_template->assign_both_vars(array(  
-	'NAME'        => $name . ' + Owned')
-	);
+if ($is_owner) {
+    $cb_template->assign_both_vars(array(
+            'NAME'        => $name . ' + Owned')
+    );
 } else {
-	$cb_template->assign_both_vars(array(  
-		'NAME'        => $name)
-	);
+    $cb_template->assign_both_vars(array(
+            'NAME' => $name)
+    );
 }
 $cb_template->assign_vars(array(  
-   'L_BOTS'  => $language['BOTS_BOTS'], 
+   'ROOT_URL' => $charbrowser_root_url,
+
+   'L_BOTS'  => $language['BOTS_BOTS'],
    'L_DONE'      => $language['BUTTON_DONE'])
 );
+  
 foreach($bots as $bot) {
-	if ($ownercheck) {
-		$ownedby = '<br> (Owned by ' . $bot['ownername'] . ')';
-	} else {
-		$ownedby = '';
-	}
-	$cb_template->assign_both_block_vars("bots", array( 
-		'NAME'    => $bot['name'],
-		'AVATAR_IMG' => getAvatarImage($bot['race'], $bot['gender'], $bot['face']),
-		'RACE'    => $dbracenames[$bot['race']],
-		'CLASS'   => $dbclassnames[$bot['class']] . '' . $ownedby,
-		'LEVEL'    => $bot['level'])
-	);
+    if ($is_owner) {
+        $ownedby = '<br> (Owned by ' . $bot['ownername'] . ')';
+    } else {
+        $ownedby = '';
+    }
+   $cb_template->assign_both_block_vars("bots", array( 
+      'NAME'    => $bot['name'],
+      'AVATAR_IMG' => getAvatarImage($bot['race'], $bot['gender'], $bot['face']),
+      'RACE'    => $dbracenames[$bot['race']],
+      'CLASS'   => $dbclassnames[$bot['class']] . '' . $ownedby,
+      'LEVEL'    => $bot['level'])
+   );
 }
  
  
@@ -142,8 +148,7 @@ foreach($bots as $bot) {
 *********************************************/
 $cb_template->pparse('bots');
 
-$cb_template->destroy;
+$cb_template->destroy();
 
 include(__DIR__ . "/include/footer.php");
-
 ?>

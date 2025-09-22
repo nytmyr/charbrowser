@@ -23,7 +23,11 @@
 /*********************************************
                  INCLUDES
 *********************************************/
-define('INCHARBROWSER', true);
+//define this as an entry point to unlock includes
+if ( !defined('INCHARBROWSER') )
+{
+   define('INCHARBROWSER', true);
+}
 include_once(__DIR__ . "/include/common.php");
 include_once(__DIR__ . "/include/profile.php");
 include_once(__DIR__ . "/include/itemclass.php");
@@ -33,9 +37,10 @@ include_once(__DIR__ . "/include/spellcache.php");
 
 
 /*********************************************
-         SETUP PROFILE/PERMISSIONS
+       SETUP CHARACTER CLASS & PERMISSIONS
 *********************************************/
-$charName = $_GET['char'];
+$charName = preg_Get_Post('char', '/^[a-zA-Z]+$/', false);
+
 
 //we dont always have a charname, just when we crossreference
 //a users inventory to all the items being bought
@@ -44,41 +49,46 @@ $charName = $_GET['char'];
 if ($charName)
 {
    //character initializations 
-   $char = new profile($charName, $cbsql, $cbsql_content, $language, $showsoftdelete, $charbrowser_is_admin_page); //the profile class will sanitize the character name
+   $char = new Charbrowser_Character($charName, $showsoftdelete, $charbrowser_is_admin_page); //the Charbrowser_Character class will sanitize the character name
    $charID = $char->char_id(); 
    $name = $char->GetValue('name');
-   $mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $char->char_id());
 
    //block view if user level doesnt have permission
-   if ($mypermission['inventory']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_PERMISSIONS_ERROR']);
+   if ($char->Permission('inventory')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['BARTER_SELLER_NOPERM']);
+}
+else
+{
+   $name = '';
 }
 
 
 /*********************************************
              GET/VALIDATE VARS
 *********************************************/
-$start      = (($_GET['start']) ? $_GET['start'] : "0");
-$orderby    = (($_GET['orderby']) ? $_GET['orderby'] : "Name");
-$invorderby    = (($_GET['invorderby']) ? $_GET['invorderby'] : "Name");
-$item       = $_GET['item'];
-$buyer       = $_GET['buyer'];
-$direction  = (($_GET['direction']=="DESC") ? "DESC" : "ASC");
-$invdirection  = (($_GET['invdirection']=="DESC") ? "DESC" : "ASC");
-
+//results per page
 $perpage=30;
+
+//fetch and prevalidate GET/POST vars
+$start         = preg_Get_Post('start', '/^[0-9]+$/', '0', $language['MESSAGE_ERROR'], $language['MESSAGE_START_NUMERIC']);
+$orderby       = preg_Get_Post('orderby', '/^[a-zA-Z]*$/', 'Name', $language['MESSAGE_ERROR'], $language['MESSAGE_ORDER_ALPHA']);
+$direction     = preg_Get_Post('direction', '/^(DESC|ASC|desc|asc)$/', "DESC");
+$invorderby    = preg_Get_Post('invorderby', '/^[a-zA-Z]*$/', 'Name', $language['MESSAGE_ERROR'], $language['MESSAGE_ORDER_ALPHA']);
+$invdirection  = preg_Get_Post('invdirection', '/^(DESC|ASC|desc|asc)$/', "DESC");
+$item_dirty    = preg_Get_Post('item', '/^[a-zA-Z0-9\-\ \']*$/', '', $language['MESSAGE_ERROR'], $language['MESSAGE_ITEM_ALPHA']);
+$buyer         = preg_Get_Post('buyer', '/^[a-zA-Z]*$/', false, $language['MESSAGE_ERROR'], $language['MESSAGE_NAME_ALPHA']);
+
+//security against sql injection, escape strings that don't have
+//sufficiently restricted regex checks in the above section
+$item = $cbsql_content->escape_string($item_dirty);
+
+//convert integer parameters
+$start = intval($start);
 
 //build baselink
 $baselink=(($charbrowser_wrapped) ? $_SERVER['SCRIPT_NAME'] : "index.php") . "?page=barter&char=$name&buyer=$buyer&item=$item";
 
-//security against sql injection
-if (!IsAlphaSpace($item)) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_ITEM_ALPHA']);
-if (!IsAlphaSpace($buyer)) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_NAME_ALPHA']);
-if (!IsAlphaSpace($orderby)) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_ORDER_ALPHA']);
-if (!is_numeric($start)) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_START_NUMERIC']);
-
-
 //dont display barter if blocked in config.php
-if ($blockbarter) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_ITEM_NO_VIEW']);
+if ($blockbarter) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
 
 
 /*********************************************
@@ -112,34 +122,34 @@ if ($name)
    $filters[] = "instnodrop = 0";
    
    //we need to filter certain slots out if the seller has privacy settings
-   if ($mypermission['bags']) 
+   if ($char->Permission('bags'))
    {
-      $filters[] = 'inventory.slotid NOT BETWEEN '.SLOT_INVENTORY_START.' AND '.SLOT_INVENTORY_END;
-      $filters[] = 'inventory.slotid NOT BETWEEN '.SLOT_INVENTORY_BAGS_START.' AND '.SLOT_INVENTORY_BAGS_END;
+      $filters[] = 'inventory.slot_id NOT BETWEEN '.SLOT_INVENTORY_START.' AND '.SLOT_INVENTORY_END;
+      $filters[] = 'inventory.slot_id NOT BETWEEN '.SLOT_INVENTORY_BAGS_START.' AND '.SLOT_INVENTORY_BAGS_END;
    }
-   if ($mypermission['bank'])
+   if ($char->Permission('bank'))
    {
-      $filters[] = 'inventory.slotid NOT BETWEEN '.SLOT_BANK_START.' AND '.SLOT_BANK_END;
-      $filters[] = 'inventory.slotid NOT BETWEEN '.SLOT_BANK_BAGS_START.' AND '.SLOT_BANK_BAGS_END;
+      $filters[] = 'inventory.slot_id NOT BETWEEN '.SLOT_BANK_START.' AND '.SLOT_BANK_END;
+      $filters[] = 'inventory.slot_id NOT BETWEEN '.SLOT_BANK_BAGS_START.' AND '.SLOT_BANK_BAGS_END;
    }
-   if ($mypermission['sharedbank'])
+   if ($char->Permission('sharedbank'))
    {
-      $filters[] = 'inventory.slotid NOT BETWEEN '.SLOT_SHAREDBANK_START.' AND '.SLOT_SHAREDBANK_END;
-      $filters[] = 'inventory.slotid NOT BETWEEN '.SLOT_SHAREDBANK_BAG_START.' AND '.SLOT_SHAREDBANK_BAG_END;
+      $filters[] = 'inventory.slot_id NOT BETWEEN '.SLOT_SHAREDBANK_START.' AND '.SLOT_SHAREDBANK_END;
+      $filters[] = 'inventory.slot_id NOT BETWEEN '.SLOT_SHAREDBANK_BAG_START.' AND '.SLOT_SHAREDBANK_BAG_END;
    }
    
    $where = generate_where($filters);
 
 
    $tpl = <<<TPL
-      SELECT inventory.itemid, 
+      SELECT inventory.item_id as itemid, 
              COUNT(*) as seller_qty,
              SUM(charges) as seller_charges
       FROM inventory
       LEFT JOIN character_data
-             ON inventory.charid = character_data.id
+             ON inventory.character_id = character_data.id
       %s
-      GROUP BY inventory.itemid
+      GROUP BY inventory.item_id
 TPL;
 
    $query = sprintf($tpl, $where);
@@ -153,21 +163,21 @@ TPL;
 //QUERY ALL THE BUYER ITEMS, PREFILTERED BY BUYER FIELDS
 //build the where clause
 $filters = array();
-if ($buyer) $filters[] = "buychar.name = '".$buyer."'";
+if ($buyer) $filters[] = "buyer.char_name = '".$buyer."'";
 //cant buy from yourself
-if ($name) $filters[] = "buychar.name != '".$name."'";
+if ($name) $filters[] = "buyer.char_name != '".$name."'";
 $where = generate_where($filters);
 
 
 //no seller means we just show everything being bought
 $tpl = <<<TPL
-   SELECT buychar.name as charactername,
-          buyer.price as buyerprice,
-          buyer.itemid,
-          buyer.quantity 
-   FROM character_data buychar
-   INNER JOIN buyer
-           ON buychar.id = buyer.charid
+   SELECT buyer.char_name as charactername,
+          buyer_buy_lines.item_price as buyerprice,
+          buyer_buy_lines.item_id as itemid,
+          buyer_buy_lines.item_qty as quantity 
+   FROM buyer
+   INNER JOIN buyer_buy_lines
+           ON buyer_buy_lines.buyer_id = buyer.id
    %s
 TPL;
 
@@ -175,7 +185,9 @@ TPL;
 $query = sprintf($tpl, $where);
 $result = $cbsql->query($query);
 
-//error if there's no items being bought
+//loop through results
+$truncated_buyer_results = false;
+$totalitems = 0;
 if ($cbsql->rows($result)) 
 {
    //build item id list for items being bought   
@@ -185,7 +197,7 @@ if ($cbsql->rows($result))
    //filter buyer items by seller
    if ($name)
    {
-      //if there's a seller, left join the buyer rows to filter out
+      //if there's a seller, join the buyer rows to filter out
       //items that the seller doesn't have
       $filtered_buyer_rows = manual_join($filtered_buyer_rows, 'itemid', $seller_inventory_rows, 'itemid', 'inner');
    }
@@ -196,14 +208,14 @@ if ($cbsql->rows($result))
    //to filter the query results by the search criteria
    //instead we'll query the items with the fitlers then
    //innerjoin this to the buyer records
-   if (count($filtered_buyer_rows) > 0)
+   if (cb_count($filtered_buyer_rows) > 0)
    {
       $filtered_buyer_item_ids = get_id_list($filtered_buyer_rows, 'itemid');
       
       //build the where clause
       $filters = array();
       $filters[] = "id IN (".$filtered_buyer_item_ids.")";
-      if ($item) $filters[] = "Name LIKE '%".str_replace("_", "%", str_replace(" ","%",$item))."%'";
+      if ($item) $filters[] = "Name LIKE '%".str_replace(" ","%",$item)."%'";
       $where = generate_where($filters);
 
       $tpl = <<<TPL
@@ -224,7 +236,7 @@ TPL;
          //JOIN BUYER ITEMS TO FILTERED ITEM RESULTS
          //loop through the trader rows and join the item stats to it in a new array
          $buyer_item_results = manual_join($filtered_buyer_rows, 'itemid', $filtered_items, 'id', 'inner');
-         $totalitems = count($buyer_item_results);
+         $totalitems = cb_count($buyer_item_results);
 
          //DO A MANUAL SORT OF THE RESULTS
          if ($orderby == 'Name' || $orderby == 'charactername') {
@@ -247,7 +259,8 @@ TPL;
 }
 
 //GET THE ITEM RECORDS FOR SELLER INVENTORY
-if ($name && count($seller_inventory_rows) > 0)
+$seller_item_results = false;
+if ($name && cb_count($seller_inventory_rows) > 0)
 {
    $seller_item_ids = get_id_list($seller_inventory_rows, 'itemid');
    
@@ -261,7 +274,8 @@ TPL;
    $result = $cbsql_content->query($query);
          
    //only continue if we have rows
-   if ($cbsql->rows($result)) 
+   $seller_item_list = array();
+   if ($cbsql->rows($result))
    {
       //get the item results as an array
       $seller_item_list = $cbsql_content->fetch_all($result); 
@@ -350,7 +364,7 @@ $cb_template->assign_both_vars(array(
    'START' => $start,
    'PERPAGE' => $perpage,
    'TOTALITEMS' => $totalitems,
-   'ITEM' => $item,
+   'ITEM' => $item_dirty,
    'BUYER' => $buyer,
    'SELLER' => $name)
 );
@@ -379,7 +393,7 @@ if (is_array($truncated_buyer_results))
 {
    foreach ($truncated_buyer_results as $lot)
    {
-      $tempitem = new item($lot);
+      $tempitem = new Charbrowser_Item($lot);
       $price = $lot["buyerprice"];
       $plat = number_format(floor($price/1000));
       $price = $price % 1000;
@@ -413,7 +427,7 @@ if ($name)
    {
       foreach ($seller_item_results as $lot)
       {
-         $tempitem = new item($lot);
+         $tempitem = new Charbrowser_Item($lot);
             
          $cb_template->assign_both_block_vars("switch_seller_set.seller_items", array(
             'QUANTITY' => number_format($lot['quantity']),
@@ -435,7 +449,7 @@ if ($name)
 *********************************************/
 $cb_template->pparse('barter');
 
-$cb_template->destroy;
+$cb_template->destroy();
 
 include(__DIR__ . "/include/footer.php");
 ?>

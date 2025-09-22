@@ -42,13 +42,21 @@
  *     show a nicer error when there are no results
  *   May 4, 2020 - Maudigan
  *     reduce the nyumber of queries, implement the where building function
+ *   Devember 3, 2022 - Allow guild/name search criteria to be echoed back
+ *      in the header search fields
+ *   September 2, 2023 - Add new stats table data to search results
+ *
  ***************************************************************************/
  
  
 /*********************************************
                  INCLUDES
 *********************************************/ 
-define('INCHARBROWSER', true);
+//define this as an entry point to unlock includes
+if ( !defined('INCHARBROWSER') )
+{
+   define('INCHARBROWSER', true);
+}
 include_once(__DIR__ . "/include/common.php");
 include_once(__DIR__ . "/include/db.php");
 
@@ -56,31 +64,49 @@ include_once(__DIR__ . "/include/db.php");
 /*********************************************
              GET/VALIDATE VARS
 *********************************************/ 
-$start      = (($_GET['start']) ? $_GET['start'] : "0");
-$orderby    = (($_GET['orderby']) ? $_GET['orderby'] : "name");
-$direction  = (($_GET['direction']=="DESC") ? "DESC" : "ASC");
-$name       = $_GET['name'];
-$guild      = $_GET['guild'];
+$start       = preg_Get_Post('start', '/^[0-9]+$/', '0', $language['MESSAGE_ERROR'], $language['MESSAGE_START_NUMERIC']);
+$orderby     = preg_Get_Post('orderby', '/^[a-zA-Z\_]*$/', 'name', $language['MESSAGE_ERROR'], $language['MESSAGE_ORDER_ALPHA']);
+$direction   = preg_Get_Post('direction', '/^(DESC|ASC|desc|asc)$/', 'ASC');
+$name        = preg_Get_Post('name', '/^[a-zA-Z]*$/', '', $language['MESSAGE_NOTICE'], $language['MESSAGE_NAME_ALPHA']);
+$guild_dirty = preg_Get_Post('guild', '/^[a-zA-Z\-\ \']*$/', '', $language['MESSAGE_NOTICE'], $language['MESSAGE_GUILD_ALPHA']);
+
+//security against sql injection, escape strings that don't have
+//sufficiently restricted regex checks in the above section
+$guild = $cbsql->escape_string($guild_dirty);
+
+//convert integer parameters
+$start = intval($start);
 
 //build baselink
-$baselink= (($charbrowser_wrapped) ? $_SERVER['SCRIPT_NAME'] : "index.php") . "?page=search&name=$name&guild=$guild";
+$baselink= (($charbrowser_wrapped) ? $_SERVER['SCRIPT_NAME'] : "index.php") . "?page=search&name=$name&guild=$guild_dirty";
 
-//security for injection attacks
-if (!IsAlphaSpace($name)) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_NAME_ALPHA']);
-if (!IsAlphaSpace($guild)) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_GUILD_ALPHA']);
-if (!IsAlphaSpace($orderby)) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_ORDER_ALPHA']);
-if (!is_numeric($start)) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_START_NUMERIC']);
+//these get passed to the search fields in the header
+$header_name_search = $name;
+$header_guild_search = $guild_dirty;
  
  
+/*********************************************
+                FUNCTIONS
+*********************************************/
+
+function stat_out($stat)
+{
+   if ($stat == null) {
+      return "-";
+   }
+   return number_format($stat);
+}
+
 /*********************************************
         BUILD AND EXECUTE THE SEARCH
 *********************************************/ 
 //build where clause
 $filters = array();
 if (!$showsoftdelete && !$charbrowser_is_admin_page) $filters[] = "character_data.deleted_at IS NULL"; 
-if ($name) $filters[] = "character_data.name LIKE '%".str_replace("_", "%", str_replace(" ","%",$name))."%'"; 
-if ($guild) {
-   $filters[] = "guilds.name LIKE '%".str_replace("_", "%", str_replace(" ","%",$guild))."%'";
+if ($name !== '') $filters[] = "character_data.name LIKE '%".$name."%'";
+if ($guild !== '')
+{
+   $filters[] = "guilds.name LIKE '%".str_replace(" ","%",$guild)."%'";
    
    //if the char is anon, dont show them in a guild search
    if (!$showguildwhenanon && !$charbrowser_is_admin_page) $filters[] = "character_data.anon != '1'";
@@ -92,14 +118,26 @@ $where = generate_where($filters);
 $tpl = <<<TPL
 SELECT character_data.class, character_data.level, 
        character_data.name, guilds.name AS guildname, 
-       character_data.deleted_at, character_data.anon
+       character_data.deleted_at, character_data.anon,
+       character_stats_record.aa_points,
+       character_stats_record.hp,
+       character_stats_record.mana,
+       character_stats_record.endurance,
+       character_stats_record.attack,
+       character_stats_record.ac,
+       character_stats_record.haste,
+       character_stats_record.accuracy,
+       character_stats_record.hp_regen,
+       character_stats_record.mana_regen
 FROM character_data
 INNER JOIN account ON account.id = character_data.account_id
 LEFT JOIN guild_members
        ON character_data.id = guild_members.char_id 
 LEFT JOIN guilds
        ON guilds.id = guild_members.guild_id 
-%s
+LEFT JOIN character_stats_record
+       ON character_stats_record.character_id = character_data.id
+%s 
 AND status < 80
 ORDER BY %s %s
 TPL;
@@ -109,10 +147,10 @@ $result = $cbsql->query($query);
 
 //fetch the results
 $characters = $cbsql->fetch_all($result);
-$totalchars = count($characters);
+$totalchars = cb_count($characters);
 
-//error if there is no guild
-if (!$totalchars) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_NO_RESULTS_ITEMS']);
+//error if there are no characters
+if (!$totalchars) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_NO_RESULTS_ITEMS']);
 
  
  
@@ -138,10 +176,23 @@ $cb_template->assign_vars(array(
    'L_RESULTS' => $language['SEARCH_RESULTS'],
    'L_NAME' => $language['SEARCH_NAME'],
    'L_LEVEL' => $language['SEARCH_LEVEL'],
-   'L_CLASS' => $language['SEARCH_CLASS'],)
+   'L_CLASS' => $language['SEARCH_CLASS'],
+   'L_AA_POINTS' => $language["SEARCH_AA_POINTS"],
+   'L_HP' => $language["SEARCH_HP"],
+   'L_MANA' => $language["SEARCH_MANA"],
+   'L_ENDURANCE' => $language["SEARCH_ENDURANCE"],
+   'L_ATTACK' => $language["SEARCH_ATTACK"],
+   'L_AC' => $language["SEARCH_AC"],
+   'L_HASTE' => $language["SEARCH_HASTE"],
+   'L_ACCURACY' => $language["SEARCH_ACCURACY"],
+   'L_HP_REGEN' => $language["SEARCH_HP_REGEN"],
+   'L_MANA_REGEN' => $language["SEARCH_MANA_REGEN"])
 );
 
-$finish = $start + $numToDisplay;
+//calculate last char index for this page
+$finish = min($totalchars, $start + $numToDisplay);
+
+//output this page of chars to template
 for ($i = $start; $i < $finish; $i++) {
    $character = $characters[$i];
    //dont show anon guild names unless config enables it
@@ -154,19 +205,29 @@ for ($i = $start; $i < $finish; $i++) {
    $cb_template->assign_both_block_vars("characters", array( 
       'CLASS' => $dbclassnames[$character["class"]],      
       'LEVEL' => $character["level"],     
+      'AA_POINTS' => stat_out($character["aa_points"]),
+      'HP' => stat_out($character["hp"]),
+      'MANA' => stat_out($character["mana"]),
+      'ENDURANCE' => stat_out($character["endurance"]),
+      'ATTACK' => stat_out($character["attack"]),
+      'AC' => stat_out($character["ac"]),
+      'HASTE' => stat_out($character["haste"]),
+      'ACCURACY' => stat_out($character["accuracy"]),
+      'HP_REGEN' => stat_out(abs($character["hp_regen"])),
+      'MANA_REGEN' => stat_out(abs($character["mana_regen"])),
       'DELETED' => (($character["deleted_at"]) ? " ".$language['CHAR_DELETED']:""),
       'NAME' => $character["name"],
       'GUILD_NAME' => $charguildname )
    );
 }
- 
- 
+
+
 /*********************************************
            OUTPUT BODY AND FOOTER
 *********************************************/
 $cb_template->pparse('body');
 
-$cb_template->destroy;
+$cb_template->destroy();
 
 include(__DIR__ . "/include/footer.php");
 ?>

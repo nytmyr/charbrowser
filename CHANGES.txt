@@ -1,3 +1,126 @@
+v3.8.2
+----------------------------------------------------------------------
+big bags
+
+December 22, 2024 - modified the profile to match the new column 
+                    names in accordance with the big bag change. 
+                    Added new slot numbers to the item 
+                    class. - MortimerGreenwald
+
+v3.7.2
+----------------------------------------------------------------------
+fix typo 
+
+September 5, 2024 - character.php was trying to read the spells_new
+                    table from the wrong database. Moved it to the
+                    content db. - Maudigan
+
+v3.7.1
+----------------------------------------------------------------------
+fix EV and typos
+
+September 5, 2024 - Don flags had typos needing fixed - FryGuy
+                    EV's need prefix to distinguish from EV for other
+                    tools - Akkadius C/O Maudigan
+                    
+
+v3.7
+----------------------------------------------------------------------
+Add buffs, fix barter window, add DoN flags, remove calculated stats
+
+August 9, 2024 - The barter tables changed, updated the barter script
+                 to match the new table changes.
+                 The calculated stats and the tabs showing them have
+                 been removed. The inventory stats are now displayed
+                 from the calculated stats table.
+                 Buffs have been added to the inventory view
+                 Added DoN Norrath's Keepers and Dark Reign flags
+
+v3.6.4
+----------------------------------------------------------------------
+Fix error, compatibility changes for docker
+
+Febuary 11, 2024 - A spell not being found when creating the item
+                     HTML would cause the entire page to die with
+                     a message saying the spell couldn't be found.
+                     That is kind of overkill that caused problems.
+                     This was changed to just post "UNKNOWN" next to
+                     the items effect when not found.
+                  Added the ability to overwrite the config settings
+                     by using environmental variables to make this
+                     easier to integrate into docker container. The
+                     following environment variables will overwrite
+                     The values in the config file:
+                     
+                     DB_NAME overwrites $cb_db
+                     DB_HOST overwrites $cb_host
+                     DB_USER overwrites $cb_user
+                     DB_PASSWORD overwrites $cb_pass
+                     DB_PORT overwrites $cb_port
+
+                     CONTENT_DB_NAME overwrites $cb_content_db
+                     CONTENT_DB_HOST overwrites $cb_content_host
+                     CONTENT_DB_USER overwrites $cb_content_user
+                     CONTENT_DB_PASSWORD overwrites $cb_content_pass
+                     CONTENT_DB_PORT overwrites $cb_content_port
+                   
+                    
+v3.6.3
+----------------------------------------------------------------------
+added stats to search page
+
+September 2, 2023 - we recently got the new character stats table
+                    this is a first cursory pass at adding those
+                    stats display as a leader board
+               
+v3.6.2
+----------------------------------------------------------------------
+added databucket key naming convention
+
+Jun 14, 2023 - updated databuckets to work with two different
+               key naming conventions. Originally just 
+               <charid>-<key> worked, now <key>-<charid> works too
+               
+v3.6.1
+----------------------------------------------------------------------
+added class distribution with cutoff, code cleanup with flags
+
+Jun 11, 2023 - Added a Classes of last 30 days to the server view
+
+Jun 12, 2023 - Made functions that output flags to make the code
+               more readable. Moved old and new flag functions
+               and population queries to a new class.
+               
+v3.6.0
+----------------------------------------------------------------------
+php/mysql version compatibility, cleanup warnings and notices, new
+error class, general cleanup, minor upgrades
+
+Nov 23, 2022 - Altered the adventure board to use RANK() for newer
+               versions of MySQL and variables for older versions
+
+Jan 11, 2023 - removed too many warnings and notices to cover here
+               gave classes a Charbrowser_ prefix for their name
+               gave all private elements a _ prefix
+               changed GetPermissions class to be a part of the
+                  characters class
+               make sure array and array keys exist prior to
+                  referencing them
+               repaired the leaderboard rankings. The query returned
+                  different results based on DB vendor/version. it now
+                  uses two different methods based on vender/version.
+               removed direct access to $_GET, $_POST and $_REQUEST
+                  and use a wrapper function preg_Get_Post() instead
+                  which is written to ensure array keys exist and to
+                  also use regex to validate all user input values
+               Tested/Updated the software to work on PHP 5.6 up
+                  to PHP 7.4
+               When theres no bazaar search results, we now show
+                  an empty bazaar window instead of a message box
+               
+               
+              (maudigan)
+              
 v3.5.0
 ----------------------------------------------------------------------
 LDON Leaderboard, Barter, Leadership AA, Corpse Detail, enhancements,

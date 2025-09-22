@@ -32,6 +32,9 @@
  *   May 3, 2020 - Maudigan
  *      fixed fetch_all to not return an extra blank row
  *      split up rows searched and rows returned for the db performance code
+ *   January 16, 2023 - Maudigan
+ *       added _ prefix to private properties
+ *       changed constructor to fetch local referenecs to global objects
  ***************************************************************************/
 
 
@@ -59,14 +62,20 @@ include_once(__DIR__ . "/vegas_functions.php" ); // VegasEQ
 class Charbrowser_SQL
 {
    //local database handle
-   var $_mysql_handle;
+   private $_mysql_handle;
 
    //holds performance data about queries
-   var $_dbp_performance = array();
+   private $_dbp_performance = array();
 
    //holds data about which tables have been accessed
-   var $_dbp_tables = array();
+   private $_dbp_tables = array();
+   
 
+   
+   //local references to external classes
+   //imported using "global" in the constructor
+   private $_error;
+   private $_language;
 
 
    //-------------------------------------
@@ -74,6 +83,31 @@ class Charbrowser_SQL
    //-------------------------------------
    function __construct($host, $user, $pass, $database, $port)
    {
+      
+      global $cb_error;
+      global $language;
+      
+      //make sure the error class exists, store pointer
+      if (!isset($cb_error)) 
+      {
+         die("The Charbrowser_SQL class can't be initialized prior to the error class (error.php) being created.");
+      }
+      else
+      {
+         $this->_error = $cb_error;
+      }
+      
+      //make sure the language class exists, store pointer
+      if (!isset($language)) 
+      {
+         $this->_error->message_die("Error", "The Charbrowser_SQL class can't be initialized prior to the language array (language.php) language.php.");
+      }
+      else
+      {
+         $this->_language = $language;
+      }
+      
+      //create the connection
       $this->_mysql_handle = New mysqli($host, $user, $pass, $database, $port);
    }
 
@@ -118,14 +152,16 @@ class Charbrowser_SQL
    //------------------------------------
    function dbp_fetch_parsed($type)
    {
+      global $cb_override_template_dir;
+
       //create our own template class instance so we don't interfere with the global one
-      $dbp_template = new CB_Template(__DIR__ . "/../templates/" . $cb_override_template_dir, __DIR__ . "/../templates/default");
+      $dbp_template = new Charbrowser_Template(__DIR__ . "/../templates/" . $cb_override_template_dir, __DIR__ . "/../templates/default");
 
       //load the template
       $dbp_template->set_filenames(array('database_performance' => 'database_performance_body.tpl'));
 
       //skip it if its empty
-      if (is_array($this->_dbp_performance))
+      if (cb_count($this->_dbp_performance))
       {
          //load the top level items into the array
          $dbp_template->assign_vars(array(
@@ -155,7 +191,7 @@ class Charbrowser_SQL
       $dbp_output = $dbp_template->pparse_str('database_performance');
 
       //cleanup
-      $dbp_template->destroy;
+      $dbp_template->destroy();
 
       return $dbp_output;
    }
@@ -169,35 +205,36 @@ class Charbrowser_SQL
    //------------------------------------
    function dbp_table_fetch_parsed($type)
    {
+      global $cb_override_template_dir;
+      
+      if(!cb_count($this->_dbp_tables)) return;
+      
       //create our own template class instance so we don't interfere with the global one
-      $dbp_template = new CB_Template(__DIR__ . "/../templates/" . $cb_override_template_dir, __DIR__ . "/../templates/default");
+      $dbp_template = new Charbrowser_Template(__DIR__ . "/../templates/" . $cb_override_template_dir, __DIR__ . "/../templates/default");
 
       //load the template
       $dbp_template->set_filenames(array('database_table_performance' => 'database_table_performance_body.tpl'));
 
-      //skip it if its empty
-      if (is_array($this->_dbp_tables))
+
+      //load the top level items into the array
+      $dbp_template->assign_vars(array(
+         'TYPE' => $type)
+      );
+
+      //loop through each query
+      $tables = array();
+      foreach ($this->_dbp_tables as $dbp_table)
       {
          //load the top level items into the array
-         $dbp_template->assign_vars(array(
-            'TYPE' => $type)
-         );
-
-         //loop through each query
-         $tables = array();
-         foreach ($this->_dbp_tables as $dbp_table)
-         {
-            //load the top level items into the array
-            $dbp_template->assign_block_vars("tables", $dbp_table);
-         }
-
+         $dbp_template->assign_block_vars("tables", $dbp_table);
       }
+
 
       //grab the output
       $dbp_output = $dbp_template->pparse_str('database_table_performance');
 
       //cleanup
-      $dbp_template->destroy;
+      $dbp_template->destroy();
 
       return $dbp_output;
    }
@@ -227,7 +264,7 @@ class Charbrowser_SQL
 
       //if we aren't monitoring database performance just
       //return the query results, don't explain non-selects either
-      if (!defined('DB_PERFORMANCE') || !$select) return $this->_mysql_handle->query($query);
+      if (!defined('DEVELOPER_MODE') || !$select) return $this->_mysql_handle->query($query);
 
 
 
@@ -241,7 +278,7 @@ class Charbrowser_SQL
       //report errors
       if (!$return)
       {
-         cb_message_die($language['MESSAGE_ERROR'], $this->_mysql_handle->error);
+         $this->_error->message_die($this->_language['MESSAGE_ERROR'], $this->_mysql_handle->error);
       }
 
       //get an explanation of the query
@@ -356,13 +393,13 @@ class Charbrowser_SQL
 *********************************************/
 $cbsql = new Charbrowser_SQL($cb_host, $cb_user, $cb_pass, $cb_db, $cb_port);
 
-if ($cbsql->connect_error()) cb_message_die($language['MESSAGE_ERROR'], $language['MESSAGE_DB_NOCONNECT']);
+if ($cbsql->connect_error()) $cb_error->message_die($language['MESSAGE_ERROR'], $language['MESSAGE_DB_NOCONNECT']);
 
 //do we have a seperate content DB?
 if ($cb_use_content_db)
 {
    $cbsql_content = new Charbrowser_SQL($cb_content_host, $cb_content_user, $cb_content_pass, $cb_content_db, $cb_content_port);
-   if ($cbsql_content->connect_error()) cb_message_die($language['MESSAGE_ERROR'], $language['MESSAGE_DB_NOCONNECT']);
+   if ($cbsql_content->connect_error()) $cb_error->message_die($language['MESSAGE_ERROR'], $language['MESSAGE_DB_NOCONNECT']);
 }
 else
 {

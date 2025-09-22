@@ -40,7 +40,9 @@
  *                      added language for barter page
  *   October 28, 2022 - added adventure board language (maudigan)
  *   November 1, 2022 - added language for corpses page update (Maudigan)
- ***************************************************************************/ 
+ *   January 16, 2023 - added many missing and new messages
+ *   September 2, 2023 - add column headers for stats in search window
+ ***************************************************************************/
   
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
   
@@ -49,7 +51,11 @@ if ( !defined('INCHARBROWSER') )
 { 
         die("Hacking attempt"); 
 } 
-$language = array(); 
+$language = array();
+
+//pagination
+$language['GOTO_PAGE'] = "Goto Page";
+
 //header language 
 $language['HEADER_GUILD'] = "Guild"; 
 $language['HEADER_NAME'] = "Name"; 
@@ -91,7 +97,16 @@ $language['PAGE_TITLES_RAID'] ="'s Raid Points";
 
 
 //charmove language 
-$language['CHARMOVE_CHARACTER_MOVER'] = "Character Mover"; 
+$language['CHARMOVE_BLANKFIELDS'] = "One or more fields were left blank";
+$language['CHARMOVE_NAME_ILLEGAL'] = "The character name contains illegal characters";
+$language['CHARMOVE_LOGIN_ILLEGAL'] = "Login contains illegal characters";
+$language['CHARMOVE_ZONE_ILLEGAL'] = "That zone contains illegal characters";
+$language['CHARMOVE_BAD_ZONE'] = "That zone is not a legal selection";
+$language['CHARMOVE_UNKNOWN_DB'] = "Unknown database error";
+$language['CHARMOVE_BAD_NAMES'] = "Login or character name was not correct";
+$language['CHARMOVE_MOVED'] = "%s - moved to %s";
+$language['MESSAGE_MOVE_ARRAY_MISMATCH'] = "The number of logins, character, and zones provided doesn't match.";
+$language['CHARMOVE_CHARACTER_MOVER'] = "Character Mover";
 $language['CHARMOVE_LOGIN'] = "Login"; 
 $language['CHARMOVE_CHARNAME'] = "Name"; 
 $language['CHARMOVE_ZONE'] = "Zone"; 
@@ -100,7 +115,8 @@ $language['CHARMOVE_ADD_CHARACTER'] = "add row";
 $language['CHARMOVE_BOOKMARK'] = "Click here to add a bookmark for this move!"; 
 
 //signature language 
-$language['SIGNATURE_SIGNATURE_BUILDER'] = "Signature Builder"; 
+$language['SIGNATURE_NO_FILE'] = "There is no %s file named %s, and no default images could be located to replace it.";
+$language['SIGNATURE_SIGNATURE_BUILDER'] = "Signature Builder";
 $language['SIGNATURE_NAME'] = "Name"; 
 $language['SIGNATURE_FONT_ONE'] = "Name Font"; 
 $language['SIGNATURE_FONT_SIZE_ONE'] = "Name Size"; 
@@ -151,7 +167,17 @@ $language['INDEX_BY'] = "By";
 $language['SEARCH_RESULTS'] = "Results"; 
 $language['SEARCH_LEVEL'] = "Level"; 
 $language['SEARCH_CLASS'] = "Class"; 
-$language['SEARCH_NAME'] = "Name"; 
+$language["SEARCH_AA_POINTS"] = "AA";
+$language["SEARCH_HP"] = "HP";
+$language["SEARCH_MANA"] = "Mana";
+$language["SEARCH_ENDURANCE"] = "End";
+$language["SEARCH_ATTACK"] = "ATK";
+$language["SEARCH_AC"] = "AC";
+$language["SEARCH_HASTE"] = "Haste";
+$language["SEARCH_ACCURACY"] = "Accuracy";
+$language["SEARCH_HP_REGEN"] = "HP Reg.";
+$language["SEARCH_MANA_REGEN"] = "Mana Reg.";
+$language['SEARCH_NAME'] = "Name";
 $language['SEARCH_PREVIOUS'] = "Prev"; 
 $language['SEARCH_NEXT'] = "Next"; 
 
@@ -508,7 +534,8 @@ $language['SERVER_CHAR_COUNT'] = "Character Count";
 $language['SERVER_NONE'] = "None";
 $language['SERVER_SERVER'] = "Server";
 $language['SERVER_CLASSES'] = "Classes";
-$language['SERVER_CLASS'] = "Class"; 
+$language['SERVER_CLASSES_CUTOFF'] = "Classes (Last %s Days)";
+$language['SERVER_CLASS'] = "Class";
 $language['SERVER_PERCENT'] = "Percent";
 $language['SERVER_COUNT'] = "Count";   
 $language['SERVER_LEVELS'] = "Level Distribution"; 
@@ -527,6 +554,7 @@ $language['FLAG_FLAGS'] = "Flags";
 $language['FLAG_PoP'] = "Planes of Power &nbsp;&nbsp;&nbsp;(click for details)"; 
 $language['FLAG_GoD'] = "Gates of Discord &nbsp;&nbsp;&nbsp;(click for details)"; 
 $language['FLAG_OOW'] = "Omens of War &nbsp;&nbsp;&nbsp;(click for details)"; 
+$language['FLAG_DON'] = "Dragons of Norrath &nbsp;&nbsp;&nbsp;(click for details)";
 
 //flags language 
 $language['FLAG_PoP_PoNB'] = "Lair of Terris Thule (Plane of Nightmare B)"; 
@@ -640,9 +668,68 @@ $language['FLAG_OOW_COA_FORESIGHT'] = "You have completed The Mastery of Foresig
 $language['FLAG_OOW_COA_SPECIALIZATION'] = "You have completed The Mastery of Specialization trial."; 
 $language['FLAG_OOW_COA_ADAPTATION'] = "You have completed The Mastery of Adaptation trial.";
 $language['FLAG_OOW_COA_CORRUPTION'] = "You have completed The Mastery of Corruption trial.";
-$language['FLAG_OOW_COA_TAROMANI'] = "You have turned the seven signets into Taromani."; 
+$language['FLAG_OOW_COA_TAROMANI'] = "You have turned the seven signets into Taromani.";
 
-//skills language 
+
+//DON FLAGS
+$language['FLAG_DON_GOOD'] = "Norrath's Keepers flags";
+$language['FLAG_DON_GOOD_1'] = "(T1) Said 'help' for access to solo quests";
+$language['FLAG_DON_GOOD_2'] = "(T1) Hailed after finishing 3 solo quests for access to mission";
+$language['FLAG_DON_GOOD_3'] = "(T1) Finished the group mission (Children of Gimblax)";
+$language['FLAG_DON_GOOD_4'] = "(T1) Complete (hailed after completing mission)";
+$language['FLAG_DON_GOOD_5'] = "(T2) Said 'work' for access to solo quests";
+$language['FLAG_DON_GOOD_6'] = "(T2) Hailed after finishing 3 solo quests for access to mission and raid";
+$language['FLAG_DON_GOOD_7'] = "(T2) Finished the group mission (Sickness of the Spirit)";
+$language['FLAG_DON_GOOD_8'] = "(T2) Turned in 'Glowing Stone Fragment' from 'Calling Emoush' raid";
+$language['FLAG_DON_GOOD_9'] = "(T2) Complete (finished group mission and turned in raid item)";
+$language['FLAG_DON_GOOD_10'] = "(T3) Hailed for access to solo quests";
+$language['FLAG_DON_GOOD_11'] = "(T3) Hailed after finishing 3 solo quests for access to mission and raids";
+$language['FLAG_DON_GOOD_12'] = "(T3) Finished the group mission (History of the Isle)";
+$language['FLAG_DON_GOOD_13'] = "(T3) Turned in 'Goblin Warlord's Beads' from 'Trial of Perseverance' raid";
+$language['FLAG_DON_GOOD_14'] = "(T3) Turned in 'Lava Spider Spinners' from 'Volkara's Bite' raid";
+$language['FLAG_DON_GOOD_15'] = "(T3) Complete (finished group mission and turned in both raid items)";
+$language['FLAG_DON_GOOD_16'] = "(T4) Hailed for access to raids";
+$language['FLAG_DON_GOOD_17'] = "(T4) Turned in 'Quintessence of Sand' from 'Guardian of the Sands' raid";
+$language['FLAG_DON_GOOD_18'] = "(T4) Turned in 'Meditation Stone' from 'Goblin Dojo' raid";
+$language['FLAG_DON_GOOD_19'] = "(T4) Said 'defend' for access to 'An End to the Storms' raid";
+$language['FLAG_DON_GOOD_20'] = "(T4) Turned in 'Yar`lir's Fang' from 'An End to the Storms' raid";
+$language['FLAG_DON_GOOD_21'] = "(T4) Complete (turned in 'Yar`lir's Fang' from 'An End To the Storms' raid)";
+$language['FLAG_DON_GOOD_22'] = "(T5) Hailed for access to group mission and 'The Curse of Ju`rek' raid";
+$language['FLAG_DON_GOOD_23'] = "(T5) Finished the group mission (Origins of the Curse)";
+$language['FLAG_DON_GOOD_24'] = "(T5) Turned in 'Diseased Wing Fragment' from 'The Curse of Ju`rek' raid";
+$language['FLAG_DON_GOOD_25'] = "(T5) Said 'dragon' for access to 'In the Shadows' raid";
+$language['FLAG_DON_GOOD_26'] = "(T5) Turned in 'Shadowscale of Vishimtar' from 'In the Shadows' raid";
+$language['FLAG_DON_GOOD_27'] = "(T5) Complete (turned in 'Shadowscale of Vishim_tar')";
+$language['FLAG_DON_EVIL'] = "Dark Reign flags";
+$language['FLAG_DON_EVIL_1'] = "(T1) Said 'help' for access to solo quests";
+$language['FLAG_DON_EVIL_2'] = "(T1) Hailed after finishing 3 solo quests for access to mission";
+$language['FLAG_DON_EVIL_3'] = "(T1) Finished the group mission (Have Note Will Travel)";
+$language['FLAG_DON_EVIL_4'] = "(T1) Complete (hailed after completing mission)";
+$language['FLAG_DON_EVIL_5'] = "(T2) Said 'work' for access to solo quests";
+$language['FLAG_DON_EVIL_6'] = "(T2) Hailed after finishing 3 solo quests for access to mission and raid";
+$language['FLAG_DON_EVIL_7'] = "(T2) Finished the group mission (Drake Eggs)";
+$language['FLAG_DON_EVIL_8'] = "(T2) Turned in 'Glowing Stone Fragment' from 'Calling Emoush' raid";
+$language['FLAG_DON_EVIL_9'] = "(T2) Complete (finished group mission and turned in raid item)";
+$language['FLAG_DON_EVIL_10'] = "(T3) Hailed for access to solo quests";
+$language['FLAG_DON_EVIL_11'] = "(T3) Hailed after finishing 3 solo quests for access to mission and raids";
+$language['FLAG_DON_EVIL_12'] = "(T3) Finished the group mission (The Gilded Scroll)";
+$language['FLAG_DON_EVIL_13'] = "(T3) Turned in 'Goblin Warlord's Beads' from 'Trial of Perseverance' raid";
+$language['FLAG_DON_EVIL_14'] = "(T3) Turned in 'Lava Spider Spinners' from 'Volkara's Bite' raid";
+$language['FLAG_DON_EVIL_15'] = "(T3) Complete (finished group mission and turned in both raid items)";
+$language['FLAG_DON_EVIL_16'] = "(T4) Hailed for access to raids";
+$language['FLAG_DON_EVIL_17'] = "(T4) Turned in 'Quintessence of Sand' from 'Guardian of the Sands' raid";
+$language['FLAG_DON_EVIL_18'] = "(T4) Turned in 'Meditation Stone' from 'Goblin Dojo' raid";
+$language['FLAG_DON_EVIL_19'] = "(T4) Said 'prove' for access to 'An End to the Storms' raid";
+$language['FLAG_DON_EVIL_20'] = "(T4) Turned in 'Yar`lir's Fang' from 'An End to the Storms' raid";
+$language['FLAG_DON_EVIL_21'] = "(T4) Complete (turned in 'Yar`lir's Fang' from 'An End To the Storms' raid)";
+$language['FLAG_DON_EVIL_22'] = "(T5) Hailed for access to group mission and 'The Curse of Ju`rek' raid";
+$language['FLAG_DON_EVIL_23'] = "(T5) Finished the group mission (Rival Party)";
+$language['FLAG_DON_EVIL_24'] = "(T5) Turned in 'Diseased Wing Fragment' from 'The Curse of Ju`rek' raid";
+$language['FLAG_DON_EVIL_25'] = "(T5) Finished mission and turned in raid item for access to 'In the Shadows' raid";
+$language['FLAG_DON_EVIL_26'] = "(T5) Turned in 'Shadowscale of Vishimtar' from 'In the Shadows' raid";
+$language['FLAG_DON_EVIL_27'] = "(T5) Complete (turned in 'Shadowscale of Vishimtar')";
+
+//skills language
 $language['SKILLS_SKILLS'] = "Skills"; 
 $language['SKILLS_TRADE'] = "Trade"; 
 $language['SKILLS_OTHER'] = "Other"; 
@@ -732,7 +819,8 @@ $language['CHAR_OPEN_BAG'] = "Inspect this bag's contents";
 //buttons 
 $language['BUTTON_BACK'] = "Back"; 
 $language['BUTTON_DONE'] = "Done"; 
-$language['BUTTON_INVENTORY'] = "Profile"; 
+$language['BUTTON_CLEAR'] = "Clear";
+$language['BUTTON_INVENTORY'] = "Profile";
 $language['BUTTON_AAS'] = "AAs"; 
 $language['BUTTON_LEADERSHIP'] = "Leader."; 
 $language['BUTTON_FLAGS'] = "Flags"; 
@@ -751,16 +839,26 @@ $language['BUTTON_RAID'] = "Raid";
 
 //messages 
 $language['MESSAGE_ERROR'] = "Error"; 
-$language['MESSAGE_DISABLED'] = "Disabled"; 
-$language['MESSAGE_NO_CHAR'] = "You must specify a character."; 
+$language['MESSAGE_ERROR_TEMPLATE'] = "%s in %s on line %s.";
+$language['MESSAGE_LOAD_ORDER'] = "The %s class can't be loaded prior to %s.";
+$language['MESSAGE_WARNING'] = "Warning";
+$language['MESSAGE_NOTICE'] = "Notice";
+$language['MESSAGE_DEBUG'] = "Debug";
+$language['MESSAGE_FATAL_ERROR'] = "Fatal Error";
+$language['MESSAGE_PARSER_ERROR'] = "Parser Error";
+$language['MESSAGE_DISABLED'] = "Disabled";
+$language['MESSAGE_GENERIC'] = "A fatal error was encountered.";
+$language['MESSAGE_NO_CHAR'] = "You must specify a valid character name using only letters.";
+$language['MESSAGE_NO_BOT'] = "You must specify a valid bot name using only letters.";
+$language['MESSAGE_NO_CORPSE'] = "You must specify a valid corpse id using only numbers.";
 $language['MESSAGE_NO_GUILD'] = "You must specify a guild."; 
 $language['MESSAGE_NO_RESULTS_GUILD'] = "No guilds matched your search.";
 $language['MESSAGE_CORPSE_NON_NUMERIC'] = "A non numeric corpse id was provided."; 
 $language['MESSAGE_NAME_ALPHA'] = "A characters name can only contain alphabetic characters."; 
-$language['MESSAGE_ITEM_ALPHA'] = "An item search can only contain alphabetic characters for security."; 
+$language['MESSAGE_ITEM_ALPHA'] = "An item name search can only contain alphabetic, numeric, spaces, apostrophe and dashes for security.";
 $language['MESSAGE_NO_RESULTS'] = "No characters matched your search."; 
 $language['MESSAGE_NO_RESULTS_ITEMS'] = "No items matched your search."; 
-$language['MESSAGE_GUILD_ALPHA'] = "A guild search can only contain alphabetic characters."; 
+$language['MESSAGE_GUILD_ALPHA'] = "A guild search can only contain alphabetic, spaces, apostrophe and dashes for security.";
 $language['MESSAGE_ORDER_ALPHA'] = "A searches order by field can only contain alphabetic characters."; 
 $language['MESSAGE_START_NUMERIC'] = "A searches start field can only contain numeric characters."; 
 $language['MESSAGE_PRICE_NUMERIC'] = "A searches price field can only contain numeric characters."; 
@@ -785,7 +883,8 @@ $language['MESSAGE_DB_CONNECT'] = "The database host/user/password supplied were
 $language['MESSAGE_DB_NODB'] = "Could not find designated database.";
 $language['MESSAGE_NOAPI'] = "The API is unavailable on this page.";
 $language['MESSAGE_BAD_CONFIG'] = "<h2>Configuration Error</h2>The config version stamp in your config file does not match the stamp in your software. This likely means that you've installed a new version of the software but kept your old config file. This stamp only changes when important changes have beeen made to the config file that require generating a new config. Backup your old config.php and replace it with config.template. Then edit the new file and reset all your settings in it.";
-$language['MESSAGE_NO_RAIDPTS'] = "This character has not earned any raid points."; 
-$language['MESSAGE_PERMISSIONS_ERROR'] = "This character is anonymous and your IP does not match what was last used to log in with this character."; 
-
+$language['MESSAGE_ILLEGAL_PAGE'] = "You've requested a page with ilelgal characters in the name. Not cool.";
+$language['MESSAGE_NO_PAGE'] = "You've requested a page that doesn't exist.";
+$language['MESSAGE_NO_RAIDPTS'] = "This character has not earned any raid points.";
+$language['MESSAGE_PERMISSIONS_ERROR'] = "This character is anonymous and your IP does not match what was last used to log in with this character.";
 ?>
