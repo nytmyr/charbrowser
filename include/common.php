@@ -45,6 +45,8 @@ if ( !defined('CB_COMMON_RUN') )
    include_once(__DIR__ . "/global.php");
    include_once(__DIR__ . "/template.php" );
 
+   include_once(__DIR__ . "/vegas_functions.php" ); // VegasEQ
+
    //figure our current url
    $cb_index_url = ($charbrowser_wrapped) ? $_SERVER['SCRIPT_NAME'] : "index.php";
 

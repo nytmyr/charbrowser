@@ -54,27 +54,9 @@ $ownercheck = 0;
 $char = new profile($charID, $cbsql, $cbsql_content, $language, $showsoftdelete, $charbrowser_is_admin_page);
 $charName = $char->GetValue('name');
 $mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $char->char_id());
-$userip = getIPAddress(); 
-
-$tpl = 
-	<<<TPL
-		SELECT ai.ip as ip
-		FROM character_data cd
-		INNER JOIN account_ip AI on ai.accid = cd.account_id
-		WHERE cd.id = $charID
-		ORDER BY ai.lastused DESC
-		LIMIT 1
-	TPL;
-	$result = $cbsql->query($tpl);
-	$botsip = $cbsql->fetch_all($result);  
-foreach($botsip as $botip) {
-	if ($botip['ip'] == $userip || $userip == $defaultedlocalhost || $userip == $localipaddress || $userip == $defaultgateway || $userip == $publicip) {
-		$ownercheck = 1;
-	}
-}
 
 //block view if user level doesnt have permission
-if ($mypermission['bots'] && $ownercheck != 1) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_PERMISSIONS_ERROR']);
+if ($mypermission['bots']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_PERMISSIONS_ERROR']);
  
 /*********************************************
         GATHER RELEVANT PAGE DATA

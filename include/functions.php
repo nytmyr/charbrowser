@@ -441,6 +441,10 @@ function GetPermissions($gm, $anonlevel, $char_id) {
 		 'botsettings'        => 0,
 		 'raidpoints'        => 0);
    }
+
+    if (OwnerCheck($char_id)) {
+        return $permissions['ALL'];
+    }
  
    $tpl = <<<TPL
 SELECT `value`
