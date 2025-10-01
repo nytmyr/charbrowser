@@ -607,7 +607,7 @@ TPL;
    public function getGS()
    {
       $this->_populateItems();
-	  return $this->itemstats->GearScore();
+	  return $this->_itemstats->GearScore();
    }
 
    

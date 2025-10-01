@@ -1,26 +1,34 @@
  <?php
- define('INCHARBROWSER', true);
-include_once(__DIR__ . "/include/common.php");
-include_once(__DIR__ . "/include/profile.php");
-include_once(__DIR__ . "/include/db.php");
 
-/*********************************************
-         SETUP PROFILE/PERMISSIONS
-*********************************************/
-if(!$_GET['char']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_NO_CHAR']);
-else $charName = $_GET['char'];
-$order = (isset($_GET['order']) ? addslashes($_GET["order"]) : "n.`difficulty` ASC");
-$unkilled = (isset($_GET['unkilled']) ? addslashes($_GET["unkilled"]) : 0);
+ //define this as an entry point to unlock includes
+ if ( !defined('INCHARBROWSER') )
+ {
+     define('INCHARBROWSER', true);
+ }
+ include_once(__DIR__ . "/include/common.php");
+ include_once(__DIR__ . "/include/bot_profile.php");
+ include_once(__DIR__ . "/include/profile.php");
+ include_once(__DIR__ . "/include/itemclass.php");
+ include_once(__DIR__ . "/include/db.php");
+ Include_once(__DIR__ . "/include/bot.php");
 
 
-//character initializations
-$char = new profile($charName, $cbsql, $cbsql_content, $language, $showsoftdelete, $charbrowser_is_admin_page); //the profile class will sanitize the character name
-$charID = $char->char_id();
-$name = $char->GetValue('name');
-$mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $char->char_id());
-	
-//block view if user level doesnt have permission
-if ($mypermission['raidpoints']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_PERMISSIONS_ERROR']);
+ /*********************************************
+ SETUP CHARACTER CLASS & PERMISSIONS
+  *********************************************/
+ $charName = preg_Get_Post('char', '/^[a-zA-Z]+$/', false, $language['MESSAGE_ERROR'],$language['MESSAGE_NO_CHAR'], true);
+
+ //character initializations
+ $char = new Charbrowser_Character($charName, $showsoftdelete, $charbrowser_is_admin_page); //the Charbrowser_Character class will sanitize the character name
+ $charID = $char->char_id();
+ $name = $char->GetValue('name');
+
+ // Form sorting
+ $order = (isset($_GET['order']) ? addslashes($_GET["order"]) : "n.`difficulty` ASC");
+ $unkilled = (isset($_GET['unkilled']) ? addslashes($_GET["unkilled"]) : 0);
+
+ //block view if user level doesnt have permission
+ if ($char->Permission('raidpoints')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
 
 /*********************************************
         GATHER RELEVANT PAGE DATA
@@ -152,9 +160,9 @@ foreach ($raid as $raidpts) {
    $cb_template->assign_both_block_vars("raid", array(
       'NPC_NAME' => $raidpts['NPCName'],
       'NPC_ID' => $raidpts["NPCID"],
-      'NPC' => 'http://vegaseq.com/Allaclone/?a=npc&id=' . $raidpts["NPCID"],
+      'NPC' => QuickTemplate($link_npc, array('NPC_ID' => $raidpts["NPCID"])),
 	  'NPC_PTS' => $raidpts["EarnedValue"],
-	  'NPC_ZONESN' => 'http://vegaseq.com/Allaclone/?a=zone&name=' . $raidpts["ZoneSN"],
+	  'NPC_ZONESN' => QuickTemplate($link_zone, array('ZONE_SHORTNAME' => $raidpts["ZoneSN"])),
 	  'NPC_ZONELN' => $raidpts["ZoneLN"],
 	  'NPC_DIFF' => number_format($raidpts["NPCDiff"]))
    );
@@ -172,7 +180,7 @@ foreach ($epictotal as $epictotals) {
 	$cb_template->assign_both_block_vars("epictotal", array(
 		'ITEM_NAME' => $epictotals['ItemName'],
 		'ITEM_ID' => $epictotals["ItemID"],
-		'ITEM' => 'http://vegaseq.com/Allaclone/?a=item&id=' . $epictotals["ItemID"],
+		'ITEM' => QuickTemplate($link_item, array('ITEM_ID' => $epictotals["ItemID"])),
 		'ITEM_PTS' => $epictotals["EarnedValue"])
 	);
 }

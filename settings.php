@@ -68,7 +68,9 @@ $l_permission = array (
    'advfactions'     => $language['SETTINGS_ADVFACTIONS'],    
    'skills'          => $language['SETTINGS_SKILLS'],
    'languageskills'  => $language['SETTINGS_LSKILLS'],
-   'signatures'      => $language['SETTINGS_SIGNATURES']
+   'signatures'      => $language['SETTINGS_SIGNATURES'],
+   'botsettings'     => $language['SETTINGS_BOTSETTINGS'],
+   'raidpoints'      => $language['SETTINGS_RAIDPOINTS']
 );
 
 $l_users = array (

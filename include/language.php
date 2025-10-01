@@ -778,7 +778,9 @@ $language['SETTINGS_SIGNATURES'] = "Signatures";
 $language['SETTINGS_ENABLED'] = "Enabled"; 
 $language['SETTINGS_DISABLED'] = "Disabled"; 
 $language['SETTINGS_UPDATES_EXIST'] = "UPDATES EXIST"; 
-$language['SETTINGS_DOWNLOAD'] = "Download"; 
+$language['SETTINGS_DOWNLOAD'] = "Download";
+$language['SETTINGS_BOTSETTINGS'] = "Bot Settings";
+$language['SETTINGS_RAIDPOINTS'] = "Raid Points";
 
 
 //character 
