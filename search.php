@@ -111,6 +111,7 @@ if ($guild !== '')
    //if the char is anon, dont show them in a guild search
    if (!$showguildwhenanon && !$charbrowser_is_admin_page) $filters[] = "character_data.anon != '1'";
 }
+if ($hide_gm_from_search) $filters[] = "account.status < " . $gm_account_status;
 $where = generate_where($filters);
 
 //build the query, leave a spot for the where
@@ -138,7 +139,6 @@ LEFT JOIN guilds
 LEFT JOIN character_stats_record
        ON character_stats_record.character_id = character_data.id
 %s 
-AND status < 80
 ORDER BY %s %s
 TPL;
  

@@ -265,7 +265,7 @@ foreach($bots as $bot) {
 	}	else {
 		$sml = '<font color=yellow>Stopped meleeing at level ' . $bot['stop_melee_level'] . '<font color=white>';
 	}
-	if ($ownercheck) {
+	if (bot[$ownercheck]) {
 		$filler .= "
 					<div class='col-md-12 head'>
 						<div class='float-right'>

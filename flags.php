@@ -136,6 +136,8 @@ $flg->ozone(($flg->getzoneflag(217) && $flg->getflag(1, "pop_poi_behometh_flag")
 $flg->ozone(($flg->getzoneflag(216) && $flg->getflag(1, "pop_elemental_grand_librarian")), $language['FLAG_PoP_PoAirEarthWater']);
 $flg->ozone(($flg->getflag(1, "pop_time_maelin") && $flg->getflag(1, "pop_fire_fennin_projection") && $flg->getflag(1, "pop_wind_xegony_projection") && $flg->getflag(1, "pop_water_coirnav_projection") && $flg->getflag(1, "pop_eartha_arbitor_projection") && $flg->getflag(1, "pop_earthb_rathe")), $language['FLAG_PoP_PoTime']);
 
+// VegasEQ - START - Uncomment if ever needed
+/***************************************************************************
 //GoD
 $flg->oexpansion($language['FLAG_GoD']);
 $flg->ozone(($flg->getflag(1,"god_vxed_access")), $language['FLAG_GoD_Vxed']);
@@ -156,7 +158,8 @@ $flg->ozone(($flg->getflag(63, "mpg_raid_trials") && $flg->getflag(1, "oow_rss_t
 $flg->oexpansion($language['FLAG_DON']);
 $flg->ozone(($flg->getdatabucketcharacter("don_good") == 268435455), $language['FLAG_DON_GOOD']);
 $flg->ozone(($flg->getdatabucketcharacter("don_evil") == 268435455), $language['FLAG_DON_EVIL']);
-
+***************************************************************************/
+// VegasEQ - END
 
 
 /*********************************************

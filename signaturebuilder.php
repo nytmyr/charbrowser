@@ -39,8 +39,9 @@ if ( !defined('INCHARBROWSER') )
    define('INCHARBROWSER', true);
 }
 include_once(__DIR__ . "/include/common.php");
- 
- 
+
+if ($blocksignature) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
+
 /*********************************************
              SUPPORT FUNCTIONS
 *********************************************/

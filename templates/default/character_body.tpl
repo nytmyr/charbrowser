@@ -12,8 +12,8 @@
       </div>
       <nav class='CB_Tab_Box'>
          <ul>
-            <li id='tab1' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab1', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox1');">Gear</li> 
-            <li id='tab2' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab2', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox2');">Augments</li> 
+            <li id='tab1' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab1', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox1');">Gear</li>
+            <!-- // VegasEQ - START - Uncomment if ever needed // <li id='tab2' onclick="CB_displayTab('#charbrowser NAV.CB_Tab_Box UL LI', '#tab2', '#charbrowser DIV.PositionInventory DIV.InventoryContents', '#tabbox2');">Augments</li> -->
          </ul>
       </nav>      
       <div id='tabbox1' class='InventoryContents'>

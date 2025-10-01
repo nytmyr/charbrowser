@@ -43,9 +43,12 @@ $cb_user   =   "";
 $cb_pass   =   "";
 $cb_port   =   3306;
 
-$localipaddress = "192.168.1.13";
-$defaultgateway = "192.168.1.1";
-$defaultedlocalhost = "::1";
+
+$localipaddress 		= "0.0.0.0";
+$defaultgateway 		= "0.0.0.0";
+$defaultedlocalhost 	= "::1";
+$publicip				= "0.0.0.0";
+
 //Multi-tenancy, if you need a seperate db connection
 //for your content db, set this to true and set
 //your content db connection info here. If you don't
@@ -68,11 +71,11 @@ $blockbazaar         = 0  ;//disable bazaar 0=on 1=off
 $blockbarter         = 0  ;//disable barter 0=on 1=off
 $blockadventurestats = 1  ;//disable ldon leaderboards 0=on 1=off
 
-     
+
 /*****************************************************
 **                  Title  settings                 **
 *****************************************************/
-$mytitle      =    "CharBrowser"; 
+$mytitle      =    "CharBrowser";
 $subtitle     =    " - VEQ";
 
 
@@ -95,7 +98,7 @@ $api_enabled = false;
 **   Contact your system admin or use php_info()    **
 **   to find out if you have freetype.              **
 *****************************************************/
-$titlefont    =    "everquest";  
+$titlefont    =    "everquest";
 $titlefontsize=    "90";
 
 
@@ -117,7 +120,7 @@ $titlefontsize=    "90";
 **   0 - Standard item stats   (recommended)        **
 **   1 - List item stats                            **
 *****************************************************/
-$itemstatsdisplay = 0;  
+$itemstatsdisplay = 0;
 
 
 /*****************************************************
@@ -126,7 +129,7 @@ $itemstatsdisplay = 0;
 **   0 - hide soft deleted characters (recommended) **
 **   1 - show soft deleted characters               **
 *****************************************************/
-$showsoftdelete = 0;   
+$showsoftdelete = 0;
 
 
 /*****************************************************
@@ -135,7 +138,7 @@ $showsoftdelete = 0;
 **   0 - show guild data                            **
 **   1 - block guild data                           **
 *****************************************************/
-$blockguilddata = 0;  
+$blockguilddata = 0;
 
 
 /*****************************************************
@@ -146,7 +149,7 @@ $blockguilddata = 0;
 **   0 - block association                          **
 **   1 - show association                           **
 *****************************************************/
-$showguildwhenanon = 0; 
+$showguildwhenanon = 0;
 
 
 /*****************************************************
@@ -161,11 +164,11 @@ $showguildwhenanon = 0;
 **   0 - show server data                           **
 **   1 - block server data                          **
 *****************************************************/
-$blockserverdata = 0;  
+$blockserverdata = 0;
 
 //how many days of history to show on
 //timed server queries
-$cb_history_days = 30; 
+$cb_history_days = 30;
 
 
 /*****************************************************
@@ -178,7 +181,7 @@ $cb_history_days = 30;
 **   0 - show update notice  (recommended)          **
 **   1 - block update notice                        **
 *****************************************************/
-$cb_blockversioncheck = 0; 
+$cb_blockversioncheck = 0;
 
 
 /*****************************************************
@@ -194,7 +197,7 @@ $cb_show_bots = 1;
 /*****************************************************
 **               TEMPLATE OVERRIDE                  **
 **   By default templates are read from             **
-**   ./templates/default                            ** 
+**   ./templates/default                            **
 **                                                  **
 **   You can override that and cause them to be     **
 **   read form a separate directory. So you could   **
@@ -216,7 +219,7 @@ $cb_show_bots = 1;
 **                                                  **
 **   Paths relative to the ./template/ directory    **
 *****************************************************/
-$cb_override_template_dir = "custom";  
+$cb_override_template_dir = "custom";
 
 
 /*****************************************************
@@ -228,7 +231,7 @@ $blockcharmove = 1; //disable charmove 0=on 1=off
 $charmovezones = array(
   'nexus'  => array( 'x' => 0, 'y' => 0, 'z' => 0 ),
   /*'oot'    => array( 'x' => 1, 'y' => 1, 'z' => 1 ),*/
-);  
+);
 
 
 /*****************************************************
@@ -241,7 +244,7 @@ $charmovezones = array(
 **      0 = display       1 = block                 **
 *****************************************************/
 $permissions = array(
-'ALL' => array( 
+'ALL' => array(
     'inventory'         => 0,
     'coininventory'     => 0,
     'coinbank'          => 0,
@@ -378,7 +381,7 @@ $permissions = array(
     'keys'              => 1,
     'signatures'        => 1,
     'botsettings'		=> 1,
-    'raidpoints'		=> 1)
+    'raidpoints'		=> 1),
 );
 /*****************************************************/
 
@@ -554,6 +557,10 @@ $link_map = "http://mqemulator.net/map.php?zoneid={ZONE_ID}&poi={TEXT}&poix={X}&
 //a link to information about a faction using the faction id.
 //{FACTION_ID} - The ID of the faction group
 $link_faction = "http://vegaseq.com/Allaclone/?a=faction&id={FACTION_ID}";
+
+//a link to information about a NPC using the NPC id.
+//{NPC_ID} - The ID of the NPC
+$link_npc = "http://vegaseq.com/Allaclone/?a=npc&id={NPC_ID}";
 /**************************************************************************************************/
 
 

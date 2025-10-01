@@ -532,7 +532,7 @@ $language['SERVER_MAX_LEVEL'] = "Maximum Level";
 $language['SERVER_AVG_LEVEL'] = "Average Level";
 $language['SERVER_CHAR_COUNT'] = "Character Count";
 $language['SERVER_NONE'] = "None";
-$language['SERVER_SERVER'] = "Server";
+$language['SERVER_SERVER'] = "Server" . ($min_lvl_to_display > 1 ? " (Displays only characters above level " . ($min_lvl_to_display - 1) . ")" : "");
 $language['SERVER_CLASSES'] = "Classes";
 $language['SERVER_CLASSES_CUTOFF'] = "Classes (Last %s Days)";
 $language['SERVER_CLASS'] = "Class";
@@ -540,8 +540,8 @@ $language['SERVER_PERCENT'] = "Percent";
 $language['SERVER_COUNT'] = "Count";   
 $language['SERVER_LEVELS'] = "Level Distribution"; 
 $language['SERVER_LEVELS_CUTOFF'] = "Level Distribution (Last %s Days)"; 
-$language['SERVER_ALL_TIME'] = "All Time > Level 1"; 
-$language['SERVER_CUTOFF'] = "Last %s Days > Level 1"; 
+$language['SERVER_ALL_TIME'] = "All Time";
+$language['SERVER_CUTOFF'] = "Last %s Days";
    
 //key language
 $language['KEYS_KEY'] = "Keys"; 

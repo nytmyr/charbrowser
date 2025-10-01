@@ -52,10 +52,8 @@ if ($char->Permission('bots')) $cb_error->message_die($language['MESSAGE_NOTICE'
         GATHER RELEVANT PAGE DATA
 *********************************************/
 //get factions from the db
-$is_owner = OwnerCheck($charID);
-
-if ($is_owner) {
-    $userip = getIPAddress();
+if ($bot['$ownercheck']) {
+    $userip = $bot['userip'];
 
     $tpl = <<<TPL
 		SELECT bd.name AS name, bd.race AS race, bd.gender AS gender
@@ -111,7 +109,7 @@ $cb_template->set_filenames(array(
    'bots' => 'bots_body.tpl')
 );
 
-if ($is_owner) {
+if ($bot['$ownercheck']) {
     $cb_template->assign_both_vars(array(
             'NAME'        => $name . ' + Owned')
     );
@@ -128,7 +126,7 @@ $cb_template->assign_vars(array(
 );
   
 foreach($bots as $bot) {
-    if ($is_owner) {
+    if ($bot['$ownercheck']) {
         $ownedby = '<br> (Owned by ' . $bot['ownername'] . ')';
     } else {
         $ownedby = '';
