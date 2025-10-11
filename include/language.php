@@ -92,7 +92,9 @@ $language['PAGE_TITLES_SETTINGS'] ="Settings";
 $language['PAGE_TITLES_SIGBUILD'] ="Signature Builder"; 
 $language['PAGE_TITLES_SKILLS'] ="'s Skills"; 
 $language['PAGE_TITLES_KEYS'] ="'s Keys"; 
-$language['PAGE_TITLES_RAID'] ="'s Raid Points"; 
+$language['PAGE_TITLES_RAID'] ="'s Raid Points";
+$language['PAGE_TITLES_CHAR_SETTINGS'] ="'s Settings";
+$language['PAGE_TITLES_BOT_SETTINGS'] ="'s Settings";
 
 
 
@@ -736,7 +738,7 @@ $language['SKILLS_OTHER'] = "Other";
 $language['SKILLS_CLASS'] = "Class"; 
 $language['SKILLS_CASTING'] = "Cast."; 
 $language['SKILLS_COMBAT'] = "Combat"; 
-$language['SKILLS_LANGUAGE'] = "Lang."; 
+$language['SKILLS_LANGUAGE'] = "Lang.";
 
 //profile menu
 $language['PROFILE_MENU_TITLE'] = "Actions"; 
@@ -779,8 +781,10 @@ $language['SETTINGS_ENABLED'] = "Enabled";
 $language['SETTINGS_DISABLED'] = "Disabled"; 
 $language['SETTINGS_UPDATES_EXIST'] = "UPDATES EXIST"; 
 $language['SETTINGS_DOWNLOAD'] = "Download";
-$language['SETTINGS_BOTSETTINGS'] = "Bot Settings";
 $language['SETTINGS_RAIDPOINTS'] = "Raid Points";
+$language['SETTINGS_CHAR_SETTINGS'] = "Settings";
+$language['SETTINGS_BOT_SETTINGS'] = "Settings";
+$language['SETTINGS_BOT_OPTIONS'] = "Options";
 
 
 //character 
@@ -815,8 +819,25 @@ $language['CHAR_COLD'] = "COLD";
 $language['CHAR_CORRUPT'] = "CORRUPT"; 
 $language['CHAR_WEIGHT'] = "WEIGHT"; 
 $language['CHAR_DELETED'] = "DELETED"; 
-$language['CHAR_OPEN_BAG'] = "Inspect this bag's contents"; 
+$language['CHAR_OPEN_BAG'] = "Inspect this bag's contents";
 
+//bot settings
+$language['BOT_SETTINGS_BASE'] = "Base";
+$language['BOT_SETTINGS_HOLDS'] = "Holds";
+$language['BOT_SETTINGS_DELAYS'] = "Delays";
+$language['BOT_SETTINGS_MINTHRESHOLDS'] = "Min Thresholds";
+$language['BOT_SETTINGS_MAXTHRESHOLDS'] = "Max Thresholds";
+$language['BOT_SETTINGS_ResistLimit'] = "Resist Limits";
+$language['BOT_SETTINGS_AggroCheck'] = "Aggro Checks";
+$language['BOT_SETTINGS_MinManaPct'] = "Min Mana %";
+$language['BOT_SETTINGS_MaxManaPct'] = "Max Mana %";
+$language['BOT_SETTINGS_MinHPPct'] = "Min HP %";
+$language['BOT_SETTINGS_MaxHPPct'] = "Max HP %";
+$language['BOT_SETTINGS_IdlePriority'] = "Idle Priority";
+$language['BOT_SETTINGS_EngagedPriority'] = "Engaged Priority";
+$language['BOT_SETTINGS_PursuePriority'] = "Pursue Priority";
+$language['BOT_SETTINGS_AEOrGroupTargetCount'] = "Target Counts";
+$language['BOT_SETTINGS_AnnounceCast'] = "Announce Casts";
 
 //buttons 
 $language['BUTTON_BACK'] = "Back"; 
@@ -838,10 +859,14 @@ $language['BUTTON_BOOKMARK'] = "Link";
 $language['BUTTON_SIG'] = "Sig"; 
 $language['BUTTON_KEYS'] = "Keys"; 
 $language['BUTTON_RAID'] = "Raid";
+$language['BUTTON_CHAR_SETTINGS'] = "Settings";
+$language['BUTTON_BOT_SETTINGS'] = "Settings";
 
 //messages 
 $language['MESSAGE_ERROR'] = "Error"; 
 $language['MESSAGE_ERROR_TEMPLATE'] = "%s in %s on line %s.";
+$language['MESSAGE_ERROR_BOT_SETTINGS'] = "Didn't locate any bot settings.";
+$language['MESSAGE_ERROR_BOT_DEFAULT_SETTINGS'] = "Didn't locate any default bot settings.";
 $language['MESSAGE_LOAD_ORDER'] = "The %s class can't be loaded prior to %s.";
 $language['MESSAGE_WARNING'] = "Warning";
 $language['MESSAGE_NOTICE'] = "Notice";
@@ -889,4 +914,5 @@ $language['MESSAGE_ILLEGAL_PAGE'] = "You've requested a page with ilelgal charac
 $language['MESSAGE_NO_PAGE'] = "You've requested a page that doesn't exist.";
 $language['MESSAGE_NO_RAIDPTS'] = "This character has not earned any raid points.";
 $language['MESSAGE_PERMISSIONS_ERROR'] = "This character is anonymous and your IP does not match what was last used to log in with this character.";
+$language['MESSAGE_INVALID_STANCE'] = "The selected stance is not a valid bot stance.";
 ?>

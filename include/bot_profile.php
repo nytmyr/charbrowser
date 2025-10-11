@@ -64,6 +64,7 @@ class Charbrowser_Bot
    private $_itemstats;
    private $_skills;
    private $_allitems;
+   private $_stance;
 
    //local references to external classes
    //imported using "global" in the constructor
@@ -86,6 +87,9 @@ class Charbrowser_Bot
    // <TABLE>  = the name of the table
    // <COLUMN> = the name of the tables secondary pk
    private $_locator_pk = array (
+       "bot_settings" => "bot_id",
+       "bot_stances" => "bot_id",
+       "bot_default_settings" => "class_id"
    );
 
 
@@ -140,10 +144,7 @@ class Charbrowser_Bot
       "magic" => array("bot_data", "magic", false),
       "poison" => array("bot_data", "poison", false),
       "disease" => array("bot_data", "disease", false),
-      "corruption" => array("bot_data", "corruption", false),
-      "show_helm" => array("bot_data", "show_helm", false),
-      "follow_distance" => array("bot_data", "follow_distance", false),
-      "stop_melee_level" => array("bot_data", "stop_melee_level", false)
+      "corruption" => array("bot_data", "corruption", false)
    );
 
 
@@ -610,6 +611,12 @@ TPL;
 	  return $this->_itemstats->GearScore();
    }
 
+    public function GetStance()
+    {
+        $this->_populateBotStance();
+        return $this->_stance;
+    }
+
    
    
 /********************************************
@@ -707,10 +714,10 @@ TPL;
        
       //if we've already loaded the table
       //send the result now
-      if (is_array($skills)) 
+      if (is_array($skills))
       {
          if (!array_key_exists($skillid, $this->_skills)) return $default;
-         
+
          return $this->_skills[$skillid];
       }
       
@@ -818,9 +825,21 @@ TPL;
             //this is a table with two primary keys, we need to load it
             //into a supporting array, indexed by it's second pk
             $temp_array = array();
-            while($row = $this->_sql->nextrow($result))
-            {
-               $temp_array[$row[$second_column_name]] = $row;
+
+            if ($table_name == 'bot_settings') {
+                while ($row = $this->_sql->nextrow($result)) {
+                    $temp_array[$row['stance']][$row['setting_type']][$row['setting_id']] = $row['value'];
+                }
+            }
+            else if ($table_name == 'bot_default_settings') {
+                while ($row = $this->_sql->nextrow($result)) {
+                    $temp_array[$row['stance']][$row['setting_category']][$row['setting_id']] = $row['value'];
+                }
+            }
+            else {
+                while ($row = $this->_sql->nextrow($result)) {
+                    $temp_array[$row[$second_column_name]] = $row;
+                }
             }
 
             $this->_cached_tables[$table_name] = $temp_array;
@@ -868,19 +887,63 @@ TPL;
    private function _doBotQuery($table_name)
    {   
       //build the query
-      $tpl = <<<TPL
+      if ($table_name == "bot_settings") {
+          $tpl = <<<TPL
+      SELECT * 
+      FROM `%s` 
+      WHERE `bot_id` = '%s'
+TPL;
+          $query = sprintf($tpl, $table_name, $this->_bot_id);
+      }
+      else if ($table_name == "bot_default_settings") {
+          $tpl = <<<TPL
+      SELECT * 
+      FROM `%s` 
+      WHERE `class_id` = '%d'
+TPL;
+          $query = sprintf($tpl, $table_name, $this->_class);
+      }
+      else {
+          $tpl = <<<TPL
       SELECT * 
       FROM `%s` 
       WHERE `id` = '%d'
 TPL;
-      $query = sprintf($tpl, $table_name, $this->_char_id);
+          $query = sprintf($tpl, $table_name, $this->_char_id);
+      }
       
       //get the result/error
       $result = $this->_sql->query($query);
       
       //serve em up
       return $result;
-   }   
+   }
+
+    //query this profiles items and add up all the stats
+    private function _populateBotStance()
+    {
+        global $cbspellcache;
+        global $cbitemcache;
+
+        //only run it once
+        if ($this->_stance) return;
+
+        //FETCH INVENTORY ROWS
+        $tpl = <<<TPL
+      SELECT *
+      FROM bot_stances
+      WHERE bot_id = '%s'  
+TPL;
+        $query = sprintf($tpl, $this->_bot_id);
+        $result = $this->_sql->query($query);
+        $stance_results = $this->_sql->fetch_all($result);
+
+        foreach ($stance_results as $row)
+        {
+            $this->_stance = $row['stance_id'];
+        }
+
+    }
    
 }
 

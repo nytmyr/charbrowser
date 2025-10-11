@@ -46,7 +46,7 @@ Include_once(__DIR__ . "/include/bot.php");
        SETUP CHARACTER CLASS & PERMISSIONS
 *********************************************/
 $botName = preg_Get_Post('bot', '/^[a-zA-Z]+$/', false, $language['MESSAGE_ERROR'],$language['MESSAGE_NO_BOT'], true);
-     
+
 //bot initializations 
 $bot = new Charbrowser_Bot($botName); //the profile class will sanitize the bot name
 $charID = $bot->char_id(); 
@@ -80,7 +80,7 @@ include(__DIR__ . "/include/header.php");
 /*********************************************
             DROP PROFILE MENU
 *********************************************/
-output_profile_menu($charName, 'bot');
+output_bot_profile_menu($charName, $botName, 'bot');
 
  
 /*********************************************
@@ -265,7 +265,7 @@ foreach($bots as $bot) {
 	}	else {
 		$sml = '<font color=yellow>Stopped meleeing at level ' . $bot['stop_melee_level'] . '<font color=white>';
 	}
-	if (bot[$ownercheck]) {
+	if ($bot[$ownercheck]) {
 		$filler .= "
 					<div class='col-md-12 head'>
 						<div class='float-right'>

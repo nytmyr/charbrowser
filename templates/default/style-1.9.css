@@ -2241,6 +2241,153 @@ BODY.CB_Body {
    left: -580px;
 }
 
+#charbrowser .PositionCharSettings {
+    width: 300px;
+    margin: 0 auto;
+    position: relative;
+}
+#charbrowser .PositionCharSettings TABLE.CB_Table {
+    display: none;
+}
+
+#charbrowser .PositionCharSettings TABLE.CB_Table TBODY TR TD:nth-child(1) {
+    text-align: left;
+}
+#charbrowser .PositionCharSettings TABLE.CB_Table TBODY TR TD:nth-child(2) {
+    text-align: right;
+}
+
+/* ----------------------------------------------
+     wrapper for bot settings windows (absolute positioning for left-adjacent layout)
+------------------------------------------------- */
+#charbrowser .CB_BotSettings_Wrapper {
+    position: relative;
+    width: fit-content; /* Shrinks to content width (combined windows + gap) instead of full page */
+    margin: 0 auto; /* Centers the compact wrapper on the page */
+    height: auto; /* Allows natural height */
+    z-index: 0; /* Low z-index: sits behind other page elements (e.g., nav, other windows) */
+    overflow: visible; /* Ensures no clipping/overflow blocks siblings */
+    pointer-events: none; /* Disables clicks on the wrapper itself; children override */
+}
+
+/* ----------------------------------------------
+     vertical tab box for bot setting options (unchanged, but height-controlled)
+------------------------------------------------- */
+#charbrowser .CB_VerticalTabs_Container {
+    display: block; /* No flex needed without content */
+    margin-top: -13px; /* Your adjustment; keeps tight to titlebar */
+}
+
+#charbrowser .CB_Tab_Box_Vertical UL {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    width: 100px; /* Fixed width for vertical tabs */
+    height: auto; /* Matches container height */
+    overflow-y: auto; /* Scrolls tab list if too many tabs */
+    border-right: none; /* Right border acts as the "bottom" for vertical */
+    border-bottom: none;
+}
+
+#charbrowser .CB_Tab_Box_Vertical UL LI {
+    position: relative !important; /* Enables absolute positioning for tooltip */
+    cursor: pointer;
+    list-style-type: none;
+    flex-grow: 0; /* No horizontal growth */
+    text-align: left; /* Align text to left for vertical */
+    padding: 5px 5px; /* Vertical padding for better spacing */
+    border-top: none;
+    border-left: none; /* Left border acts as the "top" for vertical */
+    border-right: none;
+    border-bottom: none;
+    color: #808080;
+    background-color: rgba(255,255,255,0.0);
+    writing-mode: horizontal-tb; /* Ensure text doesn't rotate */
+    white-space: nowrap; /* Prevent text wrap */
+    min-height: 10px; /* Minimum height per tab for consistency */
+    pointer-events: auto; /* Explicitly allows clicks on tabs */
+}
+
+/* Ensure all ancestors allow tooltip visibility and no clipping */
+#charbrowser,
+#charbrowser MAIN,
+#charbrowser .CB_BotSettings_Wrapper,
+#charbrowser .PositionBotSettingOptions,
+#charbrowser .CB_VerticalTabs_Container,
+#charbrowser .WindowComplex {
+    overflow: visible !important;
+    contain: none !important; /* Prevents layout containment clipping */
+}
+
+#charbrowser .CB_Tab_Box_Vertical UL LI.CB_Tab_Open {
+    cursor: default;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    background-color: rgba(255,255,255,0.0);
+    color: #ffffff;
+    pointer-events: auto; /* Ensures open tab remains clickable */
+}
+
+#charbrowser .CB_Tab_Box_Vertical UL LI.CB_Tab_Open:hover {
+    cursor: default;
+    background-color: rgba(255,255,255,0.0);
+}
+
+/* Center the main settings window always */
+#charbrowser .PositionBotSettings {
+    width: 410px; /* Fixed width; adjust if needed */
+    margin: 0 auto; /* Centers it horizontally in the wrapper */
+    position: relative; /* Ensures it stacks naturally */
+    z-index: 1; /* Relative to wrapper: above options but below page */
+    pointer-events: auto; /* Allows clicks on tables/buttons */
+}
+
+/* Position options to the left of the centered settings with fixed gap */
+#charbrowser .PositionBotSettingOptions {
+    position: absolute;
+    left: calc(50% - 80px - 260px - 10px); /* 50% (center) - half settings width (250px) - options width (350px) - gap (10px) */
+    top: 0; /* Top-aligned with settings */
+    width: 100px; /* Fixed width; adjust if needed */
+    height: auto; /* Fixed height to match settings; adjust as needed */
+    min-height: 100px; /* Minimum to avoid collapse; adjust as needed */
+    z-index: -1; /* Ensures it renders on top if needed */
+    padding-bottom: 0; /* Extra bottom padding for "Done" button alignment if needed */
+    pointer-events: auto; /* Allows clicks on titlebar/tabs */
+}
+
+/* Ensure buttons/links inside are clickable */
+#charbrowser .CB_BotSettings_Wrapper .CB_Button,
+#charbrowser .CB_BotSettings_Wrapper A {
+    pointer-events: auto;
+    z-index: 3; /* Bumps buttons/links highest internally */
+}
+
+/* Optional: Responsive stacking for narrow screens (e.g., < 900px wide) */
+@media (max-width: 900px) {
+    #charbrowser .CB_BotSettings_Wrapper {
+        z-index: 0; /* Neutral on mobile; no blocking */
+        width: fit-content; /* Full width on small screens for stacking */
+    }
+
+    #charbrowser .PositionBotSettingOptions {
+        position: static; /* Stacks below on small screens */
+        left: auto;
+        width: 100%;
+        height: auto;
+        margin-bottom: 20px; /* Space between when stacked */
+        z-index: auto; /* Resets to default */
+    }
+
+    #charbrowser .PositionBotSettings {
+        margin: 0; /* Full width when options stack above */
+        width: 100%;
+        max-width: 500px; /* Keeps it from stretching too wide */
+        z-index: auto; /* Resets to default */
+    }
+}
 
 /* ----------------------------------------------
                 HOVER AND DRAG

@@ -536,7 +536,8 @@ function output_profile_menu($charname, $curpage) {
       //array( 'PAGE' => 'adventure', 'BUTTON_NAME' => $language['BUTTON_ADVENTURE'], 'PERMISSION' => 1),
       array( 'PAGE' => 'signaturebuilder', 'BUTTON_NAME' => $language['BUTTON_SIG'], 'PERMISSION' => 1),
       //array( 'PAGE' => 'charmove', 'BUTTON_NAME' => $language['BUTTON_CHARMOVE'], 'PERMISSION' => 1),
-	  array( 'PAGE' => 'raidpoints', 'BUTTON_NAME' => $language['BUTTON_RAID'], 'PERMISSION' => 1),
+      array( 'PAGE' => 'raidpoints', 'BUTTON_NAME' => $language['BUTTON_RAID'], 'PERMISSION' => 1),
+      array( 'PAGE' => 'charsettings', 'BUTTON_NAME' => $language['BUTTON_CHAR_SETTINGS'], 'PERMISSION' => 1),
    );
    
    $otherbuttons = array(
@@ -573,6 +574,70 @@ function output_profile_menu($charname, $curpage) {
    );
    
    $cb_template->pparse('menu');
+}
+
+function output_bot_profile_menu($charname, $botname, $curpage) {
+    global $language;
+    global $cb_template;
+    global $cb_show_bots;
+
+    //two sets of buttons, the profile ones which target the cur character,
+    //and the other which are just plain old vanilla links
+    $profilebuttons = array(
+        array( 'PAGE' => 'character', 'BUTTON_NAME' => $language['BUTTON_INVENTORY'], 'PERMISSION' => 1),
+        //array( 'PAGE' => 'aas', 'BUTTON_NAME' => $language['BUTTON_AAS'], 'PERMISSION' => 1),
+        //array( 'PAGE' => 'leadership', 'BUTTON_NAME' => $language['BUTTON_LEADERSHIP'], 'PERMISSION' => 1),
+        //array( 'PAGE' => 'keys', 'BUTTON_NAME' => $language['BUTTON_KEYS'], 'PERMISSION' => 1),
+        //array( 'PAGE' => 'flags', 'BUTTON_NAME' => $language['BUTTON_FLAGS'], 'PERMISSION' => 1),
+        //array( 'PAGE' => 'skills', 'BUTTON_NAME' => $language['BUTTON_SKILLS'], 'PERMISSION' => 1),
+        //array( 'PAGE' => 'corpses', 'BUTTON_NAME' => $language['BUTTON_CORPSES'], 'PERMISSION' => 1),
+        //array( 'PAGE' => 'factions', 'BUTTON_NAME' => $language['BUTTON_FACTION'], 'PERMISSION' => 1),
+        array( 'PAGE' => 'bots', 'BUTTON_NAME' => $language['BUTTON_BOTS'], 'PERMISSION' => $cb_show_bots),
+        //array( 'PAGE' => 'bazaar', 'BUTTON_NAME' => $language['BUTTON_STORE'], 'PERMISSION' => 1),
+        //array( 'PAGE' => 'barter', 'BUTTON_NAME' => $language['BUTTON_BARTER'], 'PERMISSION' => 1),
+        //array( 'PAGE' => 'adventure', 'BUTTON_NAME' => $language['BUTTON_ADVENTURE'], 'PERMISSION' => 1),
+        //array( 'PAGE' => 'signaturebuilder', 'BUTTON_NAME' => $language['BUTTON_SIG'], 'PERMISSION' => 1),
+        //array( 'PAGE' => 'charmove', 'BUTTON_NAME' => $language['BUTTON_CHARMOVE'], 'PERMISSION' => 1),
+        //array( 'PAGE' => 'raidpoints', 'BUTTON_NAME' => $language['BUTTON_RAID'], 'PERMISSION' => 1),
+    );
+
+    $otherbuttons = array(
+        array( 'BUTTON_NAME' => $language['BUTTON_BOOKMARK'], 'BUTTON_INDEX' => '#', 'BUTTON_TITLE' => $language['BUTTON_BOOKMARK'],  'BUTTON_ONCLICK' => 'cb_BookmarkThisPage();'),
+        array( 'BUTTON_NAME' => $language['BUTTON_BOT_SETTINGS'], 'BUTTON_INDEX' => $cb_index_url . '?page=botsettings&bot=' . $botname, 'BUTTON_TITLE' => $botname,  'BUTTON_ONCLICK' => '{INDEX_URL}?page=botsettings&bot=$botname;'),
+    );
+
+    $cb_template->set_filenames(array(
+            'menu' => 'profile_menu.tpl')
+    );
+
+    $bot_element = 0;
+
+    foreach ($profilebuttons as $profilebutton) {
+        if (!$profilebutton['PERMISSION']) continue;
+        $cb_template->assign_block_vars( "profilebuttons", array(
+                'SWITCH_DIABLED' => ($profilebutton['PAGE'] == $curpage) ? "Disabled" : "",
+                'PAGE' => $profilebutton['PAGE'],
+                'L_BUTTON_FACE' => $profilebutton['BUTTON_NAME'])
+        );
+    }
+
+    foreach ($otherbuttons as $otherbutton) {
+        $cb_template->assign_block_vars( "otherbuttons", array(
+                'SWITCH_DIABLED' => (false) ? "Disabled" : "", //placeholder for if the button is disabled
+                'ONCLICK' => $otherbutton['BUTTON_ONCLICK'],
+                'BUTTON_INDEX' => $otherbutton['BUTTON_INDEX'],
+                'L_BUTTON_FACE' => $otherbutton['BUTTON_NAME'],
+                'L_BUTTON_TITLE' => $otherbutton['BUTTON_TITLE'])
+        );
+    }
+
+    $cb_template->assign_vars(array(
+            'CURPROFILE' => $charname,
+            'BUTTON_COUNT' => cb_count($profilebuttons) + cb_count($otherbuttons),
+            'L_PROFILE_MENU_TITLE' => $language['PROFILE_MENU_TITLE'])
+    );
+
+    $cb_template->pparse('menu');
 }
 
 
@@ -774,4 +839,5 @@ function QuickTemplate($cb_template, $values)
    
    return $cb_template;
 }
+
 ?>
