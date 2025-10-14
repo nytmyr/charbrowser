@@ -73,10 +73,10 @@ function OwnerCheck($charID) {
 
 function IsClientBotSettingCategory($category_id): bool {
     switch ($category_id) {
-        case BotSettingCategories::BASE_SETTING:
-        case BotSettingCategories::SPELL_DELAY:
-        case BotSettingCategories::SPELL_MIN_THRESHOLD:
-        case BotSettingCategories::SPELL_MAX_THRESHOLD:
+        case BotSettingCategories::BaseSetting:
+        case BotSettingCategories::SpellDelay:
+        case BotSettingCategories::SpellMinThreshold:
+        case BotSettingCategories::SpellMaxThreshold:
             return true;
         default:
             return false;
@@ -150,7 +150,7 @@ function GetSettingValueSuffix($setting_category, $setting_type, $value, $bot_le
     $modified_indicator = ($modified ? "*" : "");
 
     switch ($setting_category) {
-        case BotSettingCategories::BASE_SETTING:
+        case BotSettingCategories::BaseSetting:
             switch ($setting_type) {
                 case BotBaseSettings::StopMeleeLevel:
                     $s_sml = true;
@@ -176,37 +176,37 @@ function GetSettingValueSuffix($setting_category, $setting_type, $value, $bot_le
                     break;
             }
             break;
-        case BotSettingCategories::SPELL_HOLD:
+        case BotSettingCategories::SpellHold:
             $s_held = true;
             break;
-        case BotSettingCategories::SPELL_DELAY:
+        case BotSettingCategories::SpellDelay:
             $s_seconds = true;
             break;
-        case BotSettingCategories::SPELL_MIN_THRESHOLD:
-        case BotSettingCategories::SPELL_MAX_THRESHOLD:
-        case BotSettingCategories::SPELL_TYPE_MIN_MANA_PCT:
-        case BotSettingCategories::SPELL_TYPE_MAX_MANA_PCT:
-        case BotSettingCategories::SPELL_TYPE_MIN_HP_PCT:
-        case BotSettingCategories::SPELL_TYPE_MAX_HP_PCT:
-            if ($setting_category == BotSettingCategories::SPELL_MAX_THRESHOLD && !$value) {
+        case BotSettingCategories::SpellMinThreshold:
+        case BotSettingCategories::SpellMaxThreshold:
+        case BotSettingCategories::SpellTypeMinManaPct:
+        case BotSettingCategories::SpellTypeMaxManaPct:
+        case BotSettingCategories::SpellTypeMinHPPct:
+        case BotSettingCategories::SpellTypeMaxHPPct:
+            if ($setting_category == BotSettingCategories::SpellMaxThreshold && !$value) {
                 $s_enabled = true;
                 break;
             }
             $s_pct = true;
             break;
-        case BotSettingCategories::SPELL_TYPE_RESIST_LIMIT:
-        case BotSettingCategories::SPELL_TYPE_AGGRO_CHECK:
-        case BotSettingCategories::SPELL_TYPE_ANNOUNCE_CAST:
+        case BotSettingCategories::SpellTypeResistLimit:
+        case BotSettingCategories::SpellTypeAggroCheck:
+        case BotSettingCategories::SpellTypeAnnounceCast:
             $s_enabled = true;
             break;
-        case BotSettingCategories::SPELL_TYPE_IDLE_PRIORITY:
-        case BotSettingCategories::SPELL_TYPE_ENGAGED_PRIORITY:
-        case BotSettingCategories::SPELL_TYPE_PURSUE_PRIORITY:
+        case BotSettingCategories::SpellTypeIdlePriority:
+        case BotSettingCategories::SpellTypeEngagedPriority:
+        case BotSettingCategories::SpellTypePursuePriority:
             if ($value == 0) {
                 $s_enabled = true;
             }
             break;
-        case BotSettingCategories::SPELL_TYPE_AE_OR_GROUP_TARGET_COUNT:
+        case BotSettingCategories::SpellTypeAEOrGroupTargetCount:
         default:
             break;
     }
@@ -407,7 +407,7 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
             continue;
         }
 
-        if ($i == BotSettingCategories::BASE_SETTING) {
+        if ($i == BotSettingCategories::BaseSetting) {
             for ($x = BotBaseSettings::START; $x <= BotBaseSettings::END; ++$x) {
                 if (!$is_bot && !IsClientBotBaseSetting($x)) {
                     continue;
@@ -438,8 +438,8 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
         //echo "DEBUG: Starting header='$header', i=$i<br>";
         $cb_template->assign_block_vars("section",
             array(
-                'TEXT' => ($i == BotSettingCategories::BASE_SETTING ? 'Setting Name' : 'Spell Type'),
-                'DESCRIPTION' => ($i == BotSettingCategories::BASE_SETTING ? FormBaseSettingsDescriptionString(BotBaseSettings::START) : $bot_setting_category_descriptions[$i]),
+                'TEXT' => ($i == BotSettingCategories::BaseSetting ? 'Setting Name' : 'Spell Type'),
+                'DESCRIPTION' => ($i == BotSettingCategories::BaseSetting ? FormBaseSettingsDescriptionString(BotBaseSettings::START) : $bot_setting_category_descriptions[$i]),
                 'TEXTA' => 'Value',
                 'TEXTB' => 'Command',
                 'TAB' => $header,
@@ -453,9 +453,9 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
 
         // Sort ONLY idle, engaged and pursue
         if (in_array($current_index, [
-            BotSettingCategories::SPELL_TYPE_IDLE_PRIORITY,
-            BotSettingCategories::SPELL_TYPE_ENGAGED_PRIORITY,
-            BotSettingCategories::SPELL_TYPE_PURSUE_PRIORITY
+            BotSettingCategories::SpellTypeIdlePriority,
+            BotSettingCategories::SpellTypeEngagedPriority,
+            BotSettingCategories::SpellTypePursuePriority
         ])) {
             //echo "DEBUG: TRIGGERED SORT for $header (index $current_index)<br>";
             usort($setting, function($a, $b) {
@@ -533,7 +533,7 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
         $x = 0;
 
         foreach ($setting as $settingrow) {
-            if ($current_index == BotSettingCategories::SPELL_TYPE_AE_OR_GROUP_TARGET_COUNT && !IsAEOrGroupBotSpellType($x)) {
+            if ($current_index == BotSettingCategories::SpellTypeAEOrGroupTargetCount && !IsAEOrGroupBotSpellType($x)) {
                 //echo "DEBUG: Skipping non-AE row $x for AE category<br>";
                 ++$x;
                 continue;

@@ -1562,7 +1562,7 @@ TPL;
                         continue;
                     }
 
-                    if ($row['setting_category'] == BotSettingCategories::BASE_SETTING) {
+                    if ($row['setting_category'] == BotSettingCategories::BaseSetting) {
                         if (!IsClientBotBaseSetting($row['setting_id'])) {
                             continue;
                         }
