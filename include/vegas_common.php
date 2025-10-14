@@ -187,7 +187,7 @@ class BotBaseSettings
     public const END = self::SitManaPct;
 }
 
-$botBaseSettings_names = [
+$bot_base_setting_names = [
     BotBaseSettings::ExpansionBitmask => "Expansion Bitmask",
     BotBaseSettings::ShowHelm => "Show Helm",
     BotBaseSettings::FollowDistance => "Follow Distance",
@@ -448,6 +448,7 @@ $spell_type_short_names = [
 ];
 
 class BotStance {
+    public const Invalid = 0;
     public const Passive = 1;
 	public const Balanced = 2;
 	public const Efficient = 3;
@@ -459,6 +460,17 @@ class BotStance {
     public const START = self::Passive;
     public const END = self::AEBurn;
 }
+
+$bot_stance_names = [
+   BotStance::Invalid => "Invalid",
+   BotStance::Passive => "Passive",
+   BotStance::Balanced => "Balanced",
+   BotStance::Efficient => "Efficient",
+   BotStance::Aggressive => "Aggressive",
+   BotStance::Assist => "Assist",
+   BotStance::Burn => "Burn",
+   BotStance::AEBurn => "AEBurn"
+];
 
 $language['BOT_SETTING_OPTIONS'] = array (
     -1 => 'Any Race',

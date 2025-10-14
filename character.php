@@ -66,7 +66,6 @@
  *
  ***************************************************************************/
 
-
 /*********************************************
  * INCLUDES
  *********************************************/
@@ -78,6 +77,10 @@ include_once(__DIR__ . "/include/common.php");
 include_once(__DIR__ . "/include/profile.php");
 include_once(__DIR__ . "/include/itemclass.php");
 include_once(__DIR__ . "/include/db.php");
+
+# VegasEQ - START
+include_once(__DIR__ . "/include/vegas_common.php");
+# VegasEQ - END
 
 
 /*********************************************
@@ -534,33 +537,6 @@ $cb_template->assign_var('BUFFCOUNT', $buff_count);
 $cb_template->pparse('character');
 
 $cb_template->destroy();
-
-/*
-	CUSTOM COMMAND SETTINGS WINDOW
-*/
-
-$tpl = <<<TPL
-	SELECT complete_heal_delay, fast_heal_delay, heal_delay, hot_heal_delay, complete_heal_threshold, fast_heal_threshold, heal_threshold, hot_heal_threshold
-	FROM character_data
-	WHERE id = '%s'
-TPL;
-$query = sprintf($tpl, $charID);
-$result = $cbsql->query($query);
-
-if($cbsql->rows($result))
-{
-	$row = $cbsql->nextrow($result);
-	$filler .= 'Fast Heal Delay is <font color=green>' . number_format($row['fast_heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | #fasthealdelay<font color=white><br>';
-	$filler .= 'Heal Delay is <font color=green>' . number_format($row['heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | #healdelay<font color=white><br>';
-	$filler .= 'Complete Heal Delay is <font color=green>' . number_format($row['complete_heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | #completehealdelay<font color=white><br>';
-	$filler .= 'Heal Over Time Delay is <font color=green>' . number_format($row['hot_heal_delay'] / 1000, 2, '.', '') . 's<font color=lightblue> | #hothealdelay<font color=white><br>';
-
-	$filler .= 'Fast Heal Max Threshold is <font color=green>' . $row['fast_heal_threshold'] . '% HP<font color=lightblue> | #fasthealthreshold<font color=white><br>';
-	$filler .= 'Heal Max Threshold is <font color=green>' . $row['heal_threshold'] . '% HP<font color=lightblue> | #healthreshold<font color=white><br>';
-	$filler .= 'Complete Heal Max Threshold is <font color=green>' . $row['complete_heal_threshold'] . '% HP<font color=lightblue> | #completehealthreshold<font color=white><br>';
-	$filler .= 'Heal Over Time Max Threshold is <font color=green>' . $row['hot_heal_threshold'] . '% HP<font color=lightblue> | #hothealthreshold<font color=white><br>';
-}
-cb_commandsettings('Heal Settings', $filler);
 
 include(__DIR__ . "/include/footer.php");
 ?>

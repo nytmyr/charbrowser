@@ -121,6 +121,8 @@ class Charbrowser_Character
       "character_languages" => "lang_id",
       "character_leadership_abilities" => "slot",
       "character_buffs" => "slot_id",
+      "bot_settings" => "character_id",
+      "bot_default_settings" => "class_id"
    );
 
 
@@ -134,7 +136,8 @@ class Charbrowser_Character
    // <COLUMN> = the name of the tables character id column
    private $_char_id_col = array (
       "character_stats_record" => "character_id",
-      "character_buffs" => "character_id"
+      "character_buffs" => "character_id",
+      "bot_settings" => "character_id"
    );
 
 
@@ -977,7 +980,10 @@ TPL;
             'skills'            => 0,
             'languageskills'    => 0,
             'keys'              => 0,
-            'signatures'        => 0);
+            'signatures'        => 0,
+            'charsettings'      => 0,
+            'botsettings'       => 0,
+            'raidpoints'        => 0);
       }
 
       //if not admin, determine it based on their account state
@@ -1544,9 +1550,36 @@ TPL;
             //this is a table with two primary keys, we need to load it
             //into a supporting array, indexed by it's second pk
             $temp_array = array();
-            while($row = $this->_sql->nextrow($result))
-            {
-               $temp_array[$row[$second_column_name]] = $row;
+
+            if ($table_name == 'bot_settings') {
+                while ($row = $this->_sql->nextrow($result)) {
+                    $temp_array[$row['stance']][$row['setting_type']][$row['setting_id']] = $row['value'];
+                }
+            }
+            else if ($table_name == 'bot_default_settings') {
+                while ($row = $this->_sql->nextrow($result)) { // Don't store non-client settings
+                    if (!IsClientBotSettingCategory($row['setting_category'])) {
+                        continue;
+                    }
+
+                    if ($row['setting_category'] == BotSettingCategories::BASE_SETTING) {
+                        if (!IsClientBotBaseSetting($row['setting_id'])) {
+                            continue;
+                        }
+                    }
+                    else {
+                        if (!IsClientBotSpellType($row['setting_id'])) {
+                            continue;
+                        }
+                    }
+
+                    $temp_array[BotStance::Invalid][$row['setting_category']][$row['setting_id']] = $row['value'];
+                }
+            }
+            else {
+                while ($row = $this->_sql->nextrow($result)) {
+                    $temp_array[$row[$second_column_name]] = $row;
+                }
             }
 
             $this->_cached_tables[$table_name] = $temp_array;
@@ -1606,12 +1639,31 @@ TPL;
 
 
       //build the query
-      $tpl = <<<TPL
-      SELECT * 
-      FROM `%s` 
-      WHERE `%s` = '%d'
+      if ($table_name == "bot_settings") {
+        $tpl = <<<TPL
+            SELECT * 
+            FROM `%s` 
+            WHERE `character_id` = '%s'
 TPL;
-      $query = sprintf($tpl, $table_name, $id_column, $this->_char_id);
+           $query = sprintf($tpl, $table_name, $this->_char_id);
+       }
+       else if ($table_name == "bot_default_settings") {
+           $tpl = <<<TPL
+            SELECT * 
+            FROM `%s` 
+            WHERE `class_id` = '%d'
+            AND `stance` = '%d'
+TPL;
+           $query = sprintf($tpl, $table_name, $this->_class, BotStance::Balanced);
+       }
+       else {
+           $tpl = <<<TPL
+            SELECT * 
+            FROM `%s` 
+            WHERE `%s` = '%d'
+TPL;
+           $query = sprintf($tpl, $table_name, $id_column, $this->_char_id);
+       }
 
 
       //get the result/error
