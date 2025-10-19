@@ -87,14 +87,14 @@ $bot_setting_category_descriptions = [
     BotSettingCategories::BaseSetting => "Basic settings to adjust your bot's behavior",
     BotSettingCategories::SpellHold => "Controls whether a bot holds the specified spell type or not",
     BotSettingCategories::SpellDelay => "Controls the delay between casts for a specific spell type",
-    BotSettingCategories::SpellMinThreshold => "Controls the maximum target HP threshold for a spell to be cast for a specific type",
-    BotSettingCategories::SpellMaxThreshold => "Controls the minimum target HP threshold for a spell to be cast for a specific type",
+    BotSettingCategories::SpellMinThreshold => "Controls the minimum target HP threshold for a spell to be cast for a specific type",
+    BotSettingCategories::SpellMaxThreshold => "Controls the maximum target HP threshold for a spell to be cast for a specific type",
     BotSettingCategories::SpellTypeResistLimit => "Controls the resist limits for bots to cast spells on their target",
     BotSettingCategories::SpellTypeAggroCheck => "Toggles whether or not bots will cast a spell type if they think it will get them aggro",
-    BotSettingCategories::SpellTypeMinManaPct => "Controls at what mana percent a bot will start casting different spell types",
-    BotSettingCategories::SpellTypeMaxManaPct => "Controls at what mana percent a bot will stop casting different spell types",
-    BotSettingCategories::SpellTypeMinHPPct => "Controls at what HP percent a bot will start casting different spell types",
-    BotSettingCategories::SpellTypeMaxHPPct => "Controls at what HP percent a bot will stop casting different spell types",
+    BotSettingCategories::SpellTypeMinManaPct => "Controls at what mana percent a bot will stop casting different spell types",
+    BotSettingCategories::SpellTypeMaxManaPct => "Controls at what mana percent a bot will start casting different spell types",
+    BotSettingCategories::SpellTypeMinHPPct => "Controls at what HP percent a bot will stop casting different spell types",
+    BotSettingCategories::SpellTypeMaxHPPct => "Controls at what HP percent a bot will start casting different spell types",
     BotSettingCategories::SpellTypeIdlePriority => "Controls the order of casts by spell type when out of combat",
     BotSettingCategories::SpellTypeEngagedPriority => "Controls the order of casts by spell type when engaged in combat",
     BotSettingCategories::SpellTypePursuePriority => "Controls the order of casts by spell type when pursuing in combat",
@@ -290,11 +290,12 @@ class BotSpellTypes
 
     public const START = self::Nuke;
     public const END = self::PetResistBuffs;
+    public const END_SPELL_LIST = self::HateLine;
     public const COMMANDED_START = self::Lull;
     public const COMMANDED_END = self::AELull;
     public const DISCIPLINE_START = self::Discipline;
     public const DISCIPLINE_END = self::DiscUtility;
-    public const PARENT_TYPE_END = self::PreCombatBuffSong;
+    public const PARENT_TYPE_END = self::HateLine;
 }
 
 $spell_type_names = [
