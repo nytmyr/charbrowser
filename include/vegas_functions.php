@@ -234,12 +234,16 @@ function GetSettingValueSuffix($setting_category, $setting_type, $value, $bot_le
     return $style . $color_enabled . $value . $modified_indicator . $suffix;
 }
 
-function FormBaseSettingsDescriptionString($start): string {
+function FormBaseSettingsDescriptionString($start, $is_bot = false): string {
     global $bot_setting_base_category_descriptions, $bot_base_setting_names;
 
     $description = "";
 
     for ($i = $start; $i <= BotBaseSettings::END; ++$i) {
+        if (!$is_bot && !IsClientBotBaseSetting($i)) {
+            continue;
+        }
+
         $description .= "<b><u>" . $bot_base_setting_names[$i] . "</b></u> - " . $bot_setting_base_category_descriptions[$i] . "\n";
     }
 
@@ -414,7 +418,13 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
                 }
 
                 $command_name = $bot_base_setting_commands[$x] ?? 'Unknown Command';
-                $setting_sections[$bot_setting_window_tab_names[$i]][$x] = array('ID' => $x, 'NAME' => '<font color=teal>' . $bot_base_setting_names[$x] . '</font>', 'VALUE' =>  isset($bot_settings[$selected_stance][$i][$x]) ? GetSettingValueSuffix($i, $x, $bot_settings[$selected_stance][$i][$x], $entity->GetValue('level'), true) . '</font>' : GetSettingValueSuffix($i, $x, $bot_default_settings[$selected_stance][$i][$x], $entity->GetValue('level')) . '</font>', 'COMMAND' => '<font color=lightslategrey>' . $command_name . '</font>'); // deleteme
+
+                if (!$is_bot && $x == BotBaseSettings::IllusionBlock) {
+                    $setting_sections[$bot_setting_window_tab_names[$i]][$x] = array('ID' => $x, 'NAME' => '<font color=teal>' . $bot_base_setting_names[$x] . '</font>', 'VALUE' => GetSettingValueSuffix($i, $x, $entity->getIllusionBlock(), $entity->GetValue('level'), $entity->getIllusionBlock() != $bot_default_settings[$selected_stance][$i][$x]) . '</font>', 'COMMAND' => '<font color=lightslategrey>' . $command_name . '</font>'); // deleteme
+                }
+                else {
+                    $setting_sections[$bot_setting_window_tab_names[$i]][$x] = array('ID' => $x, 'NAME' => '<font color=teal>' . $bot_base_setting_names[$x] . '</font>', 'VALUE' => isset($bot_settings[$selected_stance][$i][$x]) ? GetSettingValueSuffix($i, $x, $bot_settings[$selected_stance][$i][$x], $entity->GetValue('level'), true) . '</font>' : GetSettingValueSuffix($i, $x, $bot_default_settings[$selected_stance][$i][$x], $entity->GetValue('level')) . '</font>', 'COMMAND' => '<font color=lightslategrey>' . $command_name . '</font>');
+                }
             }
         }
         else {
@@ -435,11 +445,15 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
     $i = 0;
 
     foreach ($setting_sections as $header => $setting) {
+        if (!$is_bot && !IsClientBotSettingCategory($i)) {
+            ++$i;
+        }
+
         //echo "DEBUG: Starting header='$header', i=$i<br>";
         $cb_template->assign_block_vars("section",
             array(
                 'TEXT' => ($i == BotSettingCategories::BaseSetting ? 'Setting Name' : 'Spell Type'),
-                'DESCRIPTION' => ($i == BotSettingCategories::BaseSetting ? FormBaseSettingsDescriptionString(BotBaseSettings::START) : $bot_setting_category_descriptions[$i]),
+                'DESCRIPTION' => ($i == BotSettingCategories::BaseSetting ? FormBaseSettingsDescriptionString(BotBaseSettings::START, $is_bot) : $bot_setting_category_descriptions[$i]),
                 'TEXTA' => 'Value',
                 'TEXTB' => 'Command',
                 'TAB' => $header,
@@ -447,7 +461,7 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
             )
         );
 
-        $current_index = $i++;  // Assign, then increment
+        $current_index = $i;  // Assign, then increment
 
         //echo "DEBUG: Assigned INDEX=$current_index for $header, checking sort condition...<br>";
 
@@ -543,6 +557,8 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
             $cb_template->assign_both_block_vars("section.settingrow", $settingrow);
         }
         //echo "DEBUG: Finished $header (assigned $x rows)<br><hr>";
+        ++$i;
+
     }
 
     $cb_template->assign_both_vars(array(
