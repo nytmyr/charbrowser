@@ -246,6 +246,7 @@ $cb_template->destroy();
 	CUSTOM COMMAND SETTINGS WINDOW
 */
 
+/*
 $tpl = <<<TPL
 	SELECT *
 	FROM bot_data bd
@@ -379,6 +380,7 @@ foreach($bots as $bot) {
 	$filler .= 'Snare Min Threshold is <font color=green>' . $bot['snare_min_threshold'] . '% HP<font color=lightblue> | ^snareminthreshold<font color=white><br>';
 }
 cb_botcommandsettings('Custom Settings', $filler);
+*/
 
 include(__DIR__ . "/include/footer.php");
 ?>

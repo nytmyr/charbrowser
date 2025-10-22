@@ -861,6 +861,7 @@ $language['BUTTON_KEYS'] = "Keys";
 $language['BUTTON_RAID'] = "Raid";
 $language['BUTTON_CHAR_SETTINGS'] = "Settings";
 $language['BUTTON_BOT_SETTINGS'] = "Settings";
+$language['BUTTON_BOT_INVENTORY'] = "Inventory";
 
 //messages 
 $language['MESSAGE_ERROR'] = "Error"; 

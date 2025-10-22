@@ -584,7 +584,7 @@ function output_bot_profile_menu($charname, $botname, $curpage) {
     //two sets of buttons, the profile ones which target the cur character,
     //and the other which are just plain old vanilla links
     $profilebuttons = array(
-        array( 'PAGE' => 'character', 'BUTTON_NAME' => $language['BUTTON_INVENTORY'], 'PERMISSION' => 1),
+        array( 'PAGE' => 'character', 'BUTTON_NAME' => $charname, 'PERMISSION' => 1),
         //array( 'PAGE' => 'aas', 'BUTTON_NAME' => $language['BUTTON_AAS'], 'PERMISSION' => 1),
         //array( 'PAGE' => 'leadership', 'BUTTON_NAME' => $language['BUTTON_LEADERSHIP'], 'PERMISSION' => 1),
         //array( 'PAGE' => 'keys', 'BUTTON_NAME' => $language['BUTTON_KEYS'], 'PERMISSION' => 1),
@@ -602,8 +602,9 @@ function output_bot_profile_menu($charname, $botname, $curpage) {
     );
 
     $otherbuttons = array(
-        array( 'BUTTON_NAME' => $language['BUTTON_BOOKMARK'], 'BUTTON_INDEX' => '#', 'BUTTON_TITLE' => $language['BUTTON_BOOKMARK'],  'BUTTON_ONCLICK' => 'cb_BookmarkThisPage();'),
+        array( 'BUTTON_NAME' => $language['BUTTON_BOT_INVENTORY'], 'BUTTON_INDEX' => $cb_index_url . '?page=bot&bot=' . $botname, 'BUTTON_TITLE' => $botname,  'BUTTON_ONCLICK' => '{INDEX_URL}?page=bot&bot=$botname;'),
         array( 'BUTTON_NAME' => $language['BUTTON_BOT_SETTINGS'], 'BUTTON_INDEX' => $cb_index_url . '?page=botsettings&bot=' . $botname, 'BUTTON_TITLE' => $botname,  'BUTTON_ONCLICK' => '{INDEX_URL}?page=botsettings&bot=$botname;'),
+        array( 'BUTTON_NAME' => $language['BUTTON_BOOKMARK'], 'BUTTON_INDEX' => '#', 'BUTTON_TITLE' => $language['BUTTON_BOOKMARK'],  'BUTTON_ONCLICK' => 'cb_BookmarkThisPage();'),
     );
 
     $cb_template->set_filenames(array(
