@@ -70,6 +70,12 @@ $highlightgm         = 1  ;//highlight GM inventories 0=off 1=on
 $blockbazaar         = 0  ;//disable bazaar 0=on 1=off
 $blockbarter         = 0  ;//disable barter 0=on 1=off
 $blockadventurestats = 1  ;//disable ldon leaderboards 0=on 1=off
+$blockadventurestats = 1  ;//disable ldon leaderboards 0=on 1=off
+$blocksignature      = 1  ;//disable signature page 0=on 1=off
+$hide_gm_from_search = 0  ;//hides GM accounts from search
+$hide_gm_from_stats  = 1  ;//hides GM accounts from server stats
+$gm_account_status   = 80 ;//min value of a GM account to hide with $hide_gm_accounts
+$min_lvl_to_display  = 2  ;//minimum level to display on the server stats
 
 
 /*****************************************************
