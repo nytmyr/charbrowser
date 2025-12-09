@@ -48,8 +48,8 @@ if (!$unkilled) {
 	$tpl = <<<TPL
 	SELECT db.`key`, db.`value` AS EarnedValue, cd.`id` AS CharID, cd.`name` AS CharName, n.`id` AS NPCID, REPLACE(REPLACE(n.`name`,'_',' '),'#','') AS NPCName, n.`difficulty` AS NPCDiff, n.`raid_points` AS RaidPts, z.`short_name` AS ZoneSN, z.`long_name` AS ZoneLN -- , SUM(db.`value)
 	FROM data_buckets db
-	INNER JOIN character_data cd ON cd.`id` = SUBSTRING(db.`key`, 16, INSTR(SUBSTRING(db.`key`, 16), "-")+1)
-	INNER JOIN npc_types n ON n.`id` = SUBSTRING(db.`key`, INSTR(SUBSTRING(db.`key`, 16), "-")+16)
+	INNER JOIN character_data cd ON cd.`id` = db.`character_id`
+	INNER JOIN npc_types n ON n.`id` = CAST(SUBSTRING_INDEX(db.`key`, '-', -1) AS UNSIGNED)
 	LEFT JOIN zone z ON z.`zoneidnumber` = FLOOR(CAST(n.`id` / 1000 AS DOUBLE))
 	WHERE db.`key` LIKE 'PlayerRaidKill-%'
 	AND cd.`id` = $charID
@@ -69,13 +69,13 @@ if (!$unkilled) {
 				AND kre.char_id = $charID)
 	AND NOT EXISTS (SELECT *
 	  			FROM data_buckets db
-	 			WHERE 
+	 			WHERE db.`character_id` = $charID AND
 					CASE 
-						WHEN n.id = 96368 THEN db.`key` LIKE 'PlayerRaidKill-$charID-96369' -- Real Faydedar
-						WHEN n.id = 96369 THEN db.`key` LIKE 'PlayerRaidKill-$charID-96368' -- Triggered Faydedar
-						WHEN n.id = 89154 THEN db.`key` LIKE 'PlayerRaidKill-$charID-89181' -- Real Trakanon
-						WHEN n.id = 89181 THEN db.`key` LIKE 'PlayerRaidKill-$charID-89154' -- Triggered Trakanon
-						ELSE db.`key` LIKE CONCAT('PlayerRaidKill-$charID-', n.id)
+						WHEN n.id = 96368 THEN db.`key` LIKE 'PlayerRaidKill-96369' -- Real Faydedar
+						WHEN n.id = 96369 THEN db.`key` LIKE 'PlayerRaidKill-96368' -- Triggered Faydedar
+						WHEN n.id = 89154 THEN db.`key` LIKE 'PlayerRaidKill-89181' -- Real Trakanon
+						WHEN n.id = 89181 THEN db.`key` LIKE 'PlayerRaidKill-89154' -- Triggered Trakanon
+						ELSE db.`key` LIKE CONCAT('PlayerRaidKill-', n.id)
 					END
 				)
 	AND n.`level` > 51 AND n.`level` < 99
@@ -95,9 +95,8 @@ $raid = $cbsql->fetch_all($result);
 $tpl = <<<TPL
 SELECT db.`value` AS TotalPts
 FROM data_buckets db
-INNER JOIN character_data cd ON cd.`id` = SUBSTRING(db.`key`, 18)
-WHERE db.`key` LIKE 'PlayerRaidPoints-%'
-AND cd.`id` = $charID
+WHERE db.`key` LIKE 'PlayerRaidPoints'
+AND db.`character_id` = $charID
 TPL;
 #$query = sprintf($tpl, $charID);
 $result = $cbsql->query($tpl);
@@ -109,10 +108,10 @@ if (!$unkilled) {
 	$tpl = <<<TPL
 	SELECT db.`key`, db.`value` AS EarnedValue, cd.`id` AS CharID, cd.`name` AS CharName, i.`id` AS ItemID, i.`name` AS ItemName, db.`value` AS EarnedValue
 	FROM data_buckets db
-	INNER JOIN items i ON i.`id` = SUBSTRING(db.`key`, 19, INSTR(SUBSTRING(db.`key`, 19), "-")+1)
-	INNER JOIN character_data cd ON cd.`id` = SUBSTRING(db.`key`, INSTR(SUBSTRING(db.`key`, 19), "-")+19)
+	INNER JOIN items i ON i.id = CAST(SUBSTRING_INDEX(db.`key`, '-', -1) AS UNSIGNED)
+	INNER JOIN character_data cd ON cd.`id` = db.`character_id`
 	WHERE db.`key` LIKE 'RaidPtsEpicTurnIn-%'
-	AND cd.`id` = $charID
+	AND db.`character_id` = $charID
 	-- AND n.`raid_points` > 0
 	ORDER BY db.`value` ASC
 	TPL;
