@@ -1,72 +1,86 @@
-<?php 
+<?php
 
-define('INCHARBROWSER', true);
+/*********************************************
+INCLUDES
+ *********************************************/
+//define this as an entry point to unlock includes
+if ( !defined('INCHARBROWSER') )
+{
+    define('INCHARBROWSER', true);
+}
 include_once(__DIR__ . "/include/common.php");
 include_once(__DIR__ . "/include/bot_profile.php");
 include_once(__DIR__ . "/include/profile.php");
 include_once(__DIR__ . "/include/itemclass.php");
 include_once(__DIR__ . "/include/db.php");
-  
- 
-/*********************************************
-         SETUP PROFILE/PERMISSIONS
-*********************************************/
-if(!$_GET['bot']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_NO_CHAR']);
-else $botName = $_GET['bot'];
-     
-//bot initializations 
-$bot = new bot_profile($botName, $cbsql, $cbsql_content, $language, $charbrowser_is_admin_page); //the profile class will sanitize the bot name
-$charID = $bot->char_id(); 
-$botID = $bot->bot_id(); 
-$botName = $bot->GetValue('name');
-$userip = getIPAddress(); 
-$ownercheck = 0;
+Include_once(__DIR__ . "/include/bot.php");
 
-//char initialization      
-$char = new profile($charID, $cbsql, $cbsql_content, $language, $showsoftdelete, $charbrowser_is_admin_page);
+
+/*********************************************
+ * SETUP CHARACTER CLASS & PERMISSIONS
+ ********************************************/
+$botName = preg_Get_Post('bot', '/^[a-zA-Z]+$/', false, $language['MESSAGE_ERROR'], $language['MESSAGE_NO_BOT'], true);
+
+//bot initializations
+$bot = new Charbrowser_Bot($botName); //the profile class will sanitize the bot name
+$charID = $bot->char_id();
+$botID = $bot->bot_id();
+$botName = $bot->GetValue('name');
+$userip = getIPAddress();
+$ownercheck = OwnerCheck($charID);
+
+//char initialization
+$char = new Charbrowser_Character($charID, $showsoftdelete, $charbrowser_is_admin_page);
 $charName = $char->GetValue('name');
-$mypermission = GetPermissions($char->GetValue('gm'), $char->GetValue('anon'), $char->char_id());
 
 //block view if user level doesnt have permission
-if ($mypermission['bots']) cb_message_die($language['MESSAGE_ERROR'],$language['MESSAGE_ITEM_NO_VIEW']);
+if (!OwnerCheck($charID) && $char->Permission('bot')) $cb_error->message_die($language['MESSAGE_NOTICE'], $language['MESSAGE_ITEM_NO_VIEW']);
 
 // Fetch records from database
 $csvtype = (isset($_GET['csvtype']) ? $_GET['csvtype'] : "");
 $showitemnames = (isset($_GET['showitemnames']) ? $_GET['showitemnames'] : "");
+
 if ($csvtype == "all") {
     if ($showitemnames == "true") {
-        $filename = "All-itemnames-bot-data_" . date('Y-m-d') . ".csv";
+        $filename = "All-itemnames-bot-data_" . date('Y-m-d-H-i-s') . ".csv";
     } else {
-        $filename = "All-bot-data_" . date('Y-m-d') . ".csv";
+        $filename = "All-bot-data_" . date('Y-m-d-H-i-s') . ".csv";
     }
+
     $where = "ai.ip = '$userip'";
     $groupby = "GROUP BY b.bot_id, bi.slot_id";
 }
+
 if ($csvtype == "owner") {
     if ($showitemnames == "true") {
-        $filename = "$charName-owned-itemnames-bot-data_" . date('Y-m-d') . ".csv";
+        $filename = "$charName-owned-itemnames-bot-data_" . date('Y-m-d-H-i-s') . ".csv";
     } else {
-        $filename = "$charName-owned-bot-data_" . date('Y-m-d') . ".csv";
+        $filename = "$charName-owned-bot-data_" . date('Y-m-d-H-i-s') . ".csv";
     }
+
     $where = "cd.id = $charID";
     $groupby = "GROUP BY b.bot_id, bi.slot_id";
 }
+
 if ($csvtype == "this") {
     if ($showitemnames == "true") {
-        $filename = "$botName-itemnames-data_" . date('Y-m-d') . ".csv";
+        $filename = "$botName-itemnames-data_" . date('Y-m-d-H-i-s') . ".csv";
     } else {
-        $filename = "$botName-data_" . date('Y-m-d') . ".csv";
+        $filename = "$botName-data_" . date('Y-m-d-H-i-s') . ".csv";
     }
+
     $where = "b.bot_id = $botID";
     $groupby = "-- GROUP BY b.bot_id, bi.slot_id";
 }
+
 if ($csvtype == "thischar") {
     if ($showitemnames == "true") {
-        $filename = "$charName-itemnames-data_" . date('Y-m-d') . ".csv";
+        $filename = "$charName-itemnames-data_" . date('Y-m-d-H-i-s') . ".csv";
     } else {
-        $filename = "$charName-data_" . date('Y-m-d') . ".csv";
+        $filename = "$charName-data_" . date('Y-m-d-H-i-s') . ".csv";
     }
 }
+
 if ($csvtype != "thischar") {
     $tpl =
         "
@@ -117,15 +131,17 @@ if ($csvtype != "thischar") {
 				INNER JOIN ACCOUNT a ON a.id = ai.accid
 				INNER JOIN character_data cd ON cd.account_id = a.id
 				INNER JOIN bot_data b ON b.owner_id = cd.id
-				INNER JOIN bot_inventories bi ON bi.bot_id = b.bot_id
-				INNER JOIN items i ON i.id = bi.item_id
+				LEFT JOIN bot_inventories bi ON bi.bot_id = b.bot_id
+				LEFT JOIN items i ON i.id = bi.item_id
 				WHERE $where
 				AND b.name NOT LIKE '%-deleted-%'
 				$groupby
 				ORDER BY cd.`level` DESC, cd.aa_points_spent DESC, Owner ASC, Class ASC, b.name ASC, bi.slot_id ASC
 			";
+
     $result = $cbsql->query($tpl);
-    if (!$cbsql->rows($result)) cb_message('Success', 'p1Failed @ ' . $userip . ' - ' . $where . ' - ' . $filename);
+
+    if (!$cbsql->rows($result)) $cb_error->message_die('Success', 'Failed to find bots @ ' . $userip . ' - ' . $where . ' - ' . $filename);
     $rows = $cbsql->fetch_all($result);
 
     /*START View */
@@ -240,6 +256,7 @@ if ($csvtype != "thischar") {
     $selectedCharLegsName = "Empty";
     $selectedCharFeetName = "Empty";
     $selectedCharWaistName = "Empty";
+
     // Output each row of the data, format line as csv and write to file pointer
     foreach($rows as $row) {
         if ($selectedName != $row['BotName']) {
@@ -306,6 +323,7 @@ if ($csvtype != "thischar") {
             $selectedFeetName = "Empty";
             $selectedWaistName = "Empty";
         }
+
         if ($selectedOwner != $row['Owner']) {
             $botOwner = $row['Owner'];
             $tpl =
@@ -330,27 +348,27 @@ if ($csvtype != "thischar") {
 								WHEN cd.class = 16 THEN 'Berserker'
 								ELSE 'None'
 							END AS 'Class'
-							, i.GearScore, i.haste AS HastePCT, inv.slotid as SlotID,
-							CASE WHEN inv.slotid = 1 THEN i.GearScore ELSE 0 END AS 'Ear1',
-							CASE WHEN inv.slotid = 2 THEN i.GearScore ELSE 0 END AS 'Head',
-							CASE WHEN inv.slotid = 3 THEN i.GearScore ELSE 0 END AS 'Face',
-							CASE WHEN inv.slotid = 4 THEN i.GearScore ELSE 0 END AS 'Ear2',
-							CASE WHEN inv.slotid = 5 THEN i.GearScore ELSE 0 END AS 'Neck',
-							CASE WHEN inv.slotid = 6 THEN i.GearScore ELSE 0 END AS 'Shoulders',
-							CASE WHEN inv.slotid = 7 THEN i.GearScore ELSE 0 END AS 'Arms',
-							CASE WHEN inv.slotid = 8 THEN i.GearScore ELSE 0 END AS 'Back',
-							CASE WHEN inv.slotid = 9 THEN i.GearScore ELSE 0 END AS 'Wrist1',
-							CASE WHEN inv.slotid = 10 THEN i.GearScore ELSE 0 END AS 'Wrist2',
-							CASE WHEN inv.slotid = 11 THEN i.GearScore ELSE 0 END AS 'Range',
-							CASE WHEN inv.slotid = 12 THEN i.GearScore ELSE 0 END AS 'Hands',
-							CASE WHEN inv.slotid = 13 THEN i.GearScore ELSE 0 END AS 'Primary',
-							CASE WHEN inv.slotid = 14 THEN i.GearScore ELSE 0 END AS 'Secondary',
-							CASE WHEN inv.slotid = 15 THEN i.GearScore ELSE 0 END AS 'Finger1',
-							CASE WHEN inv.slotid = 16 THEN i.GearScore ELSE 0 END AS 'Finger2',
-							CASE WHEN inv.slotid = 17 THEN i.GearScore ELSE 0 END AS 'Chest',
-							CASE WHEN inv.slotid = 18 THEN i.GearScore ELSE 0 END AS 'Legs',
-							CASE WHEN inv.slotid = 19 THEN i.GearScore ELSE 0 END AS 'Feet',
-							CASE WHEN inv.slotid = 20 THEN i.GearScore ELSE 0 END AS 'Waist'
+							, i.GearScore, i.haste AS HastePCT, inv.slot_id as SlotID,
+							CASE WHEN inv.slot_id = 1 THEN i.GearScore ELSE 0 END AS 'Ear1',
+							CASE WHEN inv.slot_id = 2 THEN i.GearScore ELSE 0 END AS 'Head',
+							CASE WHEN inv.slot_id = 3 THEN i.GearScore ELSE 0 END AS 'Face',
+							CASE WHEN inv.slot_id = 4 THEN i.GearScore ELSE 0 END AS 'Ear2',
+							CASE WHEN inv.slot_id = 5 THEN i.GearScore ELSE 0 END AS 'Neck',
+							CASE WHEN inv.slot_id = 6 THEN i.GearScore ELSE 0 END AS 'Shoulders',
+							CASE WHEN inv.slot_id = 7 THEN i.GearScore ELSE 0 END AS 'Arms',
+							CASE WHEN inv.slot_id = 8 THEN i.GearScore ELSE 0 END AS 'Back',
+							CASE WHEN inv.slot_id = 9 THEN i.GearScore ELSE 0 END AS 'Wrist1',
+							CASE WHEN inv.slot_id = 10 THEN i.GearScore ELSE 0 END AS 'Wrist2',
+							CASE WHEN inv.slot_id = 11 THEN i.GearScore ELSE 0 END AS 'Range',
+							CASE WHEN inv.slot_id = 12 THEN i.GearScore ELSE 0 END AS 'Hands',
+							CASE WHEN inv.slot_id = 13 THEN i.GearScore ELSE 0 END AS 'Primary',
+							CASE WHEN inv.slot_id = 14 THEN i.GearScore ELSE 0 END AS 'Secondary',
+							CASE WHEN inv.slot_id = 15 THEN i.GearScore ELSE 0 END AS 'Finger1',
+							CASE WHEN inv.slot_id = 16 THEN i.GearScore ELSE 0 END AS 'Finger2',
+							CASE WHEN inv.slot_id = 17 THEN i.GearScore ELSE 0 END AS 'Chest',
+							CASE WHEN inv.slot_id = 18 THEN i.GearScore ELSE 0 END AS 'Legs',
+							CASE WHEN inv.slot_id = 19 THEN i.GearScore ELSE 0 END AS 'Feet',
+							CASE WHEN inv.slot_id = 20 THEN i.GearScore ELSE 0 END AS 'Waist'
 							, i.Name AS ItemName, CONCAT('http://vegaseq.com/Allaclone/?a=item&id=',i.id) AS Allaclone 
 							, i.clickeffect AS ClickID, i.focuseffect AS FocusID, i.worneffect as WornID, i.proceffect as ProcID
 						FROM character_data cd
@@ -358,12 +376,13 @@ if ($csvtype != "thischar") {
 						-- INNER JOIN ACCOUNT a ON a.id = ai.accid
 						-- INNER JOIN character_data cd ON cd.account_id = a.id
 						-- INNER JOIN bot_data b ON b.owner_id = cd.id
-						INNER JOIN inventory inv ON inv.charid = cd.id
-						INNER JOIN items i ON i.id = inv.itemid
+						LEFT JOIN inventory inv ON inv.character_id = cd.id
+						LEFT JOIN items i ON i.id = inv.item_id
 						-- WHERE $where
 						WHERE cd.`name` LIKE '$botOwner'
-						AND inv.slotid BETWEEN 1 AND 20
+						AND inv.slot_id BETWEEN 1 AND 20
 						";
+
             $resultchar = $cbsql->query($tpl);
             if (!$cbsql->rows($resultchar)) cb_message('Success', 'p2Failed @ ' . $userip . ' - ' . $where . ' - ' . $filename);
             $rowchars = $cbsql->fetch_all($resultchar);
@@ -423,6 +442,7 @@ if ($csvtype != "thischar") {
                 if ($rowchar['Feet'] > 0) { $selectedCharFeet = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharFeetName = $itemName;}
                 if ($rowchar['Waist'] > 0) { $selectedCharWaist = "=HYPERLINK(\"" . $rowchar['Allaclone'] . "\", \"" . $itemGearScore . "\")"; $selectedCharWaistName = $itemName;}
             }
+
             if ($selectedOwner != "None") {
                 $blankLine = array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
                 fputcsv($f, $blankLine, $delimiter);
@@ -567,6 +587,7 @@ if ($csvtype != "thischar") {
     //output all remaining data on a file pointer
     fpassthru($f);
 }
+
 if ($csvtype == "thischar") {
     $tpl =
         "
@@ -590,27 +611,27 @@ if ($csvtype == "thischar") {
 				WHEN cd.class = 16 THEN 'Berserker'
 				ELSE 'None'
 			END AS 'Class'
-			, i.GearScore, i.haste AS HastePCT, inv.slotid as SlotID,
-			CASE WHEN inv.slotid = 1 THEN i.GearScore ELSE 0 END AS 'Ear1',
-			CASE WHEN inv.slotid = 2 THEN i.GearScore ELSE 0 END AS 'Head',
-			CASE WHEN inv.slotid = 3 THEN i.GearScore ELSE 0 END AS 'Face',
-			CASE WHEN inv.slotid = 4 THEN i.GearScore ELSE 0 END AS 'Ear2',
-			CASE WHEN inv.slotid = 5 THEN i.GearScore ELSE 0 END AS 'Neck',
-			CASE WHEN inv.slotid = 6 THEN i.GearScore ELSE 0 END AS 'Shoulders',
-			CASE WHEN inv.slotid = 7 THEN i.GearScore ELSE 0 END AS 'Arms',
-			CASE WHEN inv.slotid = 8 THEN i.GearScore ELSE 0 END AS 'Back',
-			CASE WHEN inv.slotid = 9 THEN i.GearScore ELSE 0 END AS 'Wrist1',
-			CASE WHEN inv.slotid = 10 THEN i.GearScore ELSE 0 END AS 'Wrist2',
-			CASE WHEN inv.slotid = 11 THEN i.GearScore ELSE 0 END AS 'Range',
-			CASE WHEN inv.slotid = 12 THEN i.GearScore ELSE 0 END AS 'Hands',
-			CASE WHEN inv.slotid = 13 THEN i.GearScore ELSE 0 END AS 'Primary',
-			CASE WHEN inv.slotid = 14 THEN i.GearScore ELSE 0 END AS 'Secondary',
-			CASE WHEN inv.slotid = 15 THEN i.GearScore ELSE 0 END AS 'Finger1',
-			CASE WHEN inv.slotid = 16 THEN i.GearScore ELSE 0 END AS 'Finger2',
-			CASE WHEN inv.slotid = 17 THEN i.GearScore ELSE 0 END AS 'Chest',
-			CASE WHEN inv.slotid = 18 THEN i.GearScore ELSE 0 END AS 'Legs',
-			CASE WHEN inv.slotid = 19 THEN i.GearScore ELSE 0 END AS 'Feet',
-			CASE WHEN inv.slotid = 20 THEN i.GearScore ELSE 0 END AS 'Waist'
+			, i.GearScore, i.haste AS HastePCT, inv.slot_id as SlotID,
+			CASE WHEN inv.slot_id = 1 THEN i.GearScore ELSE 0 END AS 'Ear1',
+			CASE WHEN inv.slot_id = 2 THEN i.GearScore ELSE 0 END AS 'Head',
+			CASE WHEN inv.slot_id = 3 THEN i.GearScore ELSE 0 END AS 'Face',
+			CASE WHEN inv.slot_id = 4 THEN i.GearScore ELSE 0 END AS 'Ear2',
+			CASE WHEN inv.slot_id = 5 THEN i.GearScore ELSE 0 END AS 'Neck',
+			CASE WHEN inv.slot_id = 6 THEN i.GearScore ELSE 0 END AS 'Shoulders',
+			CASE WHEN inv.slot_id = 7 THEN i.GearScore ELSE 0 END AS 'Arms',
+			CASE WHEN inv.slot_id = 8 THEN i.GearScore ELSE 0 END AS 'Back',
+			CASE WHEN inv.slot_id = 9 THEN i.GearScore ELSE 0 END AS 'Wrist1',
+			CASE WHEN inv.slot_id = 10 THEN i.GearScore ELSE 0 END AS 'Wrist2',
+			CASE WHEN inv.slot_id = 11 THEN i.GearScore ELSE 0 END AS 'Range',
+			CASE WHEN inv.slot_id = 12 THEN i.GearScore ELSE 0 END AS 'Hands',
+			CASE WHEN inv.slot_id = 13 THEN i.GearScore ELSE 0 END AS 'Primary',
+			CASE WHEN inv.slot_id = 14 THEN i.GearScore ELSE 0 END AS 'Secondary',
+			CASE WHEN inv.slot_id = 15 THEN i.GearScore ELSE 0 END AS 'Finger1',
+			CASE WHEN inv.slot_id = 16 THEN i.GearScore ELSE 0 END AS 'Finger2',
+			CASE WHEN inv.slot_id = 17 THEN i.GearScore ELSE 0 END AS 'Chest',
+			CASE WHEN inv.slot_id = 18 THEN i.GearScore ELSE 0 END AS 'Legs',
+			CASE WHEN inv.slot_id = 19 THEN i.GearScore ELSE 0 END AS 'Feet',
+			CASE WHEN inv.slot_id = 20 THEN i.GearScore ELSE 0 END AS 'Waist'
 			, i.Name AS ItemName, CONCAT('http://vegaseq.com/Allaclone/?a=item&id=',i.id) AS Allaclone 
 			, i.clickeffect AS ClickID, i.focuseffect AS FocusID, i.worneffect as WornID, i.proceffect as ProcID
 		FROM character_data cd
@@ -618,10 +639,10 @@ if ($csvtype == "thischar") {
 		-- INNER JOIN ACCOUNT a ON a.id = ai.accid
 		-- INNER JOIN character_data cd ON cd.account_id = a.id
 		-- INNER JOIN bot_data b ON b.owner_id = cd.id
-		INNER JOIN inventory inv ON inv.charid = cd.id
-		INNER JOIN items i ON i.id = inv.itemid
+		LEFT JOIN inventory inv ON inv.character_id = cd.id
+		LEFT JOIN items i ON i.id = inv.item_id
 		WHERE cd.`name` LIKE '$name'
-		AND inv.slotid BETWEEN 1 AND 20
+		AND inv.slot_id BETWEEN 1 AND 20
 		";
     $resultchar = $cbsql->query($tpl);
     if (!$cbsql->rows($resultchar)) cb_message('Success', 'p3Failed @ ' . $userip . ' - ' . $where . ' - ' . $filename);
@@ -695,5 +716,5 @@ if ($csvtype == "thischar") {
         fputcsv($f, $lineData, $delimiter);
     }
 }
- 
+
 ?>
