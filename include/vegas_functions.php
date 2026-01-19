@@ -419,6 +419,10 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
 
                 $command_name = $bot_base_setting_commands[$x] ?? 'Unknown Command';
 
+                if (!$is_bot) {
+                    $command_name = str_replace('^', '#', $command_name);
+                }
+
                 if (!$is_bot && $x == BotBaseSettings::IllusionBlock) {
                     $setting_sections[$bot_setting_window_tab_names[$i]][$x] = array('ID' => $x, 'NAME' => '<font color=teal>' . $bot_base_setting_names[$x] . '</font>', 'VALUE' => GetSettingValueSuffix($i, $x, $entity->getIllusionBlock(), $entity->GetValue('level'), $entity->getIllusionBlock() != $bot_default_settings[$selected_stance][$i][$x]) . '</font>', 'COMMAND' => '<font color=lightslategrey>' . $command_name . '</font>'); // deleteme
                 }
