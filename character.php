@@ -94,8 +94,7 @@ $charID = $char->char_id();
 $name = $char->GetValue('name');
 
 //block view if user level doesnt have permission
-if ($char->Permission('inventory')) $cb_error->message_die($language['MESSAGE_NOTICE'], $language['MESSAGE_ITEM_NO_VIEW']);
-
+if (!OwnerCheck($charID) && $char->Permission('inventory')) $cb_error->message_die($language['MESSAGE_NOTICE'], $language['MESSAGE_ITEM_NO_VIEW']);
 
 /*********************************************
  * GATHER RELEVANT PAGE DATA
@@ -281,15 +280,15 @@ $cb_template->assign_both_vars(array(
         'HCOLD' => $char->getHCR(),
         'HCORRUPT' => $char->getHCOR(),
         'WEIGHT' => round($char->getWT() / 10),
-        'PP' => (($char->Permission('coininventory')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('platinum'))),
-        'GP' => (($char->Permission('coininventory')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('gold'))),
-        'SP' => (($char->Permission('coininventory')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('silver'))),
-        'CP' => (($char->Permission('coininventory')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('copper'))),
-        'BPP' => (($char->Permission('coinbank')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('platinum_bank'))),
-        'BGP' => (($char->Permission('coinbank')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('gold_bank'))),
-        'BSP' => (($char->Permission('coinbank')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('silver_bank'))),
-        'BCP' => (($char->Permission('coinbank')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('copper_bank'))),
-        'SBPP' => (($char->Permission('coinsharedbank')) ? $language['MESSAGE_DISABLED'] : number_format($sbpp)))
+        'PP' => ((!OwnerCheck($charID) && $char->Permission('coininventory')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('platinum'))),
+        'GP' => ((!OwnerCheck($charID) && $char->Permission('coininventory')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('gold'))),
+        'SP' => ((!OwnerCheck($charID) && $char->Permission('coininventory')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('silver'))),
+        'CP' => ((!OwnerCheck($charID) && $char->Permission('coininventory')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('copper'))),
+        'BPP' => ((!OwnerCheck($charID) && $char->Permission('coinbank')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('platinum_bank'))),
+        'BGP' => ((!OwnerCheck($charID) && $char->Permission('coinbank')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('gold_bank'))),
+        'BSP' => ((!OwnerCheck($charID) && $char->Permission('coinbank')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('silver_bank'))),
+        'BCP' => ((!OwnerCheck($charID) && $char->Permission('coinbank')) ? $language['MESSAGE_DISABLED'] : number_format($char->GetValue('copper_bank'))),
+        'SBPP' => ((!OwnerCheck($charID) && $char->Permission('coinsharedbank')) ? $language['MESSAGE_DISABLED'] : number_format($sbpp)))
 );
 
 $cb_template->assign_vars(array(
@@ -363,7 +362,7 @@ for ($i = SLOT_SHAREDBANK_START; $i <= SLOT_SHAREDBANK_END; $i++) {
 $allitems = $char->getAllItems();
 
 //INVENTORY
-if (!$char->Permission('bags')) {
+if (OwnerCheck($charID) || !$char->Permission('bags')) {
     foreach ($allitems as $value) {
         if ($value->type() != INVENTORY) continue;
         $cb_template->assign_block_vars("invitem", array(
@@ -386,7 +385,7 @@ foreach ($allitems as $value) {
     );
 }
 //BANK
-if (!$char->Permission('bank')) {
+if (OwnerCheck($charID) || !$char->Permission('bank')) {
     foreach ($allitems as $value) {
         if ($value->type() != BANK) continue;
         $cb_template->assign_block_vars("bankitem", array(
@@ -400,7 +399,7 @@ if (!$char->Permission('bank')) {
     }
 }
 //SHARED BANK
-if (!$char->Permission('sharedbank')) {
+if (OwnerCheck($charID) || !$char->Permission('sharedbank')) {
     foreach ($allitems as $value) {
         if ($value->type() != SHAREDBANK) continue;
         $cb_template->assign_block_vars("sharedbankitem", array(
@@ -421,9 +420,9 @@ if (!$char->Permission('sharedbank')) {
 //for bag contents, this does equipment,
 //inventory, bank and shared bank
 foreach ($allitems as $value) {
-    if ($value->type() == INVENTORY && $char->Permission('bags')) continue;
-    if ($value->type() == BANK && $char->Permission('bank')) continue;
-    if ($value->type() == SHAREDBANK && $char->Permission('sharedbank')) continue;
+    if ($value->type() == INVENTORY && !OwnerCheck($charID) && $char->Permission('bags')) continue;
+    if ($value->type() == BANK && !OwnerCheck($charID) && $char->Permission('bank')) continue;
+    if ($value->type() == SHAREDBANK && !OwnerCheck($charID) && $char->Permission('sharedbank')) continue;
     if ($value->slotcount() > 0) {
 
         //stage the bag in a temporary array
@@ -479,9 +478,9 @@ foreach ($allitems as $value) {
 //the item stats. this does equipment,
 //inventory, bank and shared bank
 foreach ($allitems as $value) {
-    if ($value->type() == INVENTORY && $char->Permission('bags')) continue;
-    if ($value->type() == BANK && $char->Permission('bank')) continue;
-    if ($value->type() == SHAREDBANK && $char->Permission('sharedbank')) continue;
+    if ($value->type() == INVENTORY && !OwnerCheck($charID) && $char->Permission('bags')) continue;
+    if ($value->type() == BANK && !OwnerCheck($charID) && $char->Permission('bank')) continue;
+    if ($value->type() == SHAREDBANK && !OwnerCheck($charID) && $char->Permission('sharedbank')) continue;
 
     $cb_template->assign_both_block_vars("item", array(
             'SLOT' => $value->slot(),

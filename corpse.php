@@ -49,7 +49,7 @@ $char = new Charbrowser_Character($charID, $showsoftdelete, $charbrowser_is_admi
 $charName = $char->GetValue('name');
 
 //block view if user level doesnt have permission
-if ($char->Permission('corpse')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
+if (!OwnerCheck($charID) && $char->Permission('corpse')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
  
  
 /*********************************************
@@ -212,7 +212,7 @@ for ( $i = SLOT_EQUIPMENT_START; $i <= SLOT_EQUIPMENT_END; $i++ ) {
 $allitems = $corpse->getAllItems();
 
 //INVENTORY
-if (!$char->Permission('bags')) {
+if (OwnerCheck($charID) || !$char->Permission('bags')) {
    foreach ($allitems as $value) {
       if ($value->type() != INVENTORY) continue; 
       $cb_template->assign_block_vars("invitem", array( 
@@ -244,7 +244,7 @@ foreach ($allitems as $value) {
 //for bag contents, this does equipment,
 //inventory, bank and shared bank
 foreach ($allitems as $value) {
-   if ($value->type() == INVENTORY && $char->Permission('bags')) continue;
+   if ($value->type() == INVENTORY && !OwnerCheck($charID) && $char->Permission('bags')) continue;
    
    if ($value->slotcount() > 0)  {
        
@@ -301,7 +301,7 @@ foreach ($allitems as $value) {
 //the item stats. this does equipment,
 //inventory
 foreach ($allitems as $value) {
-   if ($value->type() == INVENTORY && $char->Permission('bags')) continue;
+   if ($value->type() == INVENTORY && !OwnerCheck($charID) && $char->Permission('bags')) continue;
    
    $cb_template->assign_both_block_vars("item", array(
       'SLOT' => $value->slot(),     

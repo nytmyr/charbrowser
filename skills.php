@@ -64,7 +64,7 @@ $charID = $char->char_id();
 $name = $char->GetValue('name');
 
 //block view if user level doesnt have permission
-if ($char->Permission('skills')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
+if (!OwnerCheck($charID) && $char->Permission('skills')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
  
  
 /*********************************************
@@ -88,7 +88,7 @@ output_profile_menu($name, 'skills');
     
 $skillsections = array();
 
-if (!$char->Permission('languageskills')) {
+if (OwnerCheck($charID) || !$char->Permission('languageskills')) {
    $skillsections[$language['SKILLS_LANGUAGE']] = array(
       array('NAME' => 'Common Tongue', 'VALUE' => $char->GetValue('common_tongue')), 
       array('NAME' => 'Barbarian', 'VALUE' => $char->GetValue('barbarian')),

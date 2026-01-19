@@ -38,7 +38,7 @@ $char = new Charbrowser_Character($charName, $showsoftdelete, $charbrowser_is_ad
 $name = $char->GetValue('name');
 
 // Prevent access if user level doesn't have permission
-if ($char->Permission('charsettings')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
+if (!OwnerCheck($char->char_id()) && $char->Permission('charsettings')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
 
 /*********************************************
  * DROP HEADER

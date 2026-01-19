@@ -122,7 +122,7 @@ $charID = $char->char_id();
 $name = $char->GetValue('name');
 
 //block view if user level doesnt have permission
-if ($char->Permission('AAs')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
+if (!OwnerCheck($charID) && $char->Permission('AAs')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
  
  
 /*********************************************

@@ -28,7 +28,7 @@
  $unkilled = (isset($_GET['unkilled']) ? addslashes($_GET["unkilled"]) : 0);
 
  //block view if user level doesnt have permission
- if ($char->Permission('raidpoints')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
+ if (!OwnerCheck($charID) && $char->Permission('raidpoints')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
 
 /*********************************************
         GATHER RELEVANT PAGE DATA

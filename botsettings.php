@@ -47,7 +47,7 @@ $char = new Charbrowser_Character($charID, $showsoftdelete, $charbrowser_is_admi
 $charName = $char->GetValue('name');
 
 // Prevent access if user level doesn't have permission
-if ($char->Permission('botsettings')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
+if (!OwnerCheck($charID) && $char->Permission('botsettings')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
 
 // Get selected stance (fallback to bot's current stance)
 $selected_stance = preg_Get_Post('stance', '/^[1-9]+$/', $bot->GetStance(), $language['MESSAGE_ERROR'], $language['MESSAGE_INVALID_STANCE']);

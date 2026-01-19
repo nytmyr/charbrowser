@@ -54,7 +54,7 @@ if ($charName)
    $name = $char->GetValue('name');
 
    //block view if user level doesnt have permission
-   if ($char->Permission('inventory')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['BARTER_SELLER_NOPERM']);
+   if (!OwnerCheck($charID) && $char->Permission('inventory')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['BARTER_SELLER_NOPERM']);
 }
 else
 {
@@ -122,17 +122,17 @@ if ($name)
    $filters[] = "instnodrop = 0";
    
    //we need to filter certain slots out if the seller has privacy settings
-   if ($char->Permission('bags'))
+   if (!OwnerCheck($char->char_id()) && $char->Permission('bags'))
    {
       $filters[] = 'inventory.slot_id NOT BETWEEN '.SLOT_INVENTORY_START.' AND '.SLOT_INVENTORY_END;
       $filters[] = 'inventory.slot_id NOT BETWEEN '.SLOT_INVENTORY_BAGS_START.' AND '.SLOT_INVENTORY_BAGS_END;
    }
-   if ($char->Permission('bank'))
+   if (!OwnerCheck($char->char_id()) && $char->Permission('bank'))
    {
       $filters[] = 'inventory.slot_id NOT BETWEEN '.SLOT_BANK_START.' AND '.SLOT_BANK_END;
       $filters[] = 'inventory.slot_id NOT BETWEEN '.SLOT_BANK_BAGS_START.' AND '.SLOT_BANK_BAGS_END;
    }
-   if ($char->Permission('sharedbank'))
+   if (!OwnerCheck($char->char_id()) && $char->Permission('sharedbank'))
    {
       $filters[] = 'inventory.slot_id NOT BETWEEN '.SLOT_SHAREDBANK_START.' AND '.SLOT_SHAREDBANK_END;
       $filters[] = 'inventory.slot_id NOT BETWEEN '.SLOT_SHAREDBANK_BAG_START.' AND '.SLOT_SHAREDBANK_BAG_END;

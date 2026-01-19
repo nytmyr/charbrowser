@@ -60,9 +60,8 @@ $char = new Charbrowser_Character($charID, $showsoftdelete, $charbrowser_is_admi
 $charName = $char->GetValue('name');
 
 //block view if user level doesnt have permission
-if ($char->Permission('bot')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
- 
- 
+if (!OwnerCheck($charID) && $char->Permission('bot')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
+
 /*********************************************
         GATHER RELEVANT PAGE DATA
 *********************************************/

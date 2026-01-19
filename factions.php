@@ -88,7 +88,7 @@ $charID = $char->char_id();
 $name = $char->GetValue('name');
 
 //block view if user level doesnt have permission
-if ($char->Permission('factions')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
+if (!OwnerCheck($charID) && $char->Permission('factions')) $cb_error->message_die($language['MESSAGE_NOTICE'],$language['MESSAGE_ITEM_NO_VIEW']);
 
 
 /*********************************************
@@ -157,7 +157,7 @@ output_profile_menu($name, 'factions');
 /*********************************************
               POPULATE BODY
 *********************************************/
-if (!$char->Permission('advfactions')) {
+if (OwnerCheck($charID) || !$char->Permission('advfactions')) {
    $cb_template->set_filenames(array(
       'factions' => 'factions_advanced_body.tpl')
    );
@@ -185,7 +185,7 @@ $cb_template->assign_vars(array(
 );
 
 //advanced factions
-if (!$char->Permission('advfactions')) {
+if (OwnerCheck($charID) || !$char->Permission('advfactions')) {
    foreach($joined_factions as $faction) {
       if (array_key_exists('current_value',$faction))
       {
