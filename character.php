@@ -86,7 +86,7 @@ include_once(__DIR__ . "/include/vegas_common.php");
 /*********************************************
  * SETUP CHARACTER CLASS & PERMISSIONS
  *********************************************/
-$charName = preg_Get_Post('char', '/^[a-zA-Z]+$/', false, $language['MESSAGE_ERROR'], $language['MESSAGE_NO_CHAR'], true);
+$charName = preg_Get_Post('char', '/^[a-zA-Z0-9]*$/', false, $language['MESSAGE_ERROR'], $language['MESSAGE_NO_CHAR'], true);
 
 //character initializations 
 $char = new Charbrowser_Character($charName, $showsoftdelete, $charbrowser_is_admin_page); //the Charbrowser_Character class will sanitize the character name
