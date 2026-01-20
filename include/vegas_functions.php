@@ -234,7 +234,7 @@ function GetSettingValueSuffix($setting_category, $setting_type, $value, $bot_le
     return $style . $color_enabled . $value . $modified_indicator . $suffix;
 }
 
-function FormBaseSettingsDescriptionString($start, $is_bot = false): string {
+function FormBaseSettingsMenuDescriptionString($start, $is_bot = false): string {
     global $bot_setting_base_category_descriptions, $bot_base_setting_names;
 
     $description = "";
@@ -245,6 +245,38 @@ function FormBaseSettingsDescriptionString($start, $is_bot = false): string {
         }
 
         $description .= "<b><u>" . $bot_base_setting_names[$i] . "</b></u> - " . $bot_setting_base_category_descriptions[$i] . "\n";
+    }
+
+    return $description;
+}
+
+function GetBaseSettingsDescriptionString($setting_id, $is_bot = false): string {
+    global $bot_setting_base_category_descriptions, $bot_base_setting_names;
+
+    $description = "";
+
+    if ($setting_id >= BotBaseSettings::START && $setting_id <= BotBaseSettings::END) {
+        if (!$is_bot && !IsClientBotBaseSetting($setting_id)) {
+            return $description;
+        }
+
+        $description = "$bot_setting_base_category_descriptions[$setting_id]";
+    }
+
+    return $description;
+}
+
+function GetSettingCategoryDescriptionString($setting_id, $is_bot = false): string {
+    global $bot_setting_category_descriptions, $bot_setting_category_names;
+
+    $description = "";
+
+    if ($setting_id >= BotSettingCategories::START && $setting_id <= BotSettingCategories::END) {
+        if (!$is_bot && !IsClientBotSettingCategory($setting_id)) {
+            return $description;
+        }
+
+        $description = "$bot_setting_category_descriptions[$setting_id]";
     }
 
     return $description;
@@ -319,8 +351,50 @@ function IsClientBotSpellType($spell_type): bool {
     }
 }
 
+function BotSpellTypeUsesTargetSettings($spell_type): bool {
+    switch ($spell_type) {
+        case BotSpellTypes::RegularHeal:
+        case BotSpellTypes::CompleteHeal:
+        case BotSpellTypes::GroupCompleteHeals:
+        case BotSpellTypes::FastHeals:
+        case BotSpellTypes::VeryFastHeals:
+        case BotSpellTypes::GroupHeals:
+        case BotSpellTypes::GroupHoTHeals:
+        case BotSpellTypes::HoTHeals:
+        case BotSpellTypes::PetRegularHeals:
+        case BotSpellTypes::PetCompleteHeals:
+        case BotSpellTypes::PetFastHeals:
+        case BotSpellTypes::PetVeryFastHeals:
+        case BotSpellTypes::PetHoTHeals:
+        case BotSpellTypes::Buff:
+        case BotSpellTypes::Cure:
+        case BotSpellTypes::GroupCures:
+        case BotSpellTypes::PetCures:
+        case BotSpellTypes::DamageShields:
+        case BotSpellTypes::PetDamageShields:
+        case BotSpellTypes::PetBuffs:
+        case BotSpellTypes::ResistBuffs:
+        case BotSpellTypes::PetResistBuffs:
+        case BotSpellTypes::Teleport:
+        case BotSpellTypes::Succor:
+        case BotSpellTypes::BindAffinity:
+        case BotSpellTypes::Identify:
+        case BotSpellTypes::Levitate:
+        case BotSpellTypes::Rune:
+        case BotSpellTypes::WaterBreathing:
+        case BotSpellTypes::Size:
+        case BotSpellTypes::Invisibility:
+        case BotSpellTypes::MovementSpeed:
+        case BotSpellTypes::SendHome:
+        case BotSpellTypes::SummonCorpse:
+            return true;
+        default:
+            return false;
+    }
+}
+
 function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_bot = false, $selected_stance = BotStance::Invalid, $base_link = ""): void {
-    global $bot_setting_window_tab_names, $bot_base_setting_names, $spell_type_names, $bot_default_settings, $bot_setting_category_descriptions, $bot_base_setting_commands, $bot_setting_category_commands, $language, $cb_template, $cb_error, $bot_stance_names, $bot_setting_category_names;
+    global $bot_setting_window_tab_names, $bot_base_setting_names, $spell_type_names, $spell_type_short_names, $bot_default_settings, $bot_setting_category_descriptions, $bot_setting_base_category_descriptions, $bot_base_setting_commands, $bot_setting_category_commands, $language, $cb_template, $cb_error, $bot_stance_names, $bot_setting_category_names;
 
     $current_stance = $is_bot ? $entity->GetStance() : $selected_stance;
     $bot_settings = $entity->GetTable('bot_settings');
@@ -424,10 +498,29 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
                 }
 
                 if (!$is_bot && $x == BotBaseSettings::IllusionBlock) {
-                    $setting_sections[$bot_setting_window_tab_names[$i]][$x] = array('ID' => $x, 'NAME' => '<font color=teal>' . $bot_base_setting_names[$x] . '</font>', 'VALUE' => GetSettingValueSuffix($i, $x, $entity->getIllusionBlock(), $entity->GetValue('level'), $entity->getIllusionBlock() != $bot_default_settings[$selected_stance][$i][$x]) . '</font>', 'COMMAND' => '<font color=lightslategrey>' . $command_name . '</font>'); // deleteme
+                    $value = $entity->getIllusionBlock();
+                    $modified = $entity->getIllusionBlock() != $bot_default_settings[$selected_stance][$i][$x];
+
+                    $setting_sections[$bot_setting_window_tab_names[$i]][$x] = array(
+                        'ID' => $x,
+                        'NAME' => '<font color=teal>' . $bot_base_setting_names[$x] . '</font>',
+                        'DESCRIPTION_NAME' => '<font color=teal>' . $bot_setting_base_category_descriptions[$x] . '</font>',
+                        'VALUE' => GetSettingValueSuffix($i, $x, $value, $entity->GetValue('level'), $modified) . '</font>',
+                        'DESCRIPTION_VALUE' => '<font color=lightslategrey>' . GetBaseSettingValueDescription($x, $value) . '</font>',
+                        'COMMAND' => '<font color=lightslategrey>' . $command_name . '</font>'); // deleteme
                 }
                 else {
-                    $setting_sections[$bot_setting_window_tab_names[$i]][$x] = array('ID' => $x, 'NAME' => '<font color=teal>' . $bot_base_setting_names[$x] . '</font>', 'VALUE' => isset($bot_settings[$selected_stance][$i][$x]) ? GetSettingValueSuffix($i, $x, $bot_settings[$selected_stance][$i][$x], $entity->GetValue('level'), true) . '</font>' : GetSettingValueSuffix($i, $x, $bot_default_settings[$selected_stance][$i][$x], $entity->GetValue('level')) . '</font>', 'COMMAND' => '<font color=lightslategrey>' . $command_name . '</font>');
+                    $value = $bot_settings[$selected_stance][$i][$x] ?? $bot_default_settings[$selected_stance][$i][$x];
+                    $modified = isset($bot_settings[$selected_stance][$i][$x]);
+
+                    $setting_sections[$bot_setting_window_tab_names[$i]][$x] = array(
+                        'ID' => $x,
+                        'NAME' => '<font color=teal>' . $bot_base_setting_names[$x] . '</font>',
+                        'DESCRIPTION_NAME' => '<font color=teal>' . $bot_setting_base_category_descriptions[$x] . '</font>',
+                        'VALUE' => GetSettingValueSuffix($i, $x, $value, $entity->GetValue('level'), $modified),
+                        'DESCRIPTION_VALUE' => '<font color=lightslategrey>' . GetBaseSettingValueDescription($x, $value) . '</font>',
+                        'COMMAND' => '<font color=lightslategrey>' . $command_name . '</font>'
+                    );
                 }
             }
         }
@@ -437,7 +530,19 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
                     continue;
                 }
 
-                $setting_sections[$bot_setting_window_tab_names[$i]][$x] = array('ID' => $x, 'NAME' => '<font color=teal>' . $spell_type_names[$x] . '</font>', 'VALUE' =>  isset($bot_settings[$selected_stance][$i][$x]) ? GetSettingValueSuffix($i, $x, $bot_settings[$selected_stance][$i][$x], $entity->GetValue('level'), true) . '</font>' : GetSettingValueSuffix($i, $x, $bot_default_settings[$selected_stance][$i][$x], $entity->GetValue('level')) . '</font>', 'COMMAND' => '<font color=lightslategrey>' . ($bot_setting_category_commands[$i] . " " . $x ?? 'Unknown Command') . '</font>'); // deleteme
+                $command_name = $bot_setting_category_commands[$i] . " " . $spell_type_short_names[$x] ?? 'Unknown Command';
+                $command_alt_name = $bot_setting_category_commands[$i] . " " . $x ?? 'Unknown Command';
+                $value = $bot_settings[$selected_stance][$i][$x] ?? $bot_default_settings[$selected_stance][$i][$x];
+                $modified = isset($bot_settings[$selected_stance][$i][$x]);
+
+                $setting_sections[$bot_setting_window_tab_names[$i]][$x] = array(
+                    'ID' => $x,
+                    'NAME' => '<font color=teal>' . $spell_type_names[$x] . '</font>',
+                    'VALUE' => GetSettingValueSuffix($i, $x, $value, $entity->GetValue('level'), $modified),
+                    'DESCRIPTION_VALUE' => '<font color=lightslategrey>' . GetSettingValueDescription($i, $x, $value) . '</font>',
+                    'COMMAND' => '<font color=lightslategrey>' . $command_name . '</font>',
+                    'DESCRIPTION_COMMAND' => '<font color=lightslategrey>' . $command_alt_name . '</font>'
+                );
             }
         }
     }
@@ -454,10 +559,13 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
         }
 
         //echo "DEBUG: Starting header='$header', i=$i<br>";
+        $menu_text = ($i == BotSettingCategories::BaseSetting ? 'Setting Name' : 'Spell Type');
+        $menu_description = ($i == BotSettingCategories::BaseSetting ? FormBaseSettingsMenuDescriptionString(BotBaseSettings::START, $is_bot) : GetBaseSettingsDescriptionString($i));
+
         $cb_template->assign_block_vars("section",
             array(
-                'TEXT' => ($i == BotSettingCategories::BaseSetting ? 'Setting Name' : 'Spell Type'),
-                'DESCRIPTION' => ($i == BotSettingCategories::BaseSetting ? FormBaseSettingsDescriptionString(BotBaseSettings::START, $is_bot) : $bot_setting_category_descriptions[$i]),
+                'TEXT' => $menu_text,
+                'DESCRIPTION' => $menu_description,
                 'TEXTA' => 'Value',
                 'TEXTB' => 'Command',
                 'TAB' => $header,
@@ -551,7 +659,7 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
         $x = 0;
 
         foreach ($setting as $settingrow) {
-            if ($current_index == BotSettingCategories::SpellTypeAEOrGroupTargetCount && !IsAEOrGroupBotSpellType($x)) {
+            if ($i == BotSettingCategories::SpellTypeAEOrGroupTargetCount && !IsAEOrGroupBotSpellType($x)) {
                 //echo "DEBUG: Skipping non-AE row $x for AE category<br>";
                 ++$x;
                 continue;
@@ -584,4 +692,106 @@ function GenerateBotSettingsPage($page, $page_body, $entity, $entity_name, $is_b
 
     $cb_template->destroy();
 }
+
+function GetBaseSettingValueDescription($setting_id, $value): string {
+    global $bot_setting_base_category_value_descriptions, $bot_pet_type_names;
+
+    $description = $bot_setting_base_category_value_descriptions[$setting_id];
+
+    // "will not" vs "will" - 0 vs 1
+    $will_settings = [
+        BotBaseSettings::ShowHelm,
+        BotBaseSettings::BehindMob,
+        BotBaseSettings::MaxMeleeRange,
+        BotBaseSettings::MedInCombat
+    ];
+
+    // "am not" vs "am" - 0 vs 1
+    $enforce_settings = [
+        BotBaseSettings::EnforceSpellSettings,
+        BotBaseSettings::RangedSetting
+    ];
+
+    // "not allow" vs "allow" - 0 vs 1
+    $allow_settings = [
+        BotBaseSettings::IllusionBlock
+    ];
+
+    if (in_array($setting_id, $will_settings, true)) {
+        $replacement = ($value == 1) ? "will" : "will not";
+    }
+    elseif (in_array($setting_id, $enforce_settings, true)) {
+        $replacement = ($value == 1) ? "am" : "am not";
+    }
+    elseif (in_array($setting_id, $allow_settings, true)) {
+        $replacement = ($value == 1) ? "allow" : "not allow";
+    }
+    elseif ($setting_id == BotBaseSettings::PetSetTypeSetting) {
+        $replacement = $bot_pet_type_names[$value];
+    }
+    else {
+        $replacement = $value;
+    }
+
+    return str_replace("{}", "<b><u>$replacement</b></u>", $description);
+}
+
+function GetSettingValueDescription($category_id, $spell_type, $value): string {
+    global $bot_setting_category_value_descriptions, $spell_type_names;
+
+    $description = $bot_setting_category_value_descriptions[$category_id];
+
+    switch ($category_id) {
+        case BotSettingCategories::SpellHold:
+        case BotSettingCategories::SpellTypeAggroCheck:
+        case BotSettingCategories::SpellTypeAnnounceCast:
+            $replacement_one = $value ? "will" : "will not";
+            break;
+        case BotSettingCategories::SpellDelay:
+            $replacement_one = BotSpellTypeUsesTargetSettings($spell_type) ? "receive" : "cast";
+            $replacement_two = $value / 1000;
+            break;
+        case BotSettingCategories::SpellMaxThreshold:
+        case BotSettingCategories::SpellMinThreshold:
+            $replacement_one = BotSpellTypeUsesTargetSettings($spell_type) ? "receive" : "cast";
+            $replacement_two = BotSpellTypeUsesTargetSettings($spell_type) ? "I reach" : "my target reaches";
+            $replacement_three = $value;
+            break;
+        case BotSettingCategories::SpellTypeResistLimit:
+        case BotSettingCategories::SpellTypeMinManaPct:
+        case BotSettingCategories::SpellTypeMaxManaPct:
+        case BotSettingCategories::SpellTypeMinHPPct:
+        case BotSettingCategories::SpellTypeMaxHPPct:
+        case BotSettingCategories::SpellTypeIdlePriority:
+        case BotSettingCategories::SpellTypeEngagedPriority:
+        case BotSettingCategories::SpellTypePursuePriority:
+        case BotSettingCategories::SpellTypeAEOrGroupTargetCount:
+            $replacement_one = $value;
+            break;
+        default:
+            break;
+    }
+
+    $description = str_replace("{%0}", "<b><u>$spell_type_names[$spell_type]</u></b>", $description);
+    $description = str_replace("{%1}", "<b><u>$replacement_one</u></b>", $description);
+    $description = str_replace("{%2}", "<b><u>$replacement_two</u></b>", $description);
+    $description = str_replace("{%3}", "<b><u>$replacement_three</u></b>", $description);
+
+    /*
+    $bot_setting_category_value_descriptions = [
+        BotSettingCategories::SpellTypeMinManaPct => "I will cast {%0} spell types until I reach {%1}% mana",
+        BotSettingCategories::SpellTypeMaxManaPct => "I will cast {%0} spell types if I'm below {%1}% mana",
+        BotSettingCategories::SpellTypeMinHPPct => "I will cast {%0} spell types until I reach {%1}% health",
+        BotSettingCategories::SpellTypeMaxHPPct => "I will cast {%0} spell types if I'm below {%1}% health",
+        BotSettingCategories::SpellTypeIdlePriority => "{%0} spell types are #{%1} in my idle cast order",
+        BotSettingCategories::SpellTypeEngagedPriority => "{%0} spell types are #{%1} in my engaged cast order",
+        BotSettingCategories::SpellTypePursuePriority => "{%0} spell types are #{%1} in my pursue cast order",
+        BotSettingCategories::SpellTypeAEOrGroupTargetCount => "I will start casting {%0} spell types once I have {%1} eligible targets",
+        BotSettingCategories::SpellTypeAnnounceCast => "I {%1} announce my {%0} spell type casts"
+    ];
+    */
+
+    return $description;
+}
+
 ?>

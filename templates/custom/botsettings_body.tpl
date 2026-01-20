@@ -34,9 +34,9 @@
             <tbody>
             <!-- BEGIN settingrow -->
             <tr>
-                <td>{section.settingrow.NAME}</td>
-                <td>{section.settingrow.VALUE}</td>
-                <td>{section.settingrow.COMMAND}</td>
+                <td class="CB_Table_Tooltip" data-tooltip="{section.settingrow.DESCRIPTION_NAME}">{section.settingrow.NAME}</td>
+                <td class="CB_Table_Tooltip" data-tooltip="{section.settingrow.DESCRIPTION_VALUE}">{section.settingrow.VALUE}</td>
+                <td class="CB_Table_Tooltip" data-tooltip="{section.settingrow.DESCRIPTION_COMMAND}">{section.settingrow.COMMAND}</td>
             </tr>
             <!-- END settingrow -->
             </tbody>
@@ -64,10 +64,12 @@
         // Existing tab init code...
 
         // Tooltip JS - Force mobile for testing
-        $('.CB_Tab_Box_Vertical UL LI').hover(
+        // Targets both the sidebar tabs and the new table cell tooltips
+        $('.CB_Tab_Box_Vertical UL LI, .CB_Table_Tooltip').hover(
             function() {  // On hover in
                 var tooltipText = $(this).attr('data-tooltip');
-                if (tooltipText) {
+
+                if (tooltipText && tooltipText.trim() !== "") {
                     var $tooltip = $('<div class="custom-tooltip">' + tooltipText + '</div>');
                     var screenWidth = window.innerWidth;
                     var isMobile = window.matchMedia('(max-width: 900px)').matches;
@@ -76,7 +78,7 @@
                     console.log('Tooltip trigger: Screen width=' + screenWidth + ', Forced Mobile mode=' + isMobile);
 
                     var styles = {
-                        position: 'fixed',
+                        position: 'absolute',
                         backgroundColor: 'rgba(11, 11, 16, 0.95)',
                         color: '#FFFFFF',
                         fontFamily: 'arial',
@@ -91,24 +93,28 @@
                         lineHeight: '1.4'
                     };
 
-                    var tabOffset = $(this).offset();
-                    console.log('Tab offset: top=' + tabOffset.top + ', left=' + tabOffset.left);
+                    var elementOffset = $(this).offset();
+                    console.log('Tab offset: top=' + elementOffset.top + ', left=' + elementOffset.left);
 
+                    // Desktop: Uses absolute positioning so it scrolls with the table
+                    styles.left = (elementOffset.left + 50) + 'px';
+                    styles.top = (elementOffset.top + $(this).outerHeight()) + 'px';
+                    styles.width = '250px';
+
+                    /*
                     if (isMobile) {
-                        styles.left = '5vw';  // Should push ~20px from left on 412px screen
-                        styles.top = (tabOffset.top + $(this).outerHeight() + 8) + 'px';
-                        styles.width = 'min(280px, calc(90vw - 20px))';  // ~350px max, but caps at ~331px here
-                        styles.maxWidth = 'none';
-                        styles.transform = 'none';
-                        styles.minWidth = '200px';
+                        styles.left = '5vw';
+                        // Mobile keeps fixed positioning relative to the trigger's screen position
+                        var rect = this.getBoundingClientRect();
+                        styles.top = (rect.bottom + 8) + 'px';
+                        styles.width = 'min(280px, calc(90vw - 20px))';
                     } else {
-                        // Desktop fallback (won't hit now)
-                        styles.left = 'calc(50% - 260px - 100px - 10px - 250px - 10px)';
-                        styles.top = 'calc(50% - 155px)';
+                        // Desktop: Uses absolute positioning so it scrolls with the table
+                        styles.left = (elementOffset.left + 50) + 'px';
+                        styles.top = (elementOffset.top + $(this).outerHeight()) + 'px';
                         styles.width = '250px';
-                        styles.maxWidth = '250px';
-                        styles.transform = 'none';
                     }
+                    */
 
                     $tooltip.css(styles).appendTo('body');
 

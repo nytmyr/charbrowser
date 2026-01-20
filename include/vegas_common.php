@@ -119,6 +119,41 @@ $bot_setting_base_category_descriptions = [
     BotBaseSettings::SitManaPct => "Mana threshold for a bot to start sitting in combat if allowed"
 ];
 
+$bot_setting_base_category_value_descriptions = [
+    BotBaseSettings::ExpansionBitmask => "Unused",
+    BotBaseSettings::ShowHelm => "I {} display my helm",
+    BotBaseSettings::FollowDistance => "I will follow at {} units",
+    BotBaseSettings::StopMeleeLevel => "I will stop melee combat at level {}",
+    BotBaseSettings::EnforceSpellSettings => "I {} using enforced spell lists",
+    BotBaseSettings::RangedSetting => "I {} currently ranged",
+    BotBaseSettings::PetSetTypeSetting => "I'm currently summoning {} pets",
+    BotBaseSettings::BehindMob => "I {} strictly stay behind the target I'm attacking",
+    BotBaseSettings::DistanceRanged => "When ranged or casting, I will try to stay {} units away",
+    BotBaseSettings::IllusionBlock => "I will {} friendly illusion effects",
+    BotBaseSettings::MaxMeleeRange => "I {} attempt to stay at max melee range",
+    BotBaseSettings::MedInCombat => "I {} attempt to meditate or sit in combat",
+    BotBaseSettings::SitHPPct => "I will start medding or sitting at {}% health",
+    BotBaseSettings::SitManaPct => "I will start medding or sitting at {}% mana"
+];
+
+$bot_setting_category_value_descriptions = [
+    BotSettingCategories::SpellHold => "I {%1} cast {%0} spell types",
+    BotSettingCategories::SpellDelay => "I will {%1} {%0} spell types every {%2} seconds",
+    BotSettingCategories::SpellMinThreshold => "I will {%1} {%0} spell types until {%2} {%3}% health",
+    BotSettingCategories::SpellMaxThreshold => "I will {%1} {%0} spell types once {%2} {%3}% health",
+    BotSettingCategories::SpellTypeResistLimit => "I will cast {%0} spell types only if the appropriate resist value of my target is less than or equal to {%1}",
+    BotSettingCategories::SpellTypeAggroCheck => "I {%1} check if {%0} spell types will cause me to pull aggro",
+    BotSettingCategories::SpellTypeMinManaPct => "I will cast {%0} spell types until I reach {%1}% mana",
+    BotSettingCategories::SpellTypeMaxManaPct => "I will cast {%0} spell types if I'm below {%1}% mana",
+    BotSettingCategories::SpellTypeMinHPPct => "I will cast {%0} spell types until I reach {%1}% health",
+    BotSettingCategories::SpellTypeMaxHPPct => "I will cast {%0} spell types if I'm below {%1}% health",
+    BotSettingCategories::SpellTypeIdlePriority => "{%0} spell types are #{%1} in my idle cast order",
+    BotSettingCategories::SpellTypeEngagedPriority => "{%0} spell types are #{%1} in my engaged cast order",
+    BotSettingCategories::SpellTypePursuePriority => "{%0} spell types are #{%1} in my pursue cast order",
+    BotSettingCategories::SpellTypeAEOrGroupTargetCount => "I will start casting {%0} spell types once I have {%1} eligible targets",
+    BotSettingCategories::SpellTypeAnnounceCast => "I {%1} announce my {%0} spell type casts"
+];
+
 $bot_setting_category_commands = [
     BotSettingCategories::BaseSetting => "Base Setting",
     BotSettingCategories::SpellHold => "^spellholds",
@@ -141,7 +176,7 @@ $bot_setting_category_commands = [
 $bot_base_setting_commands = [
     BotBaseSettings::ExpansionBitmask => "Unused",
     BotBaseSettings::ShowHelm => "^togglehelm",
-    BotBaseSettings::FollowDistance => "^folowdistance",
+    BotBaseSettings::FollowDistance => "^followdistance",
     BotBaseSettings::StopMeleeLevel => "^stopmeleelevel",
     BotBaseSettings::EnforceSpellSettings => "^enforcespellsettings",
     BotBaseSettings::RangedSetting => "^bottoggleranged",
@@ -492,3 +527,26 @@ $language['BOT_SETTING_OPTIONS'] = array (
     16384 => 'FRG',
     32768 => 'DRK' //added 2/25/2014
 );
+
+class PetTypes {
+    public const Random = 0;
+    public const Water = 1;
+    public const Fire = 2;
+    public const Air = 3;
+    public const Earth = 5;
+    public const Monster = 6;
+    public const Epic = 7;
+
+    public const START = self::Random;
+    public const END = self::Epic;
+}
+
+$bot_pet_type_names = [
+    PetTypes::Random => "Random",
+    PetTypes::Water => "Water",
+    PetTypes::Fire => "Fire",
+    PetTypes::Air => "Air",
+    PetTypes::Earth => "Earth",
+    PetTypes::Monster => "Monster",
+    PetTypes::Epic => "Epic"
+];
