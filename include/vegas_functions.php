@@ -194,7 +194,6 @@ function GetSettingValueSuffix($setting_category, $setting_type, $value, $bot_le
             }
             $s_pct = true;
             break;
-        case BotSettingCategories::SpellTypeResistLimit:
         case BotSettingCategories::SpellTypeAggroCheck:
         case BotSettingCategories::SpellTypeAnnounceCast:
             $s_enabled = true;
@@ -206,6 +205,7 @@ function GetSettingValueSuffix($setting_category, $setting_type, $value, $bot_le
                 $s_enabled = true;
             }
             break;
+        case BotSettingCategories::SpellTypeResistLimit:
         case BotSettingCategories::SpellTypeAEOrGroupTargetCount:
         default:
             break;
@@ -724,7 +724,7 @@ function GetBaseSettingValueDescription($setting_id, $value): string {
         $replacement = ($value == 1) ? "am" : "am not";
     }
     elseif (in_array($setting_id, $allow_settings, true)) {
-        $replacement = ($value == 1) ? "allow" : "not allow";
+        $replacement = ($value == 1) ? "not allow" : "allow";
     }
     elseif ($setting_id == BotBaseSettings::PetSetTypeSetting) {
         $replacement = $bot_pet_type_names[$value];
