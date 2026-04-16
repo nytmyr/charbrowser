@@ -743,6 +743,8 @@ function GetSettingValueDescription($category_id, $spell_type, $value): string {
 
     switch ($category_id) {
         case BotSettingCategories::SpellHold:
+            $replacement_one = $value ? "will not" : "will";
+            break;
         case BotSettingCategories::SpellTypeAggroCheck:
         case BotSettingCategories::SpellTypeAnnounceCast:
             $replacement_one = $value ? "will" : "will not";
