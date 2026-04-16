@@ -550,3 +550,39 @@ $bot_pet_type_names = [
     PetTypes::Monster => "Monster",
     PetTypes::Epic => "Epic"
 ];
+
+class SSFFlagTypes {
+	public const Normal         = 0;   // Normal Gameplay
+	public const Hardcore       = 1;   // Death = wipe, reset, announcement
+	public const Solo           = 2;   // no group/raid with from others
+	public const SoloHardcore   = 3;   // Same as above, Death = wipe, reset, announcement
+	public const SelfFound      = 4;   // Cannot acquire gear from other players (trades/drops/objects/bazaar/parcel/trader/npc handed), no corpse looting that aren't their own credit, no merchant buying from non-standard sold items. No Valeen/Vegas. Only group/raid with other SF players
+	public const SFSolo         = 5;   // Combo of SelfFound and Solo
+	public const SFHardcore     = 6;   // Combo of SelfFound and Hardcore
+	public const SFSoloHardcore = 7;   // Combo of SelfFound, Solo and Hardcore
+	public const Undeclared     = 255;
+}
+
+$challenge_ruleset_names = [
+    SSFFlagTypes::Normal         => "",
+	SSFFlagTypes::Hardcore       => "HC",
+	SSFFlagTypes::Solo           => "S",
+	SSFFlagTypes::SoloHardcore   => "HCS",
+	SSFFlagTypes::SelfFound      => "SF",
+	SSFFlagTypes::SFSolo         => "SSF",
+	SSFFlagTypes::SFHardcore     => "HCSF",
+	SSFFlagTypes::SFSoloHardcore => "HCSSF",
+	SSFFlagTypes::Undeclared     => ""
+];
+
+#$challenge_ruleset_names = [
+#    SSFFlagTypes::Normal         => "",
+#	SSFFlagTypes::Hardcore       => "[HC] ",
+#	SSFFlagTypes::Solo           => "[S] ",
+#	SSFFlagTypes::SoloHardcore   => "[HCS] ",
+#	SSFFlagTypes::SelfFound      => "[SF] ",
+#	SSFFlagTypes::SFSolo         => "[SSF] ",
+#	SSFFlagTypes::SFHardcore     => "[HCSF] ",
+#	SSFFlagTypes::SFSoloHardcore => "[HCSSF] ",
+#	SSFFlagTypes::Undeclared     => ""
+#];

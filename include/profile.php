@@ -846,6 +846,7 @@ class Charbrowser_Character
       "aa_value_198" => array("character_alternate_abilities", "aa_value", 198),
       "aa_value_199" => array("character_alternate_abilities", "aa_value", 199),
       "illusion_block" => array("character_data", "illusion_block", false),
+      "ssf_flag" => array("character_data", "ssf_flag", false),
    );
 
    /********************************************
