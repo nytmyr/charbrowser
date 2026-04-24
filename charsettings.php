@@ -31,7 +31,7 @@ include_once(__DIR__ . "/include/db.php");
 /*********************************************
  * SETUP CHARACTER CLASS & PERMISSIONS
 *********************************************/
-$charName = preg_Get_Post('char', '/^[a-zA-Z]+$/', false, $language['MESSAGE_ERROR'],$language['MESSAGE_NO_CHAR'], true);
+$charName = preg_Get_Post('char', '/^[a-zA-Z0-9]*$/', false, $language['MESSAGE_ERROR'], $language['MESSAGE_NO_CHAR'], true);
 
 // char initializations
 $char = new Charbrowser_Character($charName, $showsoftdelete, $charbrowser_is_admin_page); //the Charbrowser_Character class will sanitize the character name
@@ -57,7 +57,7 @@ output_profile_menu($name, 'charsettings');
  * POPULATE BODY
 ********************************************/
 
-GenerateBotSettingsPage("charsettings", "charsettings_body.tpl", $char, $charName);
+GenerateBotSettingsPage("charsettings", "charsettings_body.tpl", $char, $name);
 
 include(__DIR__ . "/include/footer.php");
 ?>

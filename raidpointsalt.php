@@ -9,7 +9,7 @@ include_once(__DIR__ . "/include/db.php");
 /***********************************************
  SETUP PROFILE/PERMISSIONS
 ***********************************************/
-$charName = preg_Get_Post('char', '/^[a-zA-Z]+$/', false, $language['MESSAGE_ERROR'],$language['MESSAGE_NO_CHAR'], true);
+$charName = preg_Get_Post('char', '/^[a-zA-Z0-9]*$/', false, $language['MESSAGE_ERROR'], $language['MESSAGE_NO_CHAR'], true);
 
 // character initializations
 $char = new Charbrowser_Character($charName, $showsoftdelete, $charbrowser_is_admin_page); //the Charbrowser_Character class will sanitize the character name
@@ -125,7 +125,26 @@ $epics_complete        = $cbsql->fetch_all($result_epics_complete);
 $tpl_epics_incomplete = <<<TPL
 SELECT
     i.`id`   AS ItemID,
-    i.`name` AS ItemName
+    i.`name` AS ItemName,
+    CASE
+        WHEN i.`id` = 19436 THEN 3 -- Spell: Summon Orb
+        WHEN i.`id` = 10650 THEN 4 -- Staff of the Serpent
+        WHEN i.`id` = 20487 THEN 1 -- Swiftwind
+        WHEN i.`id` = 14383 THEN 4 -- Innoruuk's Curse
+        WHEN i.`id` = 20542 THEN 3 -- Singing Short Sword
+        WHEN i.`id` = 10651 THEN 2 -- Spear of Fate
+        WHEN i.`id` = 10099 THEN 3 -- Fiery Defender
+        WHEN i.`id` = 17859 THEN 3 -- Red Scabbard
+        WHEN i.`id` = 11057 THEN 2 -- Ragebringer
+        WHEN i.`id` = 20544 THEN 3 -- Scythe of the Shadowed Soul
+        WHEN i.`id` = 20488 THEN 1 -- Earthcaller
+        WHEN i.`id` = 20490 THEN 2 -- Nature Walker's Scimitar
+        WHEN i.`id` = 8495 THEN 3 -- Claw of the Savage Spirit
+        WHEN i.`id` = 14341 THEN 4 -- Staff of the Four
+        WHEN i.`id` = 5532 THEN 2 -- Water Sprinkler of Nem Ankh
+        WHEN i.`id` = 10652 THEN 3 -- Celestial Fists
+        ELSE 0
+    END      AS PointValue
 FROM items i
 WHERE i.`epicitem` = 1
 AND i.id < 600000
@@ -171,7 +190,7 @@ output_profile_menu($name, 'raid');
  POPULATE BODY
 ***********************************************/
 
-$cb_template->set_filenames(array('raid' => 'raid_body_new.tpl'));
+$cb_template->set_filenames(array('raid' => 'raid_body_alt.tpl'));
 
 $cb_template->assign_both_vars(array('NAME' => $name));
 
@@ -206,7 +225,7 @@ foreach ($raid_killed as $row) {
         'NPC_ZONESN' => 'http://vegaseq.com/Allaclone/?a=zone&name=' . $row['ZoneSN'],
         'NPC_ZONELN' => $row['ZoneLN'],
         'NPC_DIFF'   => number_format($row['NPCDiff']),
-        'NPC_RAWDIFF'=> (int)$row['NPCDiff'],
+        'NPC_RAWDIFF'=> (int)$row['NPCDiff']
     ));
 }
 
@@ -221,7 +240,7 @@ foreach ($raid_unkilled as $row) {
         'NPC_ZONESN'  => 'http://vegaseq.com/Allaclone/?a=zone&name=' . $row['ZoneSN'],
         'NPC_ZONELN'  => $row['ZoneLN'],
         'NPC_DIFF'    => number_format($row['NPCDiff']),
-        'NPC_RAWDIFF' => (int)$row['NPCDiff'],
+        'NPC_RAWDIFF' => (int)$row['NPCDiff']
     ));
 }
 
@@ -231,7 +250,7 @@ foreach ($epics_complete as $row) {
         'ITEM_NAME' => $row['ItemName'],
         'ITEM_ID'   => $row['ItemID'],
         'ITEM'      => 'http://vegaseq.com/Allaclone/?a=item&id=' . $row['ItemID'],
-        'ITEM_PTS'  => $row['EarnedValue'],
+        'ITEM_PTS'  => $row['EarnedValue']
     ));
 }
 
@@ -241,13 +260,14 @@ foreach ($epics_incomplete as $row) {
         'ITEM_NAME' => $row['ItemName'],
         'ITEM_ID'   => $row['ItemID'],
         'ITEM'      => 'http://vegaseq.com/Allaclone/?a=item&id=' . $row['ItemID'],
+        'ITEM_PTS'  => $row['PointValue']
     ));
 }
 
 // Total Points
 foreach ($raidtotal as $row) {
     $cb_template->assign_both_block_vars("raidtotal", array(
-        'NPC_TOTALPTS' => $row['TotalPts'],
+        'NPC_TOTALPTS' => $row['TotalPts']
     ));
 }
 

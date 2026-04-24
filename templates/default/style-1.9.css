@@ -1867,7 +1867,38 @@ BODY.CB_Body {
    display: block;
 }
 
-
+#charbrowser .PositionRaidPoints {
+   width: 750px;
+   margin: 0 auto;
+   position: relative;
+   font-size: 11px;
+}
+#charbrowser .PositionRaidPointsLeft {
+   display: inline-block;
+   width: fit-content;
+}
+#charbrowser .PositionRaidPoints DIV.PositionRaidPointsLeft TABLE {  
+   display: none;
+}
+#charbrowser .PositionRaidPointsLeft TABLE.CB_Table TBODY TR TD:nth-child(1),
+#charbrowser .PositionRaidPointsLeft TABLE.CB_Table TBODY TR TD:nth-child(3) {
+   text-align: left;
+   font-size: 11px;
+}
+#charbrowser .PositionRaidPointsLeft TABLE.CB_Table TBODY TR TD:nth-child(2),
+#charbrowser .PositionRaidPointsLeft TABLE.CB_Table TBODY TR TD:nth-child(4) {
+   text-align: center;
+   font-size: 11px;
+}
+#charbrowser .PositionRaidPointsRight {
+   display: inline-block;
+   vertical-align: top;
+}
+#charbrowser .PositionRaidPointsRight TABLE.CB_Table TBODY TR TD:nth-child(1),
+#charbrowser .PositionRaidPointsRight TABLE.CB_Table TBODY TR TD:nth-child(2) {
+   text-align: left;
+   font-size: 11px;
+}
 
 #charbrowser .CB_Has_Items {
    width: 28px;
@@ -2021,11 +2052,6 @@ BODY.CB_Body {
 }
 #charbrowser .PositionKeys {
    width: 400px;
-   margin: 0 auto;
-   position: relative;
-}
-#charbrowser .PositionRaid {
-   width: 450px;
    margin: 0 auto;
    position: relative;
 }
@@ -2386,6 +2412,19 @@ BODY.CB_Body {
         width: 100%;
         max-width: 500px; /* Keeps it from stretching too wide */
         z-index: auto; /* Resets to default */
+    }
+
+    #charbrowser .PositionRaidPoints {
+        left: 50px !important; /* Shifts window right to reveal the sidebar */
+        top: 382px !important;  /* Matches the AA window starting height */
+        max-width: 500px !important; /* Shrinks width to fit screen */
+        min-width: 250px;
+    }
+
+    /* Ensure tables within this window scale correctly */
+    #charbrowser .PositionRaidPoints .CB_Table {
+        max-width: 500px !important;
+        font-size: 0.9em; /* Slightly smaller text for mobile readability */
     }
 }
 

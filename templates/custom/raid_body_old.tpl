@@ -1,4 +1,4 @@
-<div class='WindowComplex PositionRaid CB_Can_Drag'>
+<div class='WindowComplex PositionRaidPoints CB_Can_Drag'>
 	<center>
 	<div class='WindowTitleBar'>{L_RAID} - {NAME}</div>
 	<h2>

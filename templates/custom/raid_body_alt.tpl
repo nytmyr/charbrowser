@@ -19,10 +19,23 @@
     resize: horizontal;
     overflow: auto;
 }
-.raid-table th:hover { background: #3a2a12; color: #f0c060; }
-.raid-table th.sorted-asc::after  { content: " \25B2"; font-size: 9px; }
-.raid-table th.sorted-desc::after { content: " \25BC"; font-size: 9px; }
-.raid-table th:not(.sorted-asc):not(.sorted-desc)::after { content: " \21C5"; font-size: 9px; opacity: 0.5; }
+.raid-table th:hover {
+     background: #3a2a12; 
+     color: #f0c060; 
+}
+.raid-table th.sorted-asc::after  {
+    content: " \25B2";
+    font-size: 9px;
+}
+.raid-table th.sorted-desc::after {
+    content: " \25BC";
+    font-size: 9px;
+}
+.raid-table th:not(.sorted-asc):not(.sorted-desc)::after {
+    content: " \21C5";
+    font-size: 9px;
+    opacity: 0.5;
+}
 
 .raid-table td {
     padding: 4px 8px;
@@ -30,16 +43,40 @@
     vertical-align: middle;
     color: #dcdcdc;
 }
-.raid-table tr:hover td { background: #1e1608; }
-.raid-table tr:nth-child(even) td { background: #16120a; }
-.raid-table tr:nth-child(even):hover td { background: #1e1608; }
-.raid-table td a { color: lightblue; text-decoration: none; }
-.raid-table td a:hover { color: #f0c060; text-decoration: underline; }
+.raid-table tr:hover td {
+    background: #1e1608;
+}
+.raid-table tr:nth-child(even) td {
+    background: #16120a;
+}
+.raid-table tr:nth-child(even):hover td {
+    background: #1e1608;
+}
+.raid-table td a {
+    color: lightblue;
+    text-decoration: none;
+}
+.raid-table td a:hover {
+    color: #f0c060;
+    text-decoration: underline;
+}
 
-.pts-cell  { text-align: center; font-weight: bold; color: green; }
-.diff-cell { text-align: center; color: #e0c060; font-family: monospace; }
-.zone-cell { text-align: center; }
-.name-cell { text-align: left; }
+.pts-cell  {
+    text-align: center;
+    font-weight: bold;
+    color: green;
+}
+.diff-cell {
+    text-align: center;
+    color: #e0c060;
+    font-family: monospace;
+}
+.zone-cell {
+    text-align: center;
+}
+.name-cell {
+    text-align: left;
+}
 
 /* ── Tab Navigation ── */
 .raid-tabs {
@@ -62,7 +99,10 @@
     font-size: 11px;
     font-weight: bold;
 }
-.raid-tabs li a:hover { background: #0cd16e6b; color: #d4a84b; }
+.raid-tabs li a:hover {
+    background: #0cd16e6b;
+    color: #d4a84b;
+}
 .raid-tabs li.active a {
     background: #2e2212;
     color: yellow;
@@ -83,8 +123,13 @@
 }
 
 /* ── Tab Panels ── */
-.tab-panel { display: none; padding: 6px 0 0 0; }
-.tab-panel.active { display: block; }
+.tab-panel {
+    display: none;
+    padding: 6px 0 0 0;
+}
+.tab-panel.active {
+    display: block;
+}
 
 /* ── Empty State ── */
 .raid-empty {
@@ -96,7 +141,7 @@
 }
 </style>
 
-<div class="WindowComplex PositionRaid CB_Can_Drag">
+<div class="WindowComplex PositionRaidPoints CB_Can_Drag">
     <div class="WindowTitleBar">{L_RAID} - {NAME}</div>
     <center>
 
@@ -125,8 +170,8 @@
     <div class="tab-panel active" id="tab-killed">
         <table class="raid-table sortable-table" id="tbl-killed">
             <colgroup>
-                <col style="width:35%">
-                <col style="width:8%">
+                <col style="width:40%">
+                <col style="width:10%">
                 <col style="width:40%">
                 <col style="width:17%">
             </colgroup>
@@ -210,12 +255,14 @@
             <thead>
                 <tr>
                     <th data-col="0" data-type="str">Item Name</th>
+                    <th data-col="1" data-type="num">Points Worth</th>
                 </tr>
             </thead>
             <tbody>
 <!-- BEGIN epics_incomplete -->
                 <tr>
                     <td class="name-cell" data-val="{epics_incomplete.ITEM_NAME}"><a href="{epics_incomplete.ITEM}" target="_blank">{epics_incomplete.ITEM_NAME}</a></td>
+                    <td class="pts-cell"  data-val="{epics_incomplete.ITEM_PTS}">{epics_incomplete.ITEM_PTS}</td>
                 </tr>
 <!-- END epics_incomplete -->
             </tbody>

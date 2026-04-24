@@ -549,7 +549,19 @@ $language['SERVER_CUTOFF'] = "Last %s Days";
 $language['KEYS_KEY'] = "Keys"; 
 
 //raid points
-$language['RAID_RAIDPTS'] = "Raid Points"; 
+$language['RAID_TITLE']         = "Raid Points"; 
+$language['RAID_NAME']          = "Name"; 
+$language['RAID_POINTS']        = "Points"; 
+$language['RAID_ZONE']          = "Zone"; 
+$language['RAID_DIFFICULTY']    = "Difficulty"; 
+$language['RAID_TOTAL_POINTS']  = "Total Raid Points";
+$language['RAID_ITEM_NAME']     = "Item Name";
+$language['RAID_POINTS_EARNED'] = "Points Earned";
+$language['RAID_POINTS_WORTH']  = "Points Worth";
+$language['RAID_TAB_1']         = "Killed"; 
+$language['RAID_TAB_2']         = "Unkilled"; 
+$language['RAID_TAB_3']         = "Epics Complete"; 
+$language['RAID_TAB_4']         = "Epics Incomplete"; 
 
 //flag section info 
 $language['FLAG_FLAGS'] = "Flags"; 
