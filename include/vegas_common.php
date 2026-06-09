@@ -575,6 +575,15 @@ $challenge_ruleset_names = [
 	SSFFlagTypes::Undeclared     => ""
 ];
 
+function HasHardcoreDied($value) {
+   if ($value != null) {
+    return " [Dead]";
+   }
+   else {
+    return "";
+   }
+}
+
 #$challenge_ruleset_names = [
 #    SSFFlagTypes::Normal         => "",
 #	SSFFlagTypes::Hardcore       => "[HC] ",

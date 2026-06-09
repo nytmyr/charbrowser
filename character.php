@@ -232,7 +232,7 @@ $cb_template->assign_both_vars(array(
         'DS' => number_format($char->getDS()),
         'HASTE' => $char->getHaste(),
         'DELETED' => (($char->GetValue('deleted_at')) ? " " . $language['CHAR_DELETED'] : ""),
-        'FIRST_NAME' => ($char->GetValue('ssf_flag') ? "[" . $challenge_ruleset_names[$char->GetValue('ssf_flag')] . "] " . $name : $name),
+        'FIRST_NAME' => ($char->GetValue('ssf_flag') ? "[" . $challenge_ruleset_names[$char->GetValue('ssf_flag')] . "] " . $name . "" . HasHardcoreDied($char->GetValue('hardcore_death_time')) : $name),
         'LAST_NAME' => $char->GetValue('last_name'),
         'TITLE' => $char->GetValue('title'),
         'GUILD_NAME' => $guild_name,
